@@ -24,7 +24,7 @@ public class Certificate {
 	PublicKey public_key; // stored in the certificate
 	byte[] CA_cert;
 	
-	public Certificate(String Name, int days_valid){
+	public certificate(String Name, int days_valid){
 		Date date = new Date();
 		this.invalid = String.format("%1$" + 15 + "s", String.valueOf(date.getTime() + days_valid * 24 * 60 * 60 * 1000));
 		this.Name = String.format("%1$" + 100 + "s", Name);
@@ -53,7 +53,7 @@ public class Certificate {
 		
 	}
 	
-	public Certificate(String Name, int days_valid, byte[] CA, PrivateKey CA_SK){
+	public certificate(String Name, int days_valid, byte[] CA, PrivateKey CA_SK){
 		Date date = new Date();
 		this.invalid = String.format("%1$" + 15 + "s", String.valueOf(date.getTime() + days_valid * 24 * 60 * 60 * 1000));
 		this.Name = String.format("%1$" + 100 + "s", Name);
@@ -137,28 +137,28 @@ public class Certificate {
 	}
 	
 	public static void main(String[] args) {
-		Certificate c;
-		Certificate ca;
-		ca = new Certificate("CA", 365);
+		certificate c;
+		certificate ca;
+		ca = new certificate("CA", 365);
 		ca.sign();
 		
-		c = new Certificate("smartcard", 365, ca.encode(), ca.secret_key);
+		c = new certificate("smartcard", 365, ca.encode(), ca.secret_key);
 		c.sign();
-		c = new Certificate("egov-ses1", 365, ca.encode(), ca.secret_key);
+		c = new certificate("egov-ses1", 365, ca.encode(), ca.secret_key);
 		c.sign();
-		c = new Certificate("egov-ses2", 365, ca.encode(), ca.secret_key);
+		c = new certificate("egov-ses2", 365, ca.encode(), ca.secret_key);
 		c.sign();
-		c = new Certificate("SocNet-ses1", 365, ca.encode(), ca.secret_key);
+		c = new certificate("SocNet-ses1", 365, ca.encode(), ca.secret_key);
 		c.sign();
-		c = new Certificate("SocNet-ses2", 365, ca.encode(), ca.secret_key);
+		c = new certificate("SocNet-ses2", 365, ca.encode(), ca.secret_key);
 		c.sign();
-		c = new Certificate("default-ses1", 365, ca.encode(), ca.secret_key);
+		c = new certificate("default-ses1", 365, ca.encode(), ca.secret_key);
 		c.sign();
-		c = new Certificate("default-ses2", 365, ca.encode(), ca.secret_key);
+		c = new certificate("default-ses2", 365, ca.encode(), ca.secret_key);
 		c.sign();
-		c = new Certificate("eShopping-ses1", 365, ca.encode(), ca.secret_key);
+		c = new certificate("eShopping-ses1", 365, ca.encode(), ca.secret_key);
 		c.sign();
-		c = new Certificate("eShopping-ses2", 365, ca.encode(), ca.secret_key);
+		c = new certificate("eShopping-ses2", 365, ca.encode(), ca.secret_key);
 		c.sign();
 		
 	}
