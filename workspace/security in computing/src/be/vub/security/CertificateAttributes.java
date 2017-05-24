@@ -2,12 +2,13 @@ package be.vub.security;
 
 import java.math.BigInteger;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
-import java.util.Arrays;
+import java.util.Date;
 
 public class CertificateAttributes {
 
@@ -23,8 +24,10 @@ public class CertificateAttributes {
 	String service;
 	RSAPublicKey public_key;
 	
-	public CertificateAttributes(){
-		
+	public CertificateAttributes(String name, int days_valid, String service){
+		this.name = name;
+		this.validatedTime = new Date().getTime() + days_valid * 24 * 60 * 60 * 1000;
+		this.service = service;
 	}
 	
 	public CertificateAttributes(byte[] encoded){
@@ -32,12 +35,16 @@ public class CertificateAttributes {
 	}
 	
 	private void decode(byte[] encoded){
-		this.name = Arrays.copyOfRange(encoded, 0, name_len).toString().trim();
-		this.service = Arrays.copyOfRange(encoded, name_len, name_len + service_len).toString().trim();
-		this.validatedTime = Long.parseLong(Arrays.copyOfRange(encoded, name_len + service_len, name_len + service_len + validatedUntil_len).toString().trim());
 		
-		BigInteger exp = BigInteger.valueOf(Long.parseLong(Arrays.copyOfRange(encoded, name_len + service_len + validatedUntil_len, name_len + service_len + validatedUntil_len + exp_len).toString().trim()));
-		BigInteger mod = BigInteger.valueOf(Long.parseLong(Arrays.copyOfRange(encoded, name_len + service_len + validatedUntil_len + exp_len, name_len + service_len + validatedUntil_len + exp_len + mod_len ).toString().trim()));
+		String padded_string = new String(encoded);
+		
+		this.name = padded_string.substring(0, name_len).trim();
+		this.service = padded_string.substring(name_len, name_len + service_len).trim();
+		
+		this.validatedTime = Long.parseLong(padded_string.substring(name_len + service_len, name_len + service_len + validatedUntil_len).trim());
+		
+		BigInteger exp = BigInteger.valueOf(Long.parseLong(padded_string.substring(name_len + service_len + validatedUntil_len, name_len + service_len + validatedUntil_len + exp_len).trim()));
+		BigInteger mod = new BigInteger(padded_string.substring(name_len + service_len + validatedUntil_len + exp_len, name_len + service_len + validatedUntil_len + exp_len + mod_len).trim());
 		
 		RSAPublicKeySpec keySpec = new RSAPublicKeySpec(mod, exp);
 		
@@ -64,6 +71,33 @@ public class CertificateAttributes {
 		String padded_mod =  String.format("%1$-" + mod_len + "s", public_key.getModulus().toString());
 		
 		return (padded_name + padded_service + padded_time + padded_exp + padded_mod).getBytes();
+		
+	}
+	
+	public String toString(){
+		return name + "\n" + service + "\n" + Long.toString(validatedTime) + "\n" + public_key.getPublicExponent().toString() + "\n" + public_key.getModulus().toString() ;
+	}
+	
+	public static void main(String[] args) throws NoSuchAlgorithmException {
+		
+		CertificateAttributes c_attr = new CertificateAttributes("Naam", 5, "Service");
+		
+		KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(512);
+
+        KeyPair kp = kpg.genKeyPair();
+        RSAPublicKey pubkey = (RSAPublicKey) kp.getPublic();
+        
+        c_attr.public_key = pubkey;
+		
+		byte[] c_attr_encoded = c_attr.encode();
+        
+		System.out.println(c_attr);
+		System.out.println("-");
+		System.out.println(c_attr_encoded);
+		System.out.println("-");
+		CertificateAttributes c_attr_copied = new CertificateAttributes(c_attr_encoded);
+		System.out.println(c_attr_copied);
 		
 	}
 	
