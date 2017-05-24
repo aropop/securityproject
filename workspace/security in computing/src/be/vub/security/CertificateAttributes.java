@@ -1,8 +1,12 @@
 package be.vub.security;
 
 import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
 
 public class CertificateAttributes {
@@ -12,6 +16,7 @@ public class CertificateAttributes {
 	static int validatedUntil_len = 15;
 	static int mod_len = 160;
 	static int exp_len = 5;
+	static int total_len = name_len + service_len + validatedUntil_len + mod_len + exp_len;
 	
 	String name;
 	long validatedTime;
@@ -32,7 +37,21 @@ public class CertificateAttributes {
 		this.validatedTime = Long.parseLong(Arrays.copyOfRange(encoded, name_len + service_len, name_len + service_len + validatedUntil_len).toString().trim());
 		
 		BigInteger exp = BigInteger.valueOf(Long.parseLong(Arrays.copyOfRange(encoded, name_len + service_len + validatedUntil_len, name_len + service_len + validatedUntil_len + exp_len).toString().trim()));
-		BigInteger modulus = BigInteger.valueOf(Long.parseLong(Arrays.copyOfRange(encoded, name_len + service_len + validatedUntil_len + exp_len, name_len + service_len + validatedUntil_len + exp_len + mod_len ).toString().trim()));
+		BigInteger mod = BigInteger.valueOf(Long.parseLong(Arrays.copyOfRange(encoded, name_len + service_len + validatedUntil_len + exp_len, name_len + service_len + validatedUntil_len + exp_len + mod_len ).toString().trim()));
+		
+		RSAPublicKeySpec keySpec = new RSAPublicKeySpec(mod, exp);
+		
+		KeyFactory fact;
+		try {
+			fact = KeyFactory.getInstance("RSA");
+			this.public_key = (RSAPublicKey) fact.generatePublic(keySpec);
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidKeySpecException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public byte[] encode(){
