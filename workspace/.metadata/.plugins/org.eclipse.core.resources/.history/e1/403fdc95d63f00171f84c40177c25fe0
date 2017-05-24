@@ -1,0 +1,94 @@
+package be.project.middleware;
+
+import java.awt.Desktop;
+import java.net.URI;
+
+import spark.Spark;
+
+public class Main {
+
+
+	interface PinOperation { void operate(byte[] pin); }
+	
+	private static final spark.Service serv = spark.Service.ignite();
+	
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		final Commands cm = new Commands();
+		cm.init();
+		
+		askForPin((pin) -> {
+			cm.sendPIN(pin);
+		});
+		
+		serv.post("authenticatesp", (req, res) -> {
+			String cert = req.queryParams("cert");
+			byte[] certBytes = cert.getBytes();
+			try {
+				byte[] keyAndMessage = cm.authenticateSP(certBytes);
+				return keyAndMessage.toString();				
+			} catch(Exception e) {
+				return "Error: " + e.getMessage();
+			}
+		});
+		
+		serv.post("authenticatespchallenge", (req, res) -> {
+			String challenge = req.queryParams("challenge");
+			byte[] challengeBytes = challenge.getBytes();
+			try {
+				cm.authenticateSPChallenge(challengeBytes);
+				return "ok";				
+			} catch(Exception e) {
+				return "Error: " + e.getMessage();
+			}
+		});	
+		
+		serv.post("authenticatecard", (req, res) -> {
+			String challenge = req.queryParams("challenge");
+			byte[] challengeBytes = challenge.getBytes();
+			try {
+				cm.authenticateCard(challengeBytes);
+				return "ok";				
+			} catch(Exception e) {
+				return "Error: " + e.getMessage();
+			}
+		});
+		
+		
+	}
+	
+	public static void askForPin(final PinOperation cont) {
+		spark.Service pinServ = spark.Service.ignite();
+		pinServ.port(4568);
+		pinServ.get("/pin", (req, res) -> ("<form method=\"POST\">" +
+				"    PIN:<input type=\"text\" name=\"pin\" pattern=\"[0-9]{4}\" maxlength=\"4\">" +
+				"    <input type=\"submit\" value=\"Validate\">" +
+				"</form>"));
+		
+		pinServ.post("/pin", (req, res) -> { // TODO pin wrong
+			String pin = req.queryParams("pin");
+			String[] pp = pin.split("");
+			int i = 0;
+			byte[] pinarr = new byte[4];
+			for(String num : pp) {
+				pinarr[i] = Byte.parseByte(num);
+				i++;
+			}
+			pinServ.stop();
+			cont.operate(pinarr);
+			return "OK";
+		});
+		
+		// Open browser
+		try {
+			Desktop.getDesktop().browse(new URI("http://localhost:4568/pin"));			
+		} catch(Exception e ) {
+			System.out.println("Opening browser failed");
+		}
+
+	}
+
+
+}

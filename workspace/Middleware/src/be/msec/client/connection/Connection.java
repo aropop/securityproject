@@ -25,7 +25,7 @@ public class Connection implements IConnection {
             TerminalFactory factory = TerminalFactory.getDefault();
             return factory.terminals().list();
         }
-	public void connect() throws Exception {
+	public void connect() throws CardConnectException {
             try{
                     TerminalFactory factory = TerminalFactory.getDefault();
                     List<CardTerminal> terminals = factory.terminals().list();
@@ -33,9 +33,9 @@ public class Connection implements IConnection {
                             card = terminals.get(terminalNumber).connect("*");
                             c = card.getBasicChannel();
                             
-                    } else throw new Exception("Invalid terminal number given.");
+                    } else throw new CardConnectException("Invalid terminal number given.");
             }catch(CardException ce){
-                    throw new Exception("No readers found on the system.");
+                    throw new CardConnectException("No readers found on the system.");
             }
 	}
         public void close() throws Exception {
@@ -43,8 +43,12 @@ public class Connection implements IConnection {
 		card.disconnect(true);
         }
 
-	public ResponseAPDU transmit(CommandAPDU apdu) throws Exception {
+	public ResponseAPDU transmit(CommandAPDU apdu) throws CardConnectException {
+		try {
             return c.transmit(apdu);
+		} catch(Exception e) {
+			throw new CardConnectException(e.getMessage());
+		}
 	}
 
 }
