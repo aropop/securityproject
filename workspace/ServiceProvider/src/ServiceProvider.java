@@ -44,7 +44,8 @@ public class ServiceProvider {
 				return false;
 			}
 			else {
-				
+				//TODO decrypt key and message
+				return true;
 			}
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
@@ -52,7 +53,6 @@ public class ServiceProvider {
 			return false;
 		}
 		
-		return true;
 	}
 	
 }
