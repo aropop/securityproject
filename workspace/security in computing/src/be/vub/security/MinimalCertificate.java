@@ -7,10 +7,12 @@ import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
@@ -27,10 +29,13 @@ public class MinimalCertificate extends Certificate{
 	CertificateAttributes attributes;
 	private RSAPublicKey pubkey;
 	private RSAPrivateKey privkey;
+	private byte[] encoded;
 	
 	public MinimalCertificate(CertificateAttributes attributes) {
+		super("Minimal");
 		this.attributes = attributes;
 		KeyPairGenerator kpg;
+		this.encoded = null;
 		try {
 			kpg = KeyPairGenerator.getInstance("RSA");
 	        kpg.initialize(512);
@@ -54,8 +59,10 @@ public class MinimalCertificate extends Certificate{
 	}
 	
 	public MinimalCertificate(byte[] signed, RSAPublicKey pubkey) throws Exception{
+		super("Minimal");
 		byte[] attr = Arrays.copyOfRange(signed, 0, CertificateAttributes.total_len);
 		byte[] sign = Arrays.copyOfRange(signed, CertificateAttributes.total_len, signed.length);
+		this.encoded = signed;
 		
 		try {
 			Signature rsacheck = Signature.getInstance("SHA1withRSA");
@@ -80,8 +87,12 @@ public class MinimalCertificate extends Certificate{
 		
 	}
 	
+	public byte[] getEncoded() {
+		return this.encoded;
+	}
 	
-	public byte[] sign(MinimalCertificate c){
+	
+	public void sign(MinimalCertificate c){
 		Signature rsasign;
 		try {
 			rsasign = Signature.getInstance("SHA1withRSA");
@@ -104,28 +115,23 @@ public class MinimalCertificate extends Certificate{
         fos.write(full_cert);
         fos.close();
         
-        return full_cert;
+        c.encoded = full_cert;
         
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		} catch (InvalidKeyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		} catch (SignatureException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		}
 	}
 	
@@ -136,8 +142,6 @@ public class MinimalCertificate extends Certificate{
 		CertificateAttributes c_attr = new CertificateAttributes("Test", 5, "Service");
 		
 		ca = new MinimalCertificate(c_attr);
-		ct = new MinimalCertificate(ca.sign(ca), ca.pubkey);
-		ct = new MinimalCertificate(ca.sign(ca), new MinimalCertificate(c_attr).pubkey);
 		
 		
 		/*
@@ -159,6 +163,44 @@ public class MinimalCertificate extends Certificate{
 		c.sign();
 		c = new certificate("eShopping-ses2", 365, ca.encode(), ca.secret_key);
 		c.sign();*/
+		
+	}
+
+	@Override
+	public PublicKey getPublicKey() {
+		// TODO Auto-generated method stub
+		return this.pubkey;
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void verify(PublicKey key) throws CertificateException, NoSuchAlgorithmException, InvalidKeyException,
+			NoSuchProviderException, SignatureException {
+		
+		this.verify(key, "SHA1withRSA");
+		
+	}
+
+	@Override
+	public void verify(PublicKey key, String sigProvider) throws CertificateException, NoSuchAlgorithmException,
+			InvalidKeyException, NoSuchProviderException, SignatureException {
+
+		byte[] attr = Arrays.copyOfRange(this.encoded, 0, CertificateAttributes.total_len);
+		byte[] sign = Arrays.copyOfRange(this.encoded, CertificateAttributes.total_len, this.encoded.length);
+		
+		Signature rsacheck = Signature.getInstance(sigProvider);
+		rsacheck.initVerify(pubkey);
+		rsacheck.update(attr);
+		if (rsacheck.verify(sign)){
+			this.attributes = new CertificateAttributes(attr);
+		} else {
+			throw new SignatureException("invalid sign");
+		}
 		
 	}
 }
