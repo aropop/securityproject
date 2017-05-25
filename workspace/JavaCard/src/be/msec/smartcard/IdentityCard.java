@@ -4,12 +4,17 @@ import javacard.framework.APDU;
 import javacard.framework.Applet;
 import javacard.framework.ISO7816;
 import javacard.framework.ISOException;
+import javacard.framework.JCSystem;
 import javacard.framework.OwnerPIN;
 import javacard.framework.Util;
+import javacard.security.DESKey;
 import javacard.security.Key;
 import javacard.security.KeyBuilder;
+import javacard.security.MessageDigest;
 import javacard.security.RSAPublicKey;
+import javacard.security.RandomData;
 import javacard.security.Signature;
+import javacardx.crypto.Cipher;
 
 public class IdentityCard extends Applet {
 	private final static byte IDENTITY_CARD_CLA =(byte)0x80;
@@ -19,6 +24,11 @@ public class IdentityCard extends Applet {
 	private static final byte GIVE_TIME = 0x25;
 	private static final byte TIME_UPDATE = 0x26;
 	private static final byte AUTHENTICATE_SP = 0x27;
+	private static final byte CLOSE_CONNECTION = 0x28;
+	private static final byte AUTHENTICATE_RESPONSE = 0x29;
+	private static final byte AUTHENTICATE_CARD = 0x30;
+	private static final byte GET_ATTRIBUTES = 0x31;
+	private static final byte GET_REMAINING = 0x32;
 	
 	
 	private final static byte PIN_TRY_LIMIT =(byte)0x03;
@@ -28,13 +38,56 @@ public class IdentityCard extends Applet {
 	private final static short SW_PIN_VERIFICATION_REQUIRED = 0x6301;
 	private final static short SW_TIME_UPDATE_REQUIRED = 0x6302;
 	private final static short SW_TIME_VERIFY_FAILED = 0x6303;
+	private final static short SW_NOT_AUTHENTICATED = 0x6304;
+	private final static short SW_CHALLENGE_WRONG = 0x6305;
+	private final static short SW_UNAUTHORISED = 0x6306;
+	private final static short SW_MORE_DATA = 0x6309;
+	private final static short SW_BIG_DATA = 0x6308;
+	
+	private final static short LEN_NYM = 10;
+	private final static short LEN_SYM_KEY = 16;
+	private final static short LEN_SUBJECT = 20;
+	
+	private static final byte TYPE_WEBSH = 0x01;
+	private static final byte TYPE_EGOV = 0x02;
+	private static final byte TYPE_SOC = 0x03;
 	
 	private final static byte[] REQUEST_TIME = new byte[] {0x00, 0x01};
 	
 	private byte[] serial = new byte[]{0x30, 0x35, 0x37, 0x36, 0x39, 0x30, 0x31, 0x05};
-	private OwnerPIN pin;
 	private byte[] time = new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 	private final static byte[] PUBLIC_KEY_G = new byte[] {0x00};
+	private final static Key PUBLIC_KEY_CA = null;//TODO
+	private final static Key PRIVATE_KEY_CO = null;//TODO
+	private final static Key PUBLIC_KEY_CO = null;//TODO
+	
+	private OwnerPIN pin;
+	private byte[] subject;
+	private DESKey Ks;
+	private final byte[] Ku;
+	private boolean authenticated;
+	private byte[] challenge;
+	private RandomData rng;
+	private byte[] remainingData;
+	
+	private byte[] name; private final static short LEN_NAME = 30; // Assume ASCII encoding = 1 byte per char
+	private byte[] address; private final static short LEN_ADDRESS = 50;
+	private byte[] country; private final static short LEN_COUNTRY = 2;
+	private byte[] birthday;private final static short LEN_BIRTHDAY = 3;
+	private byte[] age; private final static short LEN_AGE = 1;
+	private byte[] gender; private final static short LEN_GENDER = 1;
+	private byte[] picture; private final static short LEN_PICUTRE = 10000; // 10kb pictures
+
+	
+	private final byte[][] attributes; 
+	
+	// Each byte represents a right nym, name, address, country, birthdate, age, gender, picture
+	private boolean[] EGOV_RIGHTS = new boolean[] {true, true, true, true, true, true, true, false};
+	private boolean[] SOC_RIGHTS = new boolean[] {true, true, false, true, false, true, true, true};
+	private boolean[] DEFAULT_RIGHTS = new boolean[] {true, false, false, false, false, true, false, false};
+	private boolean[] WEBSH_RIGHTS = new boolean[] {true, true, true, true, false, false, false, false};
+	
+	
 	
 	private IdentityCard() {
 		/*
@@ -43,6 +96,17 @@ public class IdentityCard extends Applet {
 		 */
 		pin = new OwnerPIN(PIN_TRY_LIMIT,PIN_SIZE);
 		pin.update(new byte[]{0x01,0x02,0x03,0x04},(short) 0, PIN_SIZE);
+		
+		
+		// Set subject to null
+		subject = null;
+		Ks = null;
+		Ku = JCSystem.makeTransientByteArray(LEN_SYM_KEY, JCSystem.CLEAR_ON_RESET);
+
+		rng = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM); // Secure is unsupoorted in the simulator?
+		rng.generateData(Ku, (short)0,(short)16);
+		attributes = new byte[][] {Ku, name, address, country, birthday, age, gender, picture};
+		authenticated = false;
 		
 		/*
 		 * This method registers the applet with the JCRE on the card.
@@ -89,6 +153,7 @@ public class IdentityCard extends Applet {
 		case GET_SERIAL_INS:
 			getSerial(apdu);
 			break;
+			
 		case GIVE_TIME:
 			giveTime(apdu);
 			break;
@@ -100,6 +165,41 @@ public class IdentityCard extends Applet {
 		case AUTHENTICATE_SP:
 			authenticateServiceProvider(apdu);
 			break;
+			
+		case AUTHENTICATE_RESPONSE:
+			authenticateServiceProviderResponse(apdu);
+			break;
+			
+		case AUTHENTICATE_CARD:
+			authenticateCard(apdu);
+			break;
+			
+		case GET_ATTRIBUTES:
+			getAttributes(apdu);
+			break;
+		
+		case GET_REMAINING:
+			// Clone to prevent overwriting
+			byte[] newRData = new byte[(short)remainingData.length];
+			Util.arrayCopy(remainingData, (short)0, newRData, (short)0, (short)remainingData.length);
+			sendData(newRData, apdu);
+			break;
+			
+		case 0x35:
+			byte[] a = new byte[200];
+			for(short i =0; i < (short) 200; i++) {
+				a[i] = (byte) i;
+			}
+			sendData(a, apdu);
+			break;
+			
+		case CLOSE_CONNECTION:
+			//TODO Implement further
+			subject = null;
+			Ks = null;
+			authenticated = false;
+			pin.reset();
+			break;
 		//If no matching instructions are found it is indicated in the status word of the response.
 		//This can be done by using this method. As an argument a short is given that indicates
 		//the type of warning. There are several predefined warnings in the 'ISO7816' class.
@@ -107,6 +207,33 @@ public class IdentityCard extends Applet {
 		}
 	}
 	
+	private void sendData(byte[] data, APDU apdu) {
+		byte[] buffer = apdu.getBuffer();
+		apdu.setOutgoing();
+		if((short) data.length > (short)255) {
+			apdu.setOutgoingLength((short)255);
+			Util.arrayCopy(data, (short)0, buffer, (short)0, (short)buffer.length);
+			apdu.sendBytes((short)0, (short) buffer.length);
+			apdu.sendBytesLong(data, (short) buffer.length, (short) (255 - buffer.length));
+			remainingData = new byte[(short) data.length - (short)255];
+			Util.arrayCopy(data, (short) 255, remainingData, (short) 0, (short) remainingData.length);
+			ISOException.throwIt(SW_MORE_DATA);
+		} else {
+			if(buffer.length > data.length) {
+				Util.arrayCopy(data, (short)0, buffer, (short)0, (short)data.length);
+				apdu.setOutgoingLength((short) data.length);
+				apdu.sendBytes((short)0, (short)data.length);
+			} else {	
+				apdu.setOutgoingLength((short)data.length);
+				Util.arrayCopy(data, (short)0, buffer, (short)0, (short)buffer.length);
+				apdu.sendBytes((short)0, (short) buffer.length);
+				apdu.sendBytesLong(data, (short) buffer.length, (short) (data.length - buffer.length));
+			}
+			//apdu.sendBytesLong(data, (short)0, (short)data.length);			
+		}
+	}
+	
+
 	/*
 	 * This method is used to authenticate the owner of the card using a PIN code.
 	 */
@@ -172,6 +299,7 @@ public class IdentityCard extends Applet {
 			// Request time update
 			 ISOException.throwIt(SW_TIME_UPDATE_REQUIRED);
 		}
+		sendData(new byte[]{}, apdu);
 	}
 	
 	// If time is outdated
@@ -189,6 +317,7 @@ public class IdentityCard extends Applet {
 			add(buffer, (byte) 0x05, 
 					new byte[] {0x00,0x00,0x00,0x00,0x05,0x26,0x5C,0x00}, (byte) 0x00,
 					time, (byte) 0x00, (byte) 0x08);
+			sendData(new byte[] {}, apdu);
 		} else {
 			ISOException.throwIt(SW_TIME_VERIFY_FAILED);
 		}
@@ -199,7 +328,193 @@ public class IdentityCard extends Applet {
 	private void authenticateServiceProvider(APDU apdu) {
 		byte[] buffer = apdu.getBuffer();
 		
+		// Verify certifcate
+		subject = null;
+		short certLen = (short) buffer[ISO7816.OFFSET_CDATA];
+		Signature signature = Signature.getInstance(Signature.ALG_RSA_SHA_ISO9796, false);
+		signature.init(PUBLIC_KEY_CA, Signature.MODE_VERIFY);
+		if(!signature.verify(buffer, (short) (ISO7816.OFFSET_CDATA + 1), certLen, buffer, (short) 0,  (short) 64)) {
+			ISOException.throwIt(SW_VERIFICATION_FAILED);
+			return;
+		}
+		
+		// Generate symmetric key
+		RandomData rng = RandomData.getInstance(RandomData.ALG_SECURE_RANDOM);
+		byte[] KsBytes = new byte[16];
+		rng.generateData(KsBytes, (short)0,(short)16);
+		this.Ks = (DESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_DES, KeyBuilder.LENGTH_DES, false);
+		Ks.setKey(KsBytes, (short) 0);
+		
+		// Create challenge
+		this.challenge = new byte[10]; // TODO value?
+		rng.generateData(challenge, (short)0, (short)10);
+		
+		Key publicKeySP = null;
+		
+		// Sign symmetric key
+		byte[] KsSigned = new byte[20];
+		Cipher c = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);
+		c.init(publicKeySP, Cipher.MODE_ENCRYPT);
+		c.update(KsBytes, (short)0, (short)16, KsSigned, (short)0);
+		
+		// Sign challenge and subject
+		byte[] combined = new byte[20];// TODO size?
+		Util.arrayCopy(challenge, (short)0, combined, (short)0, (short)10);
+		Util.arrayCopy(subject, (short)0, combined, (short)10, (short)10);
+		byte[] combinedSigned = new byte[8]; // TODO Size??
+		c = Cipher.getInstance(Cipher.ALG_DES_CBC_PKCS5, false);
+		c.init(publicKeySP, Cipher.MODE_ENCRYPT);
+		c.update(KsBytes, (short)0, (short)20, KsSigned, (short)0);		
+		
+		// Send responses
+		byte[] response = new byte[20+combinedSigned.length];
+		Util.arrayCopy(KsSigned, (short)0, response, (short)0, (short)20);
+		Util.arrayCopy(combinedSigned, (short)0, response, (short)20, (short)combinedSigned.length);
+		
+		sendData(response, apdu);
 	}
+	
+	// Second part of step 2
+	public void authenticateServiceProviderResponse(APDU apdu) {
+		if(Ks == null || subject == null) {
+			ISOException.throwIt(SW_NOT_AUTHENTICATED);
+			return;
+		}
+		byte[] buffer = apdu.getBuffer();
+		byte[] challengeCompare = new byte[10];
+		Cipher cp = Cipher.getInstance(Cipher.ALG_DES_CBC_PKCS5, false);
+		cp.init(Ks, Cipher.MODE_DECRYPT);
+		cp.update(buffer, ISO7816.OFFSET_CDATA, (short) 10, challengeCompare, (short) 0);// TODO encrypted keylength
+		
+		challengeCompare[1] = (byte) ~challengeCompare[1];
+		if(Util.arrayCompare(challengeCompare, (short) 0, challenge, (short) 0, (short) 10) != 0) {
+			ISOException.throwIt(SW_CHALLENGE_WRONG);
+			return;
+		}
+		
+		authenticated = true;
+		
+		sendData(new byte[]{}, apdu);
+	}
+	
+	// Step 3
+	public void authenticateCard(APDU apdu) {
+		if(authenticated) {
+			ISOException.throwIt(SW_NOT_AUTHENTICATED);
+			return;
+		}
+		// Decode challenge from SP
+		byte[] buffer = apdu.getBuffer();
+		byte[] challenge = new byte[10];
+		Cipher cp = Cipher.getInstance(Cipher.ALG_DES_CBC_PKCS5, false);
+		cp.init(Ks, Cipher.MODE_DECRYPT);
+		cp.update(buffer, ISO7816.OFFSET_CDATA, (short) 10, challenge, (short) 0);// TODO encrypted keylength
+		
+		byte[] challengePlusAuth = new byte[14];
+		Util.arrayCopy(challenge, (short)0, challengePlusAuth, (short) 0, (short) challenge.length);
+		Util.arrayCopy(new byte[] {0x61, 0x75, 0x74, 0x68}, (short)0, challengePlusAuth, (short) 10, (short) 4); // TODO hash this
+		
+		// Sign challenge plus "auth" with private key
+		byte[] chAuSigned = new byte[16]; // 
+		Signature sign = Signature.getInstance(Signature.ALG_AES_MAC_128_NOPAD, false);
+		sign.init(PRIVATE_KEY_CO, Signature.MODE_SIGN);
+		sign.sign(challengePlusAuth, (short) 0, (short) 14, chAuSigned, (short) 0);
+		
+		// Encrypt
+		byte[] signedPlusCert = new byte[16]; // TODO add size certificate
+		byte[] response = new byte[20]; // TODO response size
+		Util.arrayCopy(chAuSigned, (short)0, signedPlusCert, (short) 0, (short) chAuSigned.length);
+		Util.arrayCopy(new byte[] {} /* TODO cert here */, (short)0, signedPlusCert, (short) chAuSigned.length, (short) 0/*len*/); // TODO hash this
+		cp.init(Ks,  Cipher.MODE_ENCRYPT);
+		cp.update(signedPlusCert, (short)0, (short) signedPlusCert.length, response, (short)0);
+		
+		sendData(response, apdu);
+	}
+	
+	private void getAttributes(APDU apdu) {
+		if(authenticated) {
+			ISOException.throwIt(SW_NOT_AUTHENTICATED);
+			return;
+		}
+		
+		if(!pin.isValidated()) {
+			ISOException.throwIt(SW_PIN_VERIFICATION_REQUIRED);
+			return;
+		}
+		
+		byte[] buffer = apdu.getBuffer();
+		// Ignore query and return all he has rights to
+		
+		byte[] nym = new byte[MessageDigest.LENGTH_SHA_256];
+		byte[] kuPlusSubject = new byte[LEN_SYM_KEY + LEN_SUBJECT];
+		Util.arrayCopy(Ku, (short)0, kuPlusSubject, (short) 0, (short) Ku.length);
+		Util.arrayCopy(subject, (short)0, kuPlusSubject, (short) Ku.length, (short) subject.length); // TODO hash this
+		
+		MessageDigest md = MessageDigest.getInstance(MessageDigest.ALG_SHA_256, false);
+		md.doFinal(kuPlusSubject,(short)0, (short)nym.length, nym, (short)0);
+		 
+		// Build data
+		byte type = 0x00; // TODO
+		boolean[] rights;
+		switch(type) {
+		
+		case TYPE_WEBSH:
+			rights = WEBSH_RIGHTS;
+			break;
+			
+		case TYPE_SOC:
+			rights = SOC_RIGHTS;
+			break;
+			
+		case TYPE_EGOV:
+			rights = EGOV_RIGHTS;
+			break;
+			
+		default:
+			rights = DEFAULT_RIGHTS;
+			break;
+		
+		}
+		
+		// Calculate data length
+		short totLen = 0;
+		for(short i = 0; i < (short) rights.length; i++) {
+			boolean can = rights[i];
+			if(can) {
+				if(i == (short) 0){
+					// Nym has special treatment
+					totLen += (short) nym.length;
+				} else {
+					totLen += (short) attributes[i].length;					
+				}
+			}
+		}
+		
+		// Create data array, nym is included
+		short offset = 0;
+		byte[] data = new byte[totLen];
+		for(short i = 0; i < (short) rights.length; i++) {
+			boolean can = rights[i];
+			if(can) {
+				if(i == (short) 0) {
+					Util.arrayCopy(nym, (short)0, data, (short) offset, (short) nym.length);
+					offset += (short) nym.length;
+				} else {
+					Util.arrayCopy(attributes[i], (short)0, data, (short) offset, (short) attributes[i].length);
+					offset += (short) attributes[i].length;
+				}
+			}
+		}
+		
+		// encrypt data
+		byte[] response = new byte[20]; // TODO response size
+		Cipher cp = Cipher.getInstance(Cipher.ALG_DES_CBC_PKCS5, false);
+		cp.init(Ks,  Cipher.MODE_ENCRYPT);
+		cp.update(data, (short)0, (short) data.length, response, (short)0);
+		
+		sendData(response, apdu);
+	}
+	
 	
 	// See https://stackoverflow.com/questions/36518553/javacard-applet-to-subtract-two-hexadecimal-array-of-byte
    public static boolean add(byte[] A, byte AOff, byte[] B, byte BOff, byte[] C, byte COff, byte len) {

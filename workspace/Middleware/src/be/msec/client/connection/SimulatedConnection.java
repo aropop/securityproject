@@ -30,22 +30,30 @@ public class SimulatedConnection implements IConnection {
 		port=i;
 	}
 
-	public void connect() throws Exception {
-		sock = new Socket("localhost", port);
-		sock.setTcpNoDelay(true);
-		BufferedInputStream is = new BufferedInputStream(sock.getInputStream());
-		BufferedOutputStream os = new BufferedOutputStream(sock.getOutputStream());
-		cad = new CadT1Client(is,os);
-		cad.powerUp();
+	public void connect() throws CardConnectException {
+		try {
+			sock = new Socket("localhost", port);
+			sock.setTcpNoDelay(true);
+			BufferedInputStream is = new BufferedInputStream(sock.getInputStream());
+			BufferedOutputStream os = new BufferedOutputStream(sock.getOutputStream());
+			cad = new CadT1Client(is,os);
+			cad.powerUp();
+		} catch(Exception e) {
+			throw new CardConnectException(e.getMessage());
+		}
 	}
 
-	public void close() throws Exception {
-		cad.powerDown();
-		sock.close();
-		cad.close();
+	public void close() throws CardConnectException {
+		try {
+			cad.powerDown();
+			sock.close();
+			cad.close();
+		} catch(Exception e) {
+			throw new CardConnectException(e.getMessage());
+		}
 	}
 
-	public ResponseAPDU transmit(CommandAPDU apdu) throws Exception {
+	public ResponseAPDU transmit(CommandAPDU apdu) throws CardConnectException {
 		Apdu a = new Apdu();
 		a.command[0] = (byte)apdu.getCLA();
 		a.command[1] = (byte)apdu.getINS();
@@ -53,8 +61,12 @@ public class SimulatedConnection implements IConnection {
 		a.command[3] = (byte)apdu.getP2();
 		a.setDataIn(apdu.getData());
 		a.Le = apdu.getNe();
-		cad.exchangeApdu(a);
-		return new ResponseAPDU(a.getResponseApduBytes());
+		try {
+			cad.exchangeApdu(a);
+			return new ResponseAPDU(a.getResponseApduBytes());	
+		} catch(Exception e) {
+			throw new CardConnectException(e.getMessage());
+		}
 	}
 
 }
