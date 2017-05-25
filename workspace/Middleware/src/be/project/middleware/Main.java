@@ -22,15 +22,10 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		final Commands cm = new Commands();
-		//cm.init();
-		
-		try{
-			HttpResponse<String> res  = Unirest.get("http://localhost:4569/time").asString();
-			System.out.println(res.getBody());
-			System.out.println(res.getStatusText());
-		} catch(Exception e) {
-			System.out.println(e.getMessage());
-		}
+		cm.init();
+		cm.sendTime();
+		cm.sendTime();
+
 		//cm.debug();
 		
 		

@@ -56,7 +56,9 @@ public class IdentityCard extends Applet {
 	
 	private byte[] serial = new byte[]{0x30, 0x35, 0x37, 0x36, 0x39, 0x30, 0x31, 0x05};
 	private byte[] time = new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-	private final static byte[] PUBLIC_KEY_G = new byte[] {0x00};
+	
+	private final static byte[] PUBLIC_KEY_G_MOD = new byte[]{(byte) -117, (byte) -95, (byte) -36, (byte) 14, (byte) 93, (byte) 123, (byte) -20, (byte) 53, (byte) -71, (byte) 72, (byte) -24, (byte) 25, (byte) -89, (byte) -2, (byte) 111, (byte) -122, (byte) -87, (byte) -52, (byte) -44, (byte) 18, (byte) 105, (byte) 75, (byte) 118, (byte) 79, (byte) -32, (byte) -123, (byte) -107, (byte) -14, (byte) 115, (byte) 89, (byte) -97, (byte) 95, (byte) -99, (byte) -78, (byte) -96, (byte) -105, (byte) 119, (byte) -106, (byte) -33, (byte) -124, (byte) -104, (byte) 89, (byte) 48, (byte) 17, (byte) 41, (byte) 84, (byte) 73, (byte) -98, (byte) 65, (byte) -15, (byte) 46, (byte) -83, (byte) 49, (byte) 117, (byte) 57, (byte) -35, (byte) -36, (byte) -1, (byte) 35, (byte) 51, (byte) 39, (byte) 53, (byte) 115, (byte) -61};
+	private final static byte[] PUBLIC_KEY_G_EXP = new byte[]{(byte) 1, (byte) 0, (byte) 1};
 	private final static Key PUBLIC_KEY_CA = null;//TODO
 	private final static Key PRIVATE_KEY_CO = null;//TODO
 	private final static Key PUBLIC_KEY_CO = null;//TODO
@@ -306,12 +308,12 @@ public class IdentityCard extends Applet {
 	private void timeUpdate(APDU apdu) {
 		byte[] buffer = apdu.getBuffer();
 		RSAPublicKey PKg = (RSAPublicKey) KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PUBLIC, KeyBuilder.LENGTH_RSA_512, false);
-		PKg.setExponent(new byte[]{}, (short)0, KeyBuilder.LENGTH_RSA_512);
-		PKg.setModulus(new byte[]{}, (short)0, KeyBuilder.LENGTH_RSA_512);
-		Signature signature = Signature.getInstance(Signature.ALG_RSA_SHA_ISO9796, false);
+		PKg.setExponent(PUBLIC_KEY_G_EXP, (short)0, (short)PUBLIC_KEY_G_EXP.length);
+		PKg.setModulus(PUBLIC_KEY_G_MOD, (short)0, (short)PUBLIC_KEY_G_MOD.length);
+		Signature signature = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1, false);
 		signature.init(PKg, Signature.MODE_VERIFY);
 		boolean verify = signature.verify(buffer, ISO7816.OFFSET_CDATA, (short) 8,// time is a long so 8 size
-				buffer, (short) (ISO7816.OFFSET_CDATA + 8), (short) 20); // SHA1 results in 160 bit = 20 bytes
+				buffer, (short) (ISO7816.OFFSET_CDATA + 8), (short) 64); // SHA1 results in 160 bit = 20 bytes
 		if(verify) {
 			// Time is correct, add 24 hours
 			add(buffer, (byte) 0x05, 

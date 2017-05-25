@@ -141,6 +141,10 @@ public class CustomKeyPair implements Serializable {
 		return this.privkey;
 	}
 	
+	public RSAPublicKey getPublicKey() {
+		return this.pubkey;
+	}
+	
 	public void setCertificateAuthority(CustomKeyPair ca) {
 		this.ca = ca;
 	}
@@ -190,7 +194,7 @@ public class CustomKeyPair implements Serializable {
 		System.out.println(javax.xml.bind.DatatypeConverter.printHexBinary(i));
 	}
 	
-	public static void main(String[] args) { 		
+	public static void generateKeys() {
 		CertificateAttributes c_attr = new CertificateAttributes("CA", 365, "CA");
 		CustomKeyPair ca = new CustomKeyPair(c_attr);
 		
@@ -225,7 +229,28 @@ public class CustomKeyPair implements Serializable {
 		writeToFile("Default2", default2);
 		writeToFile("Webshop1", webshop1);
 		writeToFile("Webshop2", webshop2);
-		             
+	}
+	
+	public static void main(String[] args) { 		
+		CustomKeyPair cp = fromFile("TimeServer.ckeys");
+		BigInteger modulus = cp.getPublicKey().getModulus();
+		BigInteger exponent = cp.getPublicKey().getPublicExponent();
+		System.out.println(modulus.toByteArray().length);
+		System.out.println(exponent);
+		for(byte b : modulus.toByteArray()) {
+			System.out.print("(byte) ");
+			System.out.print(b);
+			System.out.print(", ");
+		}
+		System.out.print("\n");
+		for(byte b : exponent.toByteArray()) {
+			System.out.print("(byte) ");
+			System.out.print(b);
+			System.out.print(", ");
+		}
+		System.out.print("\n");
+		printBA(modulus.toByteArray());
+		printBA(exponent.toByteArray());
 	}
 	
 }

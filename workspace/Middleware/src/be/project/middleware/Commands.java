@@ -3,6 +3,7 @@ package be.project.middleware;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
@@ -23,6 +24,7 @@ public class Commands {
 	private static final byte VALIDATE_PIN_INS = 0x22;
 	private static final byte GET_SERIAL_INS = 0x24;
 	private static final byte GIVE_TIME = 0x25;
+	private static final byte TIME_UPDATE = 0x26;
 	private static final byte AUTHENTICATE_SP = 0x27;
 	private static final byte CLOSE_CONNECTION = 0x28;
 	private static final byte AUTHENTICATE_RESPONSE = 0x29;
@@ -116,9 +118,19 @@ public class Commands {
 		try {
 			ResponseAPDU r = c.transmit(a);
 			if(r.getSW() == SW_TIME_UPDATE_REQUIRED) {
-				HttpResponse<String> res  = Unirest.get("localhost:4569/time").asString();
-				res.getBody();
-				
+				HttpResponse<String> res  = Unirest.get("http://localhost:4569/time").asString();
+				String body = res.getBody();
+				String[] split = body.split("\n");
+				byte[] timeSigned = Base64.getDecoder().decode(split[0]);
+				byte[] timeUnsigned = longToBytes(Long.parseLong(split[1]));
+				byte[] toCard = new byte[timeSigned.length+timeUnsigned.length];
+				System.arraycopy(timeUnsigned, 0, toCard, 0, timeUnsigned.length);
+				System.arraycopy(timeSigned, 0, toCard, timeUnsigned.length, timeSigned.length);
+				a = new CommandAPDU(IDENTITY_CARD_CLA, TIME_UPDATE, 0x00, 0x00, toCard);
+				r = c.transmit(a);
+				if(r.getSW() != 0x9000) {
+					throw new Exception("Time Update failed");
+				}
 			} 	
 		} catch (Exception e) {
 			System.out.println("Error sending time: " + e.getMessage());
