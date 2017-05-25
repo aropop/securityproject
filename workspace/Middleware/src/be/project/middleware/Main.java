@@ -2,6 +2,7 @@ package be.project.middleware;
 
 import java.awt.Desktop;
 import java.net.URI;
+import java.util.Base64;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -24,14 +25,11 @@ public class Main {
 		final Commands cm = new Commands();
 		cm.init();
 		cm.sendTime();
-		cm.sendTime();
-
-		//cm.debug();
-		
+	
 		
 		serv.post("authenticatesp", (req, res) -> {
-			String cert = req.queryParams("cert");
-			byte[] certBytes = cert.getBytes();
+			String cert = req.body();
+			byte[] certBytes = Base64.getDecoder().decode(cert.getBytes());
 			try {
 				byte[] keyAndMessage = cm.authenticateSP(certBytes);
 				return keyAndMessage.toString();				
