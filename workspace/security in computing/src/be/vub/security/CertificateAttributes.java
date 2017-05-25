@@ -1,6 +1,7 @@
 package be.vub.security;
 
 import java.math.BigInteger;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -11,7 +12,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Date;
 
-public class CertificateAttributes {
+public class CertificateAttributes implements Serializable {
 
 	static int name_len = 20;
 	static int service_len  = 1;
@@ -63,7 +64,7 @@ public class CertificateAttributes {
 	}
 	
 	public byte[] encode(){
-		
+		// TODO change to actual encoding
 		String padded_name = String.format("%1$-" + name_len + "s", name);
 		String padded_service = String.format("%1$-" + service_len + "s", service);
 		String padded_time = String.format("%1$-" + validatedUntil_len + "s", Long.toString(validatedTime));
