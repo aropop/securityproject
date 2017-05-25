@@ -7,10 +7,15 @@ import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
@@ -20,17 +25,22 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.Date;
 
+// rewrite required.
+
 public class MinimalCertificate extends Certificate{
 	
-	static Path KeyStore = Paths.get("/test");
+	//static Path KeyStore = Paths.get("/test");
 	
 	CertificateAttributes attributes;
 	private RSAPublicKey pubkey;
 	private RSAPrivateKey privkey;
+	private byte[] encoded;
 	
 	public MinimalCertificate(CertificateAttributes attributes) {
+		super("Minimal");
 		this.attributes = attributes;
 		KeyPairGenerator kpg;
+		this.encoded = null;
 		try {
 			kpg = KeyPairGenerator.getInstance("RSA");
 	        kpg.initialize(512);
@@ -54,8 +64,10 @@ public class MinimalCertificate extends Certificate{
 	}
 	
 	public MinimalCertificate(byte[] signed, RSAPublicKey pubkey) throws Exception{
+		super("Minimal");
 		byte[] attr = Arrays.copyOfRange(signed, 0, CertificateAttributes.total_len);
 		byte[] sign = Arrays.copyOfRange(signed, CertificateAttributes.total_len, signed.length);
+		this.encoded = signed;
 		
 		try {
 			Signature rsacheck = Signature.getInstance("SHA1withRSA");
@@ -80,8 +92,12 @@ public class MinimalCertificate extends Certificate{
 		
 	}
 	
+	public byte[] getEncoded() {
+		return this.encoded;
+	}
 	
-	public byte[] sign(MinimalCertificate c){
+	
+	public void sign(MinimalCertificate c){
 		Signature rsasign;
 		try {
 			rsasign = Signature.getInstance("SHA1withRSA");
@@ -104,61 +120,88 @@ public class MinimalCertificate extends Certificate{
         fos.write(full_cert);
         fos.close();
         
-        return full_cert;
+        c.encoded = full_cert;
         
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		} catch (InvalidKeyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		} catch (SignatureException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		}
+	}
+	
+	@Override
+	public PublicKey getPublicKey() {
+		// TODO Auto-generated method stub
+		return this.pubkey;
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void verify(PublicKey key) throws CertificateException, NoSuchAlgorithmException, InvalidKeyException,
+			NoSuchProviderException, SignatureException {
+		
+		this.verify(key, "SHA1withRSA");
+		
+	}
+
+	@Override
+	public void verify(PublicKey key, String sigProvider) throws CertificateException, NoSuchAlgorithmException,
+			InvalidKeyException, NoSuchProviderException, SignatureException {
+
+		byte[] attr = Arrays.copyOfRange(this.encoded, 0, CertificateAttributes.total_len);
+		byte[] sign = Arrays.copyOfRange(this.encoded, CertificateAttributes.total_len, this.encoded.length);
+		
+		Signature rsacheck = Signature.getInstance(sigProvider);
+		rsacheck.initVerify(pubkey);
+		rsacheck.update(attr);
+		if (rsacheck.verify(sign)){
+			this.attributes = new CertificateAttributes(attr);
+		} else {
+			throw new SignatureException("invalid sign");
+		}
+		
+	}
+	
+	public void Store(MinimalCertificate C) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException{
+		KeyStore kS = KeyStore.getInstance("JKS");  
+		String password = "password";
+		char[] ksPass = password.toCharArray();
+		kS.load(null,null);  
+		Certificate[] certChain = new Certificate[1];  
+		certChain[0] = C;  
+		kS.setKeyEntry(this.attributes.name, (Key)this.privkey, ksPass, certChain);
+		FileOutputStream writeStream = new FileOutputStream("key.store");
+		kS.store(writeStream, ksPass);
 	}
 	
 	public static void main(String[] args) throws Exception {
 		MinimalCertificate ca;
 		MinimalCertificate ct;
 		
-		CertificateAttributes c_attr = new CertificateAttributes("Test", 5, "Service");
+		CertificateAttributes c_attr = new CertificateAttributes("CA", 365, "CA");
 		
 		ca = new MinimalCertificate(c_attr);
-		ct = new MinimalCertificate(ca.sign(ca), ca.pubkey);
-		ct = new MinimalCertificate(ca.sign(ca), new MinimalCertificate(c_attr).pubkey);
-		
-		
-		/*
-		c = new certificate("smartcard", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("egov-ses1", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("egov-ses2", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("SocNet-ses1", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("SocNet-ses2", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("default-ses1", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("default-ses2", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("eShopping-ses1", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("eShopping-ses2", 365, ca.encode(), ca.secret_key);
-		c.sign();*/
+		ca.sign(ca); // self signed CA
+		CertificateAttributes timeServerAttributes = new CertificateAttributes("TimeServer", 365, "TimeServer");
+		MinimalCertificate timeServerCert = new MinimalCertificate(timeServerAttributes);
+		timeServerCert.Store(ca);
 		
 	}
+	
 }
