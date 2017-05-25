@@ -1,7 +1,9 @@
+package be.vub.timeserver;
 
 import static spark.Spark.*;
 
 import java.io.FileInputStream;
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.security.Key;
 import java.security.KeyPair;
@@ -16,26 +18,26 @@ import java.util.Base64;
  */
 public class TimeServer {
 	
-	private static final String KS_FILE = "../../g.jks";
+	private static final String KS_FILE = "../key.store";
 	private static Key kp;
 	private static final int PORT = 4569;
 	private static String password;
 	
 	private static Key getKey() {
-		if(kp == null) {
-			try {
-				KeyStore keyStore = KeyStore.getInstance("JKS");
-				FileInputStream is = new FileInputStream(KS_FILE);
-				keyStore.load(is, password.toCharArray());
-				is.close();
-				return keyStore.getKey("skg", password.toCharArray());
-			} catch(Exception e) {
-				System.out.println("Error occured when reading the key");
-			}
-			return null;			
-		} else {
-			return kp;
-		}
+//		if(kp == null) {
+//			try {
+//				FileInputStream is = new FileInputStream(KS_FILE);
+//				byte[] data = new byte[(int) (new File(KS_FILE)).length()];
+//				is.read(data);
+//				return keyStore.getKey("TimeServer", password.toCharArray());
+//			} catch(Exception e) {
+//				System.out.println("Error occured when reading the key: "+ e.getMessage());
+//			}
+//			return null;			
+//		} else {
+//			return kp;
+//		}
+		return null;
 	}
 
 	public static void main(String[] args) { 
