@@ -9,6 +9,9 @@ import java.nio.file.Paths;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -22,9 +25,11 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.Date;
 
+// rewrite required.
+
 public class MinimalCertificate extends Certificate{
 	
-	static Path KeyStore = Paths.get("/test");
+	//static Path KeyStore = Paths.get("/test");
 	
 	CertificateAttributes attributes;
 	private RSAPublicKey pubkey;
@@ -135,37 +140,6 @@ public class MinimalCertificate extends Certificate{
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
-		MinimalCertificate ca;
-		MinimalCertificate ct;
-		
-		CertificateAttributes c_attr = new CertificateAttributes("Test", 5, "Service");
-		
-		ca = new MinimalCertificate(c_attr);
-		
-		
-		/*
-		c = new certificate("smartcard", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("egov-ses1", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("egov-ses2", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("SocNet-ses1", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("SocNet-ses2", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("default-ses1", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("default-ses2", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("eShopping-ses1", 365, ca.encode(), ca.secret_key);
-		c.sign();
-		c = new certificate("eShopping-ses2", 365, ca.encode(), ca.secret_key);
-		c.sign();*/
-		
-	}
-
 	@Override
 	public PublicKey getPublicKey() {
 		// TODO Auto-generated method stub
@@ -203,4 +177,31 @@ public class MinimalCertificate extends Certificate{
 		}
 		
 	}
+	
+	public void Store(MinimalCertificate C) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException{
+		KeyStore kS = KeyStore.getInstance("JKS");  
+		String password = "password";
+		char[] ksPass = password.toCharArray();
+		kS.load(null,null);  
+		Certificate[] certChain = new Certificate[1];  
+		certChain[0] = C;  
+		kS.setKeyEntry(this.attributes.name, (Key)this.privkey, ksPass, certChain);
+		FileOutputStream writeStream = new FileOutputStream("key.store");
+		kS.store(writeStream, ksPass);
+	}
+	
+	public static void main(String[] args) throws Exception {
+		MinimalCertificate ca;
+		MinimalCertificate ct;
+		
+		CertificateAttributes c_attr = new CertificateAttributes("CA", 365, "CA");
+		
+		ca = new MinimalCertificate(c_attr);
+		ca.sign(ca); // self signed CA
+		CertificateAttributes timeServerAttributes = new CertificateAttributes("TimeServer", 365, "TimeServer");
+		MinimalCertificate timeServerCert = new MinimalCertificate(timeServerAttributes);
+		timeServerCert.Store(ca);
+		
+	}
+	
 }
