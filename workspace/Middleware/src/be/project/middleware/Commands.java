@@ -7,6 +7,9 @@ import java.util.Arrays;
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+
 import be.msec.client.connection.CardConnectException;
 import be.msec.client.connection.Connection;
 import be.msec.client.connection.IConnection;
@@ -113,7 +116,8 @@ public class Commands {
 		try {
 			ResponseAPDU r = c.transmit(a);
 			if(r.getSW() == SW_TIME_UPDATE_REQUIRED) {
-				// Do update
+				HttpResponse<String> res  = Unirest.get("localhost:4569/time").asString();
+				res.getBody();
 				
 			} 	
 		} catch (Exception e) {
