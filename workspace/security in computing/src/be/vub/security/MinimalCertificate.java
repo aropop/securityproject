@@ -63,19 +63,19 @@ public class MinimalCertificate extends Certificate{
 		
 	}
 	
-	public MinimalCertificate(byte[] signed, RSAPublicKey pubkey) throws Exception{
+	public MinimalCertificate(byte[] signed){
 		super("Minimal");
 		byte[] attr = Arrays.copyOfRange(signed, 0, CertificateAttributes.total_len);
-		byte[] sign = Arrays.copyOfRange(signed, CertificateAttributes.total_len, signed.length);
+//		byte[] sign = Arrays.copyOfRange(signed, CertificateAttributes.total_len, signed.length);
 		this.encoded = signed;
 		
-		try {
+		/*try {
 			Signature rsacheck = Signature.getInstance("SHA1withRSA");
 			rsacheck.initVerify(pubkey);
 			rsacheck.update(attr);
-			if (rsacheck.verify(sign)){
+			if (rsacheck.verify(sign)){*/
 				this.attributes = new CertificateAttributes(attr);
-			} else {
+			/*} else {
 				throw new Exception("invalid sign");
 			}
 		} catch (NoSuchAlgorithmException e) {
@@ -87,7 +87,7 @@ public class MinimalCertificate extends Certificate{
 		} catch (SignatureException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		
 		
 	}
