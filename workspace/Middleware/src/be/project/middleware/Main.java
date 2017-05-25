@@ -3,6 +3,9 @@ package be.project.middleware;
 import java.awt.Desktop;
 import java.net.URI;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+
 import spark.Spark;
 
 public class Main {
@@ -19,9 +22,16 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		final Commands cm = new Commands();
-		cm.init();
+		//cm.init();
 		
-		cm.debug();
+		try{
+			HttpResponse<String> res  = Unirest.get("http://localhost:4569/time").asString();
+			System.out.println(res.getBody());
+			System.out.println(res.getStatusText());
+		} catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		//cm.debug();
 		
 		
 		serv.post("authenticatesp", (req, res) -> {
