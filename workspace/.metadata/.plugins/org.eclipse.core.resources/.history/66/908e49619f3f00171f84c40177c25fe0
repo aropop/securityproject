@@ -1,5 +1,0 @@
-package be.msec.client.connection;
-
-public class CardConnectException extends Exception {
-
-}

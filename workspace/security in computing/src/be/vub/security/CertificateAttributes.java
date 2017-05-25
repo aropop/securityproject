@@ -1,6 +1,7 @@
 package be.vub.security;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -13,8 +14,8 @@ import java.util.Date;
 public class CertificateAttributes {
 
 	static int name_len = 20;
-	static int service_len  = 20;
-	static int validatedUntil_len = 15;
+	static int service_len  = 1;
+	static int validatedUntil_len = 8;
 	static int mod_len = 160;
 	static int exp_len = 5;
 	static int total_len = name_len + service_len + validatedUntil_len + mod_len + exp_len;
@@ -70,7 +71,7 @@ public class CertificateAttributes {
 		String padded_exp =  String.format("%1$-" + exp_len + "s", public_key.getPublicExponent().toString());
 		String padded_mod =  String.format("%1$-" + mod_len + "s", public_key.getModulus().toString());
 		
-		return (padded_name + padded_service + padded_time + padded_exp + padded_mod).getBytes();
+		return (padded_name + padded_service + padded_time + padded_exp + padded_mod).getBytes(StandardCharsets.US_ASCII);
 		
 	}
 	
@@ -94,7 +95,10 @@ public class CertificateAttributes {
         
 		System.out.println(c_attr);
 		System.out.println("-");
+		System.out.print(c_attr_encoded.length);
+		System.out.print(" - ");
 		System.out.println(c_attr_encoded);
+		System.out.println(CertificateAttributes.total_len);
 		System.out.println("-");
 		CertificateAttributes c_attr_copied = new CertificateAttributes(c_attr_encoded);
 		System.out.println(c_attr_copied);
