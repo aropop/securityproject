@@ -2,15 +2,15 @@
 import static spark.Spark.*;
 
 import be.vub.security.CertificateAttributes;
-import be.vub.security.MinimalCertificate;
+import be.vub.security.CustomKeyPair;
 
 public class Main {
 
 	static final String middelware = "http://localhost:4570/";
-	static final MinimalCertificate CA = new MinimalCertificate(new CertificateAttributes("CA", 365, "CA"));
+	static final CustomKeyPair CA = new CustomKeyPair(new CertificateAttributes("CA", 365, "CA"));
 	
 	public static void main(String[] args) {
-		CA.sign(CA);
+		CA.sign(CA.getCertificate());
 		port(4566);
 		get("/", (req, res) -> {
 			

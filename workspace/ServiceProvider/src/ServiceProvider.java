@@ -10,11 +10,11 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import be.vub.security.CertificateAttributes;
-import be.vub.security.MinimalCertificate;
+import be.vub.security.CustomKeyPair;
 
 public class ServiceProvider {
 
-	MinimalCertificate minimalCert;
+	CustomKeyPair minimalCert;
 	
 	public ServiceProvider(String serviceName){
 
@@ -23,13 +23,13 @@ public class ServiceProvider {
 			byte[] data;
 			try {
 				data = Files.readAllBytes(fileLocation);
-				this.minimalCert = new MinimalCertificate(data);
+				this.minimalCert = new CustomKeyPair(data);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} else{
-			this.minimalCert = new MinimalCertificate(new CertificateAttributes(serviceName, 365, serviceName.substring(0, serviceName.length()-1).trim()));
+			this.minimalCert = new CustomKeyPair(new CertificateAttributes(serviceName, 365, serviceName.substring(0, serviceName.length()-1).trim()));
 			this.minimalCert.sign(Main.CA);
 			System.out.println(minimalCert.getEncoded());
 			// write to file (or store in an other way)

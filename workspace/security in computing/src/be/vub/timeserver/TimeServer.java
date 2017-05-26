@@ -1,6 +1,7 @@
 package be.vub.timeserver;
 
 import static spark.Spark.*;
+import java.io.ObjectInputStream;
 
 import java.io.FileInputStream;
 import java.io.File;
@@ -10,6 +11,7 @@ import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.Signature;
 import java.security.interfaces.RSAPrivateKey;
+import be.vub.security.CustomKeyPair;
 import java.util.Base64;
 /**
  * Time server G, requires password of the keystore to be passed as the only argument
@@ -18,30 +20,29 @@ import java.util.Base64;
  */
 public class TimeServer {
 	
-	private static final String KS_FILE = "../key.store";
-	private static Key kp;
+	private static final String KS_FILE = "TimeServer.ckeys";
+	private static RSAPrivateKey kp;
 	private static final int PORT = 4569;
-	private static String password;
 	
-	private static Key getKey() {
-//		if(kp == null) {
-//			try {
-//				FileInputStream is = new FileInputStream(KS_FILE);
-//				byte[] data = new byte[(int) (new File(KS_FILE)).length()];
-//				is.read(data);
-//				return keyStore.getKey("TimeServer", password.toCharArray());
-//			} catch(Exception e) {
-//				System.out.println("Error occured when reading the key: "+ e.getMessage());
-//			}
-//			return null;			
-//		} else {
-//			return kp;
-//		}
-		return null;
+	private static RSAPrivateKey getKey() {
+		if(kp == null) {
+			try {
+				FileInputStream is = new FileInputStream(KS_FILE);
+				ObjectInputStream ois = new ObjectInputStream(is);
+				CustomKeyPair cp = (CustomKeyPair) ois.readObject();
+				ois.close();
+				kp = cp.getPrivateKey();
+				return kp;
+			} catch(Exception e) {
+				System.out.println("Error occured when reading the key: "+ e.getMessage());
+			}
+			return null;			
+		} else {
+			return kp;
+		}
 	}
 
 	public static void main(String[] args) { 
-		password = args[0];
 		port(PORT); // Set a different port than default so everything can run on the same pc
 		get("/time", (req, res) -> {
 			RSAPrivateKey sk = (RSAPrivateKey) getKey();

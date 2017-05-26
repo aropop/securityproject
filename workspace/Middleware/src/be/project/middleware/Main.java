@@ -16,11 +16,13 @@ public class Main {
 
 	
 	private static final spark.Service serv = spark.Service.ignite();
+
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		serv.port(4570);
 		final Commands cm = new Commands();
 		//cm.init();
 		
@@ -35,10 +37,13 @@ public class Main {
 		
 		
 		serv.post("authenticatesp", (req, res) -> {
-			String cert = req.queryParams("cert");
-			byte[] certBytes = cert.getBytes();
+			
 			try {
+				String cert = req.queryParams("cert");
+				byte[] certBytes = cert.getBytes();
+				
 				byte[] keyAndMessage = cm.authenticateSP(certBytes);
+				System.out.println(keyAndMessage);
 				return keyAndMessage.toString();				
 			} catch(Exception e) {
 				return "Error: " + e.getMessage();

@@ -30,5 +30,6 @@
 	<classpathentry kind="lib" path="libs/websocket-common-9.4.4.v20170414.jar"/>
 	<classpathentry kind="lib" path="libs/websocket-server-9.4.4.v20170414.jar"/>
 	<classpathentry kind="lib" path="libs/websocket-servlet-9.4.4.v20170414.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/security in computing"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
