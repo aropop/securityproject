@@ -20,7 +20,6 @@ public class Main {
 		post("/", (req, res) -> {
 			System.out.println(req.queryParams("sp"));
 			return new ServiceProvider(req.queryParams("sp")).authenticate();
-//			return getMain();
 		});
 
 	}

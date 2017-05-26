@@ -129,7 +129,7 @@ public class Commands {
 				a = new CommandAPDU(IDENTITY_CARD_CLA, TIME_UPDATE, 0x00, 0x00, toCard);
 				r = c.transmit(a);
 				if(r.getSW() != 0x9000) {
-					throw new Exception("Time Update failed");
+					throw new Exception("Time Update failed: SW=" + r.getSW());
 				}
 			} 	
 		} catch (Exception e) {
@@ -139,6 +139,7 @@ public class Commands {
 	
 
 	public byte[] authenticateSP(byte[] cert) throws Exception{
+		System.out.println(cert.length);
 		CommandAPDU a = new CommandAPDU(IDENTITY_CARD_CLA, AUTHENTICATE_SP, 0x00, 0x00, cert);
 			ResponseAPDU r;
 			try {
@@ -149,8 +150,7 @@ public class Commands {
 					return getAllData(a, r);
 				}
 			} catch (CardConnectException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Authenticate SP middleware error:" + e.getMessage());
 			}
 		return null;
 	}

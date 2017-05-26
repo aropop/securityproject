@@ -31,12 +31,11 @@ public class Main {
 		
 		serv.post("authenticatesp", (req, res) -> {
 			try {
-				String cert = req.queryParams("cert");
-				byte[] certBytes = cert.getBytes();
+				String cert = req.body();
+				byte[] certBytes = Base64.getDecoder().decode(cert);
 				
 				byte[] keyAndMessage = cm.authenticateSP(certBytes);
-				System.out.println(keyAndMessage);
-				return keyAndMessage.toString();				
+				return Base64.getEncoder().encode(keyAndMessage);				
 			} catch(Exception e) {
 				return "Error: " + e.getMessage();
 			}
@@ -44,7 +43,7 @@ public class Main {
 		
 		serv.post("authenticatespchallenge", (req, res) -> {
 			String challenge = req.queryParams("challenge");
-			byte[] challengeBytes = challenge.getBytes();
+			byte[] challengeBytes = Base64.getDecoder().decode(challenge);
 			try {
 				cm.authenticateSPChallenge(challengeBytes);
 				return "ok";				

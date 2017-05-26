@@ -7,6 +7,7 @@ import javacard.framework.ISOException;
 import javacard.framework.JCSystem;
 import javacard.framework.OwnerPIN;
 import javacard.framework.Util;
+import javacard.security.AESKey;
 import javacard.security.DESKey;
 import javacard.security.Key;
 import javacard.security.KeyBuilder;
@@ -44,30 +45,38 @@ public class IdentityCard extends Applet {
 	private final static short SW_MORE_DATA = 0x6309;
 	private final static short SW_BIG_DATA = 0x6308;
 	
+	private final static short CERT_NAME_OFFSET = 0;
+	private final static short CERT_SERVICE_OFFSET = 20;
+	private final static short CERT_VALID_OFFSET = 21;
+	private final static short CERT_PUB_EXP_OFFSET = 29;
+	private final static short CERT_PUB_MOD_OFFSET = 32;
+	private final static short CERT_SIGN_OFFSET = 96;
+
 	private final static short LEN_NYM = 10;
 	private final static short LEN_SYM_KEY = 16;
 	private final static short LEN_SUBJECT = 20;
+	private final static short LEN_CERT_DATA = CERT_SIGN_OFFSET;
+	private final static short LEN_SIGN = 64;
+	
 	
 	private static final byte TYPE_WEBSH = 0x01;
 	private static final byte TYPE_EGOV = 0x02;
 	private static final byte TYPE_SOC = 0x03;
 	
-	private final static byte[] REQUEST_TIME = new byte[] {0x00, 0x01};
-	
 	private byte[] serial = new byte[]{0x30, 0x35, 0x37, 0x36, 0x39, 0x30, 0x31, 0x05};
 	private byte[] time = new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 	
-	private final static byte[] PUBLIC_KEY_G_MOD = new byte[]{(byte) -117, (byte) -95, (byte) -36, (byte) 14, (byte) 93, (byte) 123, (byte) -20, (byte) 53, (byte) -71, (byte) 72, (byte) -24, (byte) 25, (byte) -89, (byte) -2, (byte) 111, (byte) -122, (byte) -87, (byte) -52, (byte) -44, (byte) 18, (byte) 105, (byte) 75, (byte) 118, (byte) 79, (byte) -32, (byte) -123, (byte) -107, (byte) -14, (byte) 115, (byte) 89, (byte) -97, (byte) 95, (byte) -99, (byte) -78, (byte) -96, (byte) -105, (byte) 119, (byte) -106, (byte) -33, (byte) -124, (byte) -104, (byte) 89, (byte) 48, (byte) 17, (byte) 41, (byte) 84, (byte) 73, (byte) -98, (byte) 65, (byte) -15, (byte) 46, (byte) -83, (byte) 49, (byte) 117, (byte) 57, (byte) -35, (byte) -36, (byte) -1, (byte) 35, (byte) 51, (byte) 39, (byte) 53, (byte) 115, (byte) -61};
+	private final static byte[] PUBLIC_KEY_G_MOD = new byte[]{(byte) -90, (byte) -29, (byte) 121, (byte) 68, (byte) -26, (byte) 80, (byte) -4, (byte) 113, (byte) 28, (byte) 10, (byte) 100, (byte) -16, (byte) -96, (byte) 67, (byte) 115, (byte) 114, (byte) -78, (byte) -40, (byte) 106, (byte) -36, (byte) 52, (byte) 94, (byte) -51, (byte) -20, (byte) -113, (byte) 15, (byte) 43, (byte) 34, (byte) 31, (byte) 8, (byte) 58, (byte) -20, (byte) 91, (byte) 13, (byte) -45, (byte) 110, (byte) -59, (byte) 99, (byte) 117, (byte) 114, (byte) 24, (byte) -63, (byte) 83, (byte) -81, (byte) 111, (byte) -60, (byte) -92, (byte) 59, (byte) 102, (byte) -86, (byte) -57, (byte) -107, (byte) -67, (byte) 48, (byte) -59, (byte) -99, (byte) 116, (byte) -83, (byte) 63, (byte) -85, (byte) 4, (byte) -35, (byte) -74, (byte) -119};
 	private final static byte[] PUBLIC_KEY_G_EXP = new byte[]{(byte) 1, (byte) 0, (byte) 1};
-	private final static byte[] PUBLIC_KEY_CA_MOD = new byte[]{};
-	private final static byte[] PUBLIC_KEY_CA_EXP = new byte[]{};
-	private static RSAPublicKey PUBLIC_KEY_CA = null;//TODO
+	private final static byte[] PUBLIC_KEY_CA_MOD = new byte[]{(byte) -70, (byte) 46, (byte) 55, (byte) -88, (byte) 120, (byte) -9, (byte) 116, (byte) 126, (byte) -86, (byte) 0, (byte) 66, (byte) 66, (byte) -27, (byte) -112, (byte) 9, (byte) -118, (byte) -67, (byte) -1, (byte) -29, (byte) -2, (byte) 23, (byte) -125, (byte) 42, (byte) 39, (byte) -44, (byte) 67, (byte) 60, (byte) -18, (byte) 123, (byte) 47, (byte) -7, (byte) -117, (byte) 37, (byte) -49, (byte) -125, (byte) -95, (byte) -104, (byte) -23, (byte) -120, (byte) -105, (byte) -40, (byte) -49, (byte) -68, (byte) -40, (byte) 99, (byte) 113, (byte) 92, (byte) 25, (byte) 0, (byte) 122, (byte) -91, (byte) 65, (byte) -39, (byte) -94, (byte) -95, (byte) -127, (byte) -102, (byte) 31, (byte) -24, (byte) 21, (byte) 112, (byte) -72, (byte) -31, (byte) -17};
+	private final static byte[] PUBLIC_KEY_CA_EXP = new byte[]{(byte) 1, (byte) 0, (byte) 1};
+	private static RSAPublicKey PUBLIC_KEY_CA = null;
 	private final static Key PRIVATE_KEY_CO = null;//TODO
 	private final static Key PUBLIC_KEY_CO = null;//TODO
 	
 	private OwnerPIN pin;
 	private byte[] subject;
-	private DESKey Ks;
+	private AESKey Ks;
 	private final byte[] Ku;
 	private boolean authenticated;
 	private byte[] challenge;
@@ -318,13 +327,13 @@ public class IdentityCard extends Applet {
 		Signature signature = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1, false);
 		signature.init(PKg, Signature.MODE_VERIFY);
 		boolean verify = signature.verify(buffer, ISO7816.OFFSET_CDATA, (short) 8,// time is a long so 8 size
-				buffer, (short) (ISO7816.OFFSET_CDATA + 8), (short) 64); // SHA1 results in 160 bit = 20 bytes
+				buffer, (short) (ISO7816.OFFSET_CDATA + 8), (short) LEN_SIGN); // SHA1 results in 160 bit = 20 bytes
 		if(verify) {
 			// Time is correct, add 24 hours
 			add(buffer, (byte) 0x05, 
 					new byte[] {0x00,0x00,0x00,0x00,0x05,0x26,0x5C,0x00}, (byte) 0x00,
 					time, (byte) 0x00, (byte) 0x08);
-			sendData(new byte[] {}, apdu);
+			sendData(new byte[] {0x00}, apdu);
 		} else {
 			ISOException.throwIt(SW_TIME_VERIFY_FAILED);
 		}
@@ -334,49 +343,64 @@ public class IdentityCard extends Applet {
 	// If time is outdated
 	private void authenticateServiceProvider(APDU apdu) {
 		byte[] buffer = apdu.getBuffer();
-		
+		byte[] data = new byte[160];
+		short currentOffset = (short)0;
+		short bytesLeft = (short) (buffer[ISO7816.OFFSET_LC] & 0x00FF);
+		if (bytesLeft < (short)55) ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
+		short readCount = apdu.setIncomingAndReceive();
+		while ( bytesLeft > 0){
+			Util.arrayCopy(buffer, (short)5, data, (short)currentOffset, (short) (readCount));
+			currentOffset = (short) (readCount);
+		    bytesLeft -= readCount;
+		    readCount = apdu.receiveBytes ( ISO7816.OFFSET_CDATA );
+		}
 		// Verify certifcate
-		subject = null;
 		Signature signature = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1, false);
 		signature.init(PUBLIC_KEY_CA, Signature.MODE_VERIFY);
-		//TODO get the length of the certificate 
-		if(!signature.verify(buffer, (short) (ISO7816.OFFSET_CDATA), certLen, buffer, (short) 0,  (short) 64)) {
+		if(!signature.verify(data, (short) 0, LEN_CERT_DATA, data, CERT_SIGN_OFFSET,  (short) LEN_SIGN)) {
 			ISOException.throwIt(SW_VERIFICATION_FAILED);
 			return;
 		}
 		
+		this.subject = new byte[LEN_SUBJECT];
+		Util.arrayCopy(data, CERT_NAME_OFFSET, this.subject, (short)0, LEN_SUBJECT);
+		
 		// Generate symmetric key
-		RandomData rng = RandomData.getInstance(RandomData.ALG_SECURE_RANDOM);
+		RandomData rng = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM); // secure random unsupported on simulator
 		byte[] KsBytes = new byte[16];
 		rng.generateData(KsBytes, (short)0,(short)16);
-		this.Ks = (DESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_DES, KeyBuilder.LENGTH_DES, false);
+		this.Ks = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_128, false);
 		Ks.setKey(KsBytes, (short) 0);
 		
 		// Create challenge
-		this.challenge = new byte[10]; // TODO value?
+		this.challenge = new byte[12]; // TODO value?
 		rng.generateData(challenge, (short)0, (short)10);
 		
-		Key publicKeySP = null;
+		// Create public key object
+		RSAPublicKey publicKeySP = (RSAPublicKey) KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PUBLIC, KeyBuilder.LENGTH_RSA_512, false);
+		publicKeySP.setExponent(data, CERT_PUB_EXP_OFFSET, (short)PUBLIC_KEY_G_EXP.length);
+		publicKeySP.setModulus(data, (short)CERT_PUB_MOD_OFFSET, (short)PUBLIC_KEY_G_MOD.length);
 		
 		// Sign symmetric key
-		byte[] KsSigned = new byte[20];
-		Cipher c = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);
+		byte[] KsSigned = new byte[64];
+		Cipher c = Cipher.getInstance(Cipher.ALG_RSA_PKCS1, false);
 		c.init(publicKeySP, Cipher.MODE_ENCRYPT);
-		c.update(KsBytes, (short)0, (short)16, KsSigned, (short)0);
+		c.doFinal(KsBytes, (short)0, (short)16, KsSigned, (short)0);
 		
 		// Sign challenge and subject
-		byte[] combined = new byte[20];// TODO size?
-		Util.arrayCopy(challenge, (short)0, combined, (short)0, (short)10);
-		Util.arrayCopy(subject, (short)0, combined, (short)10, (short)10);
-		byte[] combinedSigned = new byte[8]; // TODO Size??
-		c = Cipher.getInstance(Cipher.ALG_DES_CBC_PKCS5, false);
-		c.init(publicKeySP, Cipher.MODE_ENCRYPT);
-		c.update(KsBytes, (short)0, (short)20, KsSigned, (short)0);		
+		byte[] combined = new byte[challenge.length + subject.length];
+		Util.arrayCopy(challenge, (short)0, combined, (short)0, (short)12);
+		Util.arrayCopy(subject, (short)0, combined, (short)12, (short)10);
+		byte[] combinedSigned = new byte[challenge.length+subject.length]; 
+		c = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);
+		c.init(this.Ks, Cipher.MODE_ENCRYPT);
+		
+		c.doFinal(combined, (short)0, (short)combined.length, combinedSigned, (short)0);		
 		
 		// Send responses
-		byte[] response = new byte[20+combinedSigned.length];
-		Util.arrayCopy(KsSigned, (short)0, response, (short)0, (short)20);
-		Util.arrayCopy(combinedSigned, (short)0, response, (short)20, (short)combinedSigned.length);
+		byte[] response = new byte[KsSigned.length+combinedSigned.length];
+		Util.arrayCopy(KsSigned, (short)0, response, (short)0, (short)KsSigned.length);
+		Util.arrayCopy(combinedSigned, (short)0, response, (short)KsSigned.length, (short)combinedSigned.length);
 		
 		sendData(response, apdu);
 	}
@@ -388,13 +412,13 @@ public class IdentityCard extends Applet {
 			return;
 		}
 		byte[] buffer = apdu.getBuffer();
-		byte[] challengeCompare = new byte[10];
+		byte[] challengeCompare = new byte[16];
 		Cipher cp = Cipher.getInstance(Cipher.ALG_DES_CBC_PKCS5, false);
 		cp.init(Ks, Cipher.MODE_DECRYPT);
-		cp.update(buffer, ISO7816.OFFSET_CDATA, (short) 10, challengeCompare, (short) 0);// TODO encrypted keylength
+		cp.update(buffer, ISO7816.OFFSET_CDATA, (short) 16, challengeCompare, (short) 0);
 		
 		challengeCompare[1] = (byte) ~challengeCompare[1];
-		if(Util.arrayCompare(challengeCompare, (short) 0, challenge, (short) 0, (short) 10) != 0) {
+		if(Util.arrayCompare(challengeCompare, (short) 0, this.challenge, (short) 0, (short) 12) != 0) {
 			ISOException.throwIt(SW_CHALLENGE_WRONG);
 			return;
 		}

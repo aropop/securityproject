@@ -102,8 +102,8 @@ public class CustomKeyPair implements Serializable {
 	}
 	
 	public static boolean verifyCert(byte[] certBytes, RSAPublicKey pk) {
-		byte[] attr = Arrays.copyOfRange(certBytes, 0, CertificateAttributes.total_len);
-		byte[] sign = Arrays.copyOfRange(certBytes, CertificateAttributes.total_len, certBytes.length);
+		byte[] attr = Arrays.copyOfRange(certBytes, 0, CertificateAttributes.TOTAL_LEN);
+		byte[] sign = Arrays.copyOfRange(certBytes, CertificateAttributes.TOTAL_LEN, certBytes.length);
 		
 		try {
 			Signature rsacheck = Signature.getInstance("SHA1withRSA");
@@ -148,6 +148,10 @@ public class CustomKeyPair implements Serializable {
 	
 	public void store() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException{
 		
+	}
+	
+	public String getName() {
+		return this.attributes.name;
 	}
 	
 	public static CustomKeyPair issue(String name, String type, CustomKeyPair ca) {
@@ -228,7 +232,7 @@ public class CustomKeyPair implements Serializable {
 		writeToFile("Webshop2", webshop2);
 	}
 	
-	public static void main(String[] args) { 		
+	public static void main(String[] args) { 
 		CustomKeyPair cp = fromFile("TimeServer.ckeys");
 		BigInteger modulus = cp.getPublicKey().getModulus();
 		BigInteger exponent = cp.getPublicKey().getPublicExponent();

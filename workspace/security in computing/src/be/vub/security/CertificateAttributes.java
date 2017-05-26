@@ -2,6 +2,8 @@ package be.vub.security;
 
 import java.math.BigInteger;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -10,16 +12,23 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Arrays;
 import java.util.Date;
 
 public class CertificateAttributes implements Serializable {
 
-	static int name_len = 20;
-	static int service_len  = 1;
-	static int validatedUntil_len = 8;
-	static int mod_len = 160;
-	static int exp_len = 5;
-	static int total_len = name_len + service_len + validatedUntil_len + mod_len + exp_len;
+	private static final long serialVersionUID = 1L;
+	public final static int NAME_LEN = 20;
+	public final static int SERVICE_LEN  = 1;
+	public final static int VALID_LEN = 8;
+	public final static int EXP_LEN = 3;
+	public final static int MOD_LEN = 64;
+	public final static int TOTAL_LEN = NAME_LEN + SERVICE_LEN + VALID_LEN + MOD_LEN + EXP_LEN;
+	public final static byte WEBSHOP_BYTE = 0x00;
+	public final static byte DEFAULT_BYTE = 0x01;
+	public final static byte SOCNET_BYTE = 0x02;
+	public final static byte EGOV_BYTE = 0x03;
+	public final static byte SPECIAL_BYTE = 0x10;
 	
 	String name;
 	long validatedTime;
@@ -37,16 +46,26 @@ public class CertificateAttributes implements Serializable {
 	}
 	
 	private void decode(byte[] encoded){
+		// TODO change to match endocidng
+		String paddedStringName = new String(Arrays.copyOfRange(encoded, 0, NAME_LEN));
+		this.name = paddedStringName.substring(0, NAME_LEN).trim();
 		
-		String padded_string = new String(encoded);
+		if(encoded[NAME_LEN] == WEBSHOP_BYTE) {
+			this.service = "webshop";
+		} else if(encoded[NAME_LEN] == DEFAULT_BYTE) {
+			this.service = "default";
+		} else if(encoded[NAME_LEN] == EGOV_BYTE) {
+			this.service = "egov";
+		} else if (encoded[NAME_LEN] == SOCNET_BYTE) {
+			this.service = "socnet";
+		} else {
+			this.service = "special";
+		}
 		
-		this.name = padded_string.substring(0, name_len).trim();
-		this.service = padded_string.substring(name_len, name_len + service_len).trim();
+		this.validatedTime = bytesToLong(Arrays.copyOfRange(encoded, NAME_LEN+SERVICE_LEN, VALID_LEN));
 		
-		this.validatedTime = Long.parseLong(padded_string.substring(name_len + service_len, name_len + service_len + validatedUntil_len).trim());
-		
-		BigInteger exp = BigInteger.valueOf(Long.parseLong(padded_string.substring(name_len + service_len + validatedUntil_len, name_len + service_len + validatedUntil_len + exp_len).trim()));
-		BigInteger mod = new BigInteger(padded_string.substring(name_len + service_len + validatedUntil_len + exp_len, name_len + service_len + validatedUntil_len + exp_len + mod_len).trim());
+		BigInteger exp = new BigInteger(Arrays.copyOfRange(encoded, NAME_LEN+SERVICE_LEN+VALID_LEN, EXP_LEN));
+		BigInteger mod = new BigInteger(Arrays.copyOfRange(encoded, NAME_LEN+SERVICE_LEN+VALID_LEN+EXP_LEN, MOD_LEN));
 		
 		RSAPublicKeySpec keySpec = new RSAPublicKeySpec(mod, exp);
 		
@@ -64,46 +83,77 @@ public class CertificateAttributes implements Serializable {
 	}
 	
 	public byte[] encode(){
-		// TODO change to actual encoding
-		String padded_name = String.format("%1$-" + name_len + "s", name);
-		String padded_service = String.format("%1$-" + service_len + "s", service);
-		String padded_time = String.format("%1$-" + validatedUntil_len + "s", Long.toString(validatedTime));
+		byte[] encoded = new byte[TOTAL_LEN];
+		String padded_name = String.format("%1$-" + NAME_LEN + "s", name);
+		byte[] serviceByte = new byte[SERVICE_LEN];
+		if(service.equals("webshop")) {
+			serviceByte[0] = WEBSHOP_BYTE;
+		} else if(service.equals("egov")) {
+			serviceByte[0] = EGOV_BYTE;
+		} else if(service.equals("socnet")) {
+			serviceByte[0] = SOCNET_BYTE;
+		} else if(service.equals("default")) {
+			serviceByte[0] = DEFAULT_BYTE;
+		} else {
+			serviceByte[0] = SPECIAL_BYTE;
+		}
 		
-		String padded_exp =  String.format("%1$-" + exp_len + "s", public_key.getPublicExponent().toString());
-		String padded_mod =  String.format("%1$-" + mod_len + "s", public_key.getModulus().toString());
+		byte[] validBytes = longToBytes(validatedTime);		
+		byte[] expBytes =  public_key.getPublicExponent().toByteArray();
+		byte[] modBytes  =  public_key.getModulus().toByteArray();
 		
-		return (padded_name + padded_service + padded_time + padded_exp + padded_mod).getBytes(StandardCharsets.US_ASCII);
+		System.arraycopy(padded_name.getBytes(StandardCharsets.US_ASCII), 0, encoded, 0, NAME_LEN);
+		System.arraycopy(serviceByte, 0, encoded, NAME_LEN, SERVICE_LEN);
+		System.arraycopy(validBytes, 0, encoded, NAME_LEN + SERVICE_LEN, VALID_LEN);
+		System.arraycopy(expBytes, 0, encoded, NAME_LEN + SERVICE_LEN + VALID_LEN, EXP_LEN);
+		System.arraycopy(modBytes, 1, encoded, NAME_LEN + SERVICE_LEN + VALID_LEN +EXP_LEN, MOD_LEN);
 		
+		
+		return encoded;
+		
+	}
+	
+	public static byte[] longToBytes(long x) {
+	    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+	    buffer.putLong(x);
+	    return buffer.array();
+	}
+	
+	public static long bytesToLong(byte[] bytes) {
+	    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+	    buffer.put(bytes);
+	    buffer.flip();//need flip 
+	    return buffer.getLong();
 	}
 	
 	public String toString(){
 		return name + "\n" + service + "\n" + Long.toString(validatedTime) + "\n" + public_key.getPublicExponent().toString() + "\n" + public_key.getModulus().toString() ;
 	}
 	
-	public static void main(String[] args) throws NoSuchAlgorithmException {
-		
-		CertificateAttributes c_attr = new CertificateAttributes("Naam", 5, "Service");
-		
-		KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(512);
-
-        KeyPair kp = kpg.genKeyPair();
-        RSAPublicKey pubkey = (RSAPublicKey) kp.getPublic();
-        
-        c_attr.public_key = pubkey;
-		
-		byte[] c_attr_encoded = c_attr.encode();
-        
-		System.out.println(c_attr);
-		System.out.println("-");
-		System.out.print(c_attr_encoded.length);
-		System.out.print(" - ");
-		System.out.println(c_attr_encoded);
-		System.out.println(CertificateAttributes.total_len);
-		System.out.println("-");
-		CertificateAttributes c_attr_copied = new CertificateAttributes(c_attr_encoded);
-		System.out.println(c_attr_copied);
-		
-	}
+//	public static void main(String[] args) throws NoSuchAlgorithmException {
+//		
+//		CertificateAttributes c_attr = new CertificateAttributes("Naam", 5, "Service");
+//		
+//		KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+//        kpg.initialize(512);
+//
+//        KeyPair kp = kpg.genKeyPair();
+//        RSAPublicKey pubkey = (RSAPublicKey) kp.getPublic();
+//        
+//        c_attr.public_key = pubkey;
+//		
+//		byte[] c_attr_encoded = c_attr.encode();
+//        
+//		System.out.println(c_attr);
+//		System.out.println("-");
+//		System.out.print(c_attr_encoded.length);
+//		System.out.print(" - ");
+//		System.out.println(c_attr_encoded);
+//		System.out.println(CertificateAttributes.TOTAL_LEN);
+//		System.out.println("-");
+//		CertificateAttributes c_attr_copied = new CertificateAttributes(c_attr_encoded);
+//		System.out.println(c_attr_copied);
+//		
+//	}
 	
 }
