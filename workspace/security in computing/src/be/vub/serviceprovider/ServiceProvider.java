@@ -34,7 +34,6 @@ public class ServiceProvider {
 			byte[] cert = kp.getCertificate();
 			String certStr = new String(Base64.getEncoder().encode(cert));
 			HttpResponse<String> res  = Unirest.post(Main.middelware + "authenticatesp").body(certStr).asString();
-			System.out.println(res.getBody());
 			if (res.getBody().contains("Error")){
 				System.out.println("Got error: " + res.getBody());
 				return false;

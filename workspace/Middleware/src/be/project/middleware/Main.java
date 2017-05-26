@@ -42,7 +42,7 @@ public class Main {
 		});
 		
 		serv.post("authenticatespchallenge", (req, res) -> {
-			String challenge = req.queryParams("challenge");
+			String challenge = req.body();
 			byte[] challengeBytes = Base64.getDecoder().decode(challenge);
 			try {
 				cm.authenticateSPChallenge(challengeBytes);
