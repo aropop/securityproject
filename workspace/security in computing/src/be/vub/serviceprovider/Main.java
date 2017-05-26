@@ -18,8 +18,15 @@ public class Main {
 			return getMain();
 		});
 		post("/", (req, res) -> {
-			System.out.println(req.queryParams("sp"));
-			return new ServiceProvider(req.queryParams("sp")).authenticate();
+			 ServiceProvider sp = new ServiceProvider(req.queryParams("sp"));
+			 if(sp.authenticateServiceProvider()) {
+				 if(sp.authenticateCard()) {
+					 
+				 }
+				 return "";
+			 } else {
+				 return "Authentication of the Service Provider failed";
+			 }
 		});
 
 	}

@@ -413,7 +413,7 @@ public class IdentityCard extends Applet {
 		}
 		byte[] buffer = apdu.getBuffer();
 		byte[] challengeCompare = new byte[16];
-		Cipher cp = Cipher.getInstance(Cipher.ALG_DES_CBC_PKCS5, false);
+		Cipher cp = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);
 		cp.init(Ks, Cipher.MODE_DECRYPT);
 		cp.update(buffer, ISO7816.OFFSET_CDATA, (short) 16, challengeCompare, (short) 0);
 		
@@ -437,7 +437,7 @@ public class IdentityCard extends Applet {
 		// Decode challenge from SP
 		byte[] buffer = apdu.getBuffer();
 		byte[] challenge = new byte[10];
-		Cipher cp = Cipher.getInstance(Cipher.ALG_DES_CBC_PKCS5, false);
+		Cipher cp = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);
 		cp.init(Ks, Cipher.MODE_DECRYPT);
 		cp.update(buffer, ISO7816.OFFSET_CDATA, (short) 10, challenge, (short) 0);// TODO encrypted keylength
 		

@@ -81,7 +81,7 @@ public class CustomKeyPair implements Serializable {
 	        rsasign.update(data); // Feed data to be signed
 	
 	        byte[] signature = rsasign.sign();  // Get the signature: signature = rsa(sha1(data))
-	        
+	        System.out.println("tst: " + data.length + "," + signature.length);
 	        byte[] full_cert = new byte[data.length + signature.length];
 	        System.arraycopy(data, 0, full_cert, 0, data.length);
 	        System.arraycopy(signature, 0, full_cert, data.length, signature.length);
@@ -233,7 +233,7 @@ public class CustomKeyPair implements Serializable {
 	}
 	
 	public static void main(String[] args) { 
-		CustomKeyPair cp = fromFile("TimeServer.ckeys");
+		CustomKeyPair cp = fromFile("common.ckeys");
 		BigInteger modulus = cp.getPublicKey().getModulus();
 		BigInteger exponent = cp.getPublicKey().getPublicExponent();
 		System.out.println(modulus.toByteArray().length);
@@ -252,6 +252,7 @@ public class CustomKeyPair implements Serializable {
 		System.out.print("\n");
 		printBA(modulus.toByteArray());
 		printBA(exponent.toByteArray());
+		System.out.println(cp.getCertificate().length);
 	}
 	
 }
