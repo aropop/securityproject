@@ -2,6 +2,7 @@ package be.project.middleware;
 
 import java.awt.Desktop;
 import java.net.URI;
+import java.util.Base64;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -24,20 +25,11 @@ public class Main {
 	public static void main(String[] args) {
 		serv.port(4570);
 		final Commands cm = new Commands();
-		//cm.init();
-		
-		try{
-			HttpResponse<String> res  = Unirest.get("http://localhost:4569/time").asString();
-			System.out.println(res.getBody());
-			System.out.println(res.getStatusText());
-		} catch(Exception e) {
-			System.out.println(e.getMessage());
-		}
-		//cm.debug();
-		
+		cm.init();
+		cm.sendTime();
+	
 		
 		serv.post("authenticatesp", (req, res) -> {
-			
 			try {
 				String cert = req.queryParams("cert");
 				byte[] certBytes = cert.getBytes();
