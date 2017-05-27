@@ -1,16 +1,14 @@
 package be.vub.serviceprovider;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
@@ -18,9 +16,7 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -29,7 +25,6 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import be.vub.security.CertificateAttributes;
 import be.vub.security.CustomKeyPair;
 
 public class ServiceProvider {
@@ -41,17 +36,21 @@ public class ServiceProvider {
 	public ServiceProvider(String serviceName){
 		this.kp = CustomKeyPair.fromFile(serviceName+".ckeys");
 		try{
-			FileInputStream fi = new FileInputStream("ca.cert");
+			
+			FileInputStream fi = new FileInputStream("CA.cert");
 			
 			// Read ca public key
 			byte[] cert = new byte[160];
 			fi.read(cert);
 			BigInteger exp = new BigInteger(Arrays.copyOfRange(cert, 29, 32));
+			byte [] tst = Arrays.copyOfRange(cert, 32, 96);
 			BigInteger mod = new BigInteger(Arrays.copyOfRange(cert, 32, 96));
 			RSAPublicKeySpec spec = new RSAPublicKeySpec(mod, exp);
 			KeyFactory factory = KeyFactory.getInstance("RSA");
-			ca = (RSAPublicKey) factory.generatePublic(spec);
-
+			//ca = (RSAPublicKey) factory.generatePublic(spec);
+			ca = CustomKeyPair.fromFile("CA.ckeys").getPublicKey(); // TODO fix certificate to prevent having the full key
+			fi.close();
+			
 		} catch(Exception e) {
 			System.out.println("Failed to read CA public key: " + e.getMessage());
 		}
@@ -98,8 +97,9 @@ public class ServiceProvider {
 				    System.arraycopy(challenge, 0, challengePadded, 0, 12); // Pad to get 16 bytes
 				    
 				    // Encrypt challenge
-				    cipher.init(Cipher.ENCRYPT_MODE, Ks);
-				    byte[] encodedChallenge = cipher.doFinal(challengePadded);
+				    Cipher cipher2 = Cipher.getInstance("AES/CBC/NOPADDING");
+				    cipher2.init(Cipher.ENCRYPT_MODE, Ks, new IvParameterSpec(new byte[16]));
+				    byte[] encodedChallenge = cipher2.doFinal(challengePadded);
 				    String encodedChallengeString = new String(Base64.getEncoder().encode(encodedChallenge));
 				    
 				    // Send challenge to card
@@ -107,6 +107,7 @@ public class ServiceProvider {
 				    
 				    // Card response
 				    if(res2.getBody().equals("ok")) {
+				    	System.out.println("Service provider authenticated");
 				    	return true;
 				    } else {
 				    	System.out.println(res2.getBody());
@@ -127,20 +128,24 @@ public class ServiceProvider {
 	public boolean authenticateCard() {
 		// Generate challenge
 		SecureRandom random = new SecureRandom();
-	    byte[] challenge = new byte[16];158
+	    byte[] challenge = new byte[16];
 	    random.nextBytes(challenge);
 	    
 	    //Encrypt challenge
 	    Cipher cipher;
 		try {
 			cipher = Cipher.getInstance("AES/CBC/NOPADDING");
-			cipher.init(Cipher.ENCRYPT_MODE, Ks);
+			cipher.init(Cipher.ENCRYPT_MODE, Ks,  new IvParameterSpec(new byte[16]));
 			byte[] encodedChallenge = cipher.doFinal(challenge);
 			String encodedChallengeString = new String(Base64.getEncoder().encode(encodedChallenge));
 			
 			// Get response from card through middleware
 			HttpResponse<String> res  = Unirest.post(Main.middelware + "authenticatecard").body(encodedChallengeString).asString();
+			if(res.getBody().contains("Error")) {
+				throw new Exception("From card: " +res.getBody());
+			}
 			byte[] message = Base64.getDecoder().decode(res.getBody());
+			message = Arrays.copyOfRange(message, 0, message.length-1);
 			
 			// Decrypt message
 			cipher.init(Cipher.DECRYPT_MODE, Ks ,  new IvParameterSpec(new byte[16])); // Card uses zero iv
@@ -162,22 +167,56 @@ public class ServiceProvider {
 			BigInteger mod = new BigInteger(Arrays.copyOfRange(certCO, 32, 96));
 			RSAPublicKeySpec spec = new RSAPublicKeySpec(mod, exp);
 			KeyFactory factory = KeyFactory.getInstance("RSA");
-			RSAPublicKey pkco = (RSAPublicKey) factory.generatePublic(spec);
+			//RSAPublicKey pkco = (RSAPublicKey) factory.generatePublic(spec);
+			RSAPublicKey pkco = CustomKeyPair.fromFile("common.ckeys").getPublicKey();
 			sig.initVerify(pkco);
 			
+			// Create own hash of challenge
+			byte[] auth = new byte[] {0x61, 0x75, 0x74, 0x68};
+			byte[] challengePlusAuth = new byte[challenge.length+auth.length];
+			System.arraycopy(challenge, 0, challengePlusAuth, 0, challenge.length);
+			System.arraycopy(auth, 0, challengePlusAuth, challenge.length, auth.length);
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			md.update(challengePlusAuth);
+			byte[] hash = md.digest();
+			
+			
 			// Put hash into signature object
-			sig.update();
+			sig.update(hash);
 			if(!sig.verify(signature)) {
 				throw new Exception("Signature from card incorrect");
-			}
+			} 
+			
+			return true;
 			
 			
 		} catch (Exception e) {
 			System.out.println("Card authentication failed: " + e.getMessage());
+			return false;
 		}
-	    
-	    
-		return true;
+	}
+	
+	
+	public String getAttributes() {
+		try {
+			// Call to middleware
+			Unirest.setTimeouts(10000, 180000); // Users have 3 minutes to answer
+			HttpResponse<String> res  = Unirest.post(Main.middelware + "queryattribute").body("").asString();
+			if(res.getBody().contains("Error")) {
+				return "Error retrieving attributes";
+			}
+			byte[] message = Base64.getDecoder().decode(res.getBody());
+			
+			Cipher cipher = Cipher.getInstance("AES/CBC/NOPADDING");
+			cipher.init(Cipher.DECRYPT_MODE, Ks ,  new IvParameterSpec(new byte[16])); // Card uses zero iv
+			byte[] decryptedMessage = cipher.doFinal(message);
+			return new String(decryptedMessage, StandardCharsets.US_ASCII);
+
+		} catch (UnirestException e) {
+			return "Error connecting to the client";
+		} catch (Exception e) {
+			return "Decoding error: " + e.getMessage();
+		}
 	}
 	
 }

@@ -1,7 +1,6 @@
 package be.project.middleware;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -166,6 +165,8 @@ public class Commands {
 					throw new Exception("Challenge wrong");
 				} else if(r.getSW() == 0x9000) {
 					return null;				
+				} else {
+					throw new Exception("Something else went wrong, SW:" + r.getSW());
 				}
 			} catch (CardConnectException e) {
 				// TODO Auto-generated catch block
@@ -185,10 +186,11 @@ public class Commands {
 				throw new Exception("Challenge wrong");
 			} else if(r.getSW() == SW_MORE_DATA || r.getSW() == 0x9000) {
 				return getAllData(a, r);				
+			} else {
+				System.out.println(r.getSW());
 			}
 		} catch (CardConnectException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Card Connect Error");
 		}
 		return null;
 	}
@@ -204,10 +206,11 @@ public class Commands {
 				throw new Exception("Challenge wrong");
 			} else if(r.getSW() == SW_MORE_DATA || r.getSW() == 0x9000) {
 				return getAllData(a, r);
+			} else {
+				System.out.println(r.getSW());
 			}
 		} catch (CardConnectException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Test");
 		}
 		return null;
 	}

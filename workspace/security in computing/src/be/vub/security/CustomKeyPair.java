@@ -1,30 +1,20 @@
 package be.vub.security;
 
-import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
-import java.util.Date;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.FileInputStream;
@@ -78,10 +68,9 @@ public class CustomKeyPair implements Serializable {
 	        } else {
 	        	rsasign.initSign(this.ca.getPrivateKey()); // Sign by authority
 	        }
+	        System.out.println(data.length);
 	        rsasign.update(data); // Feed data to be signed
-	
 	        byte[] signature = rsasign.sign();  // Get the signature: signature = rsa(sha1(data))
-	        System.out.println("tst: " + data.length + "," + signature.length);
 	        byte[] full_cert = new byte[data.length + signature.length];
 	        System.arraycopy(data, 0, full_cert, 0, data.length);
 	        System.arraycopy(signature, 0, full_cert, data.length, signature.length);
@@ -203,12 +192,10 @@ public class CustomKeyPair implements Serializable {
 		CertificateAttributes timeServerAttributes = new CertificateAttributes("TimeServer", 365, "TimeServer");
 		CustomKeyPair timeServerKeys = new CustomKeyPair(timeServerAttributes);
 		timeServerKeys.setCertificateAuthority(ca);
-		byte[] timeServerCert = timeServerKeys.getCertificate();
 		
 		CertificateAttributes commonAttributes = new CertificateAttributes("common", 365, "common");
 		CustomKeyPair commonKeys = new CustomKeyPair(commonAttributes);
 		commonKeys.setCertificateAuthority(ca);
-		byte[] commonCert = commonKeys.getCertificate();
 		
 		CustomKeyPair egov1 = issue("Egov1", "egov", ca);
 		CustomKeyPair egov2 = issue("Egov2", "egov", ca);
@@ -234,8 +221,8 @@ public class CustomKeyPair implements Serializable {
 	
 	public static void main(String[] args) { 
 		CustomKeyPair cp = fromFile("common.ckeys");
-		BigInteger modulus = cp.getPublicKey().getModulus();
-		BigInteger exponent = cp.getPublicKey().getPublicExponent();
+		BigInteger modulus = cp.getPrivateKey().getModulus();
+		BigInteger exponent = cp.getPrivateKey().getPrivateExponent();
 		System.out.println(modulus.toByteArray().length);
 		System.out.println(exponent);
 		for(byte b : modulus.toByteArray()) {
@@ -250,9 +237,16 @@ public class CustomKeyPair implements Serializable {
 			System.out.print(", ");
 		}
 		System.out.print("\n");
+		for(byte b : cp.getCertificate()) {
+			System.out.print("(byte) ");
+			System.out.print(b);
+			System.out.print(", ");
+		}
+		System.out.print("\n");
 		printBA(modulus.toByteArray());
 		printBA(exponent.toByteArray());
 		System.out.println(cp.getCertificate().length);
+		System.out.println(verifyCert(cp.getCertificate(), fromFile("CA.ckeys").getPublicKey()));
 	}
 	
 }

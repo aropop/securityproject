@@ -4,10 +4,6 @@ import java.awt.Desktop;
 import java.net.URI;
 import java.util.Base64;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
-
-import spark.Spark;
 
 public class Main {
 
@@ -53,11 +49,11 @@ public class Main {
 		});	
 		
 		serv.post("authenticatecard", (req, res) -> {
-			String challenge = req.queryParams("challenge");
-			byte[] challengeBytes = challenge.getBytes();
+			String challenge = req.body();
+			byte[] challengeBytes = Base64.getDecoder().decode(challenge);
 			try {
 				byte[] Emsg = cm.authenticateCard(challengeBytes);
-				return Emsg; // TODO gaat niet werken				
+				return Base64.getEncoder().encode(Emsg); 			
 			} catch(Exception e) {
 				return "Error: " + e.getMessage();
 			}
@@ -70,11 +66,12 @@ public class Main {
 			}, () -> {
 				pinState.setStatus(PinState.PIN_DONE);
 				try {
-					byte[] Eattributes = cm.getAttributes(req.queryParams("query").getBytes());
+					byte[] Eattributes = cm.getAttributes(new byte[0]);
 					pinState.setData(Eattributes);
 					pinState.setStatus(PinState.ATTRIBUTES_READY);
 					
 				} catch(Exception e) {
+					System.out.println(e.getMessage());
 					pinState.setStatus(PinState.ERROR);
 				}
 			});
@@ -82,18 +79,18 @@ public class Main {
 			int loadAn = 1;
 			while(pinState.status() != PinState.ATTRIBUTES_READY) {
 				Thread.sleep(1000);
+				if(PinState.ERROR == pinState.status()) {
+					return "Error";
+				}
 				System.out.print("Waiting For pin");
 				for(int i = 0; i <= loadAn; i++) {
 					System.out.print(".");
-				}
-				if(PinState.ERROR == pinState.status()) {
-					return "Error";
 				}
 				System.out.print("\r");
 				loadAn++;
 				loadAn = loadAn % 4;
 			}
-			return pinState.attributes();
+			return Base64.getEncoder().encode(pinState.attributes());
 		});
 		
 		

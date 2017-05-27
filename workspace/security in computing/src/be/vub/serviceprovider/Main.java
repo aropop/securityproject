@@ -2,8 +2,6 @@ package be.vub.serviceprovider;
 
 import static spark.Spark.*;
 
-import be.vub.security.CertificateAttributes;
-import be.vub.security.CustomKeyPair;
 
 public class Main {
 
@@ -21,7 +19,7 @@ public class Main {
 			 ServiceProvider sp = new ServiceProvider(req.queryParams("sp"));
 			 if(sp.authenticateServiceProvider()) {
 				 if(sp.authenticateCard()) {
-					 
+					 return "sp and card authenticated!<br />" + sp.getAttributes();
 				 }
 				 return "";
 			 } else {

@@ -12,6 +12,8 @@ import javacard.security.DESKey;
 import javacard.security.Key;
 import javacard.security.KeyBuilder;
 import javacard.security.MessageDigest;
+import javacard.security.RSAPrivateCrtKey;
+import javacard.security.RSAPrivateKey;
 import javacard.security.RSAPublicKey;
 import javacard.security.RandomData;
 import javacard.security.Signature;
@@ -70,9 +72,14 @@ public class IdentityCard extends Applet {
 	private final static byte[] PUBLIC_KEY_G_EXP = new byte[]{(byte) 1, (byte) 0, (byte) 1};
 	private final static byte[] PUBLIC_KEY_CA_MOD = new byte[]{(byte) -70, (byte) 46, (byte) 55, (byte) -88, (byte) 120, (byte) -9, (byte) 116, (byte) 126, (byte) -86, (byte) 0, (byte) 66, (byte) 66, (byte) -27, (byte) -112, (byte) 9, (byte) -118, (byte) -67, (byte) -1, (byte) -29, (byte) -2, (byte) 23, (byte) -125, (byte) 42, (byte) 39, (byte) -44, (byte) 67, (byte) 60, (byte) -18, (byte) 123, (byte) 47, (byte) -7, (byte) -117, (byte) 37, (byte) -49, (byte) -125, (byte) -95, (byte) -104, (byte) -23, (byte) -120, (byte) -105, (byte) -40, (byte) -49, (byte) -68, (byte) -40, (byte) 99, (byte) 113, (byte) 92, (byte) 25, (byte) 0, (byte) 122, (byte) -91, (byte) 65, (byte) -39, (byte) -94, (byte) -95, (byte) -127, (byte) -102, (byte) 31, (byte) -24, (byte) 21, (byte) 112, (byte) -72, (byte) -31, (byte) -17};
 	private final static byte[] PUBLIC_KEY_CA_EXP = new byte[]{(byte) 1, (byte) 0, (byte) 1};
+	private final static byte[] PRIVATE_KEY_CO_MOD = new byte[]{(byte) -107, (byte) 45, (byte) 81, (byte) -105, (byte) -78, (byte) -91, (byte) -15, (byte) -7, (byte) 89, (byte) 32, (byte) 60, (byte) 88, (byte) 30, (byte) 126, (byte) -11, (byte) 42, (byte) 30, (byte) -93, (byte) 98, (byte) 97, (byte) -35, (byte) -13, (byte) -86, (byte) -97, (byte) -103, (byte) 61, (byte) -44, (byte) -56, (byte) 107, (byte) -104, (byte) 33, (byte) 76, (byte) -28, (byte) -17, (byte) -15, (byte) 35, (byte) 82, (byte) -83, (byte) 111, (byte) -12, (byte) 61, (byte) 112, (byte) -33, (byte) -126, (byte) -89, (byte) 33, (byte) 11, (byte) 120, (byte) -58, (byte) 54, (byte) -7, (byte) -71, (byte) 28, (byte) -20, (byte) 77, (byte) -17, (byte) -49, (byte) -94, (byte) 16, (byte) -73, (byte) 88, (byte) -65, (byte) 54, (byte) -87};
+	private final static byte[] PRIVATE_KEY_CO_EXP = new byte[]{(byte) 122, (byte) 61, (byte) 123, (byte) -103, (byte) -54, (byte) 43, (byte) -113, (byte) 96, (byte) 27, (byte) 55, (byte) 126, (byte) 27, (byte) 91, (byte) 73, (byte) -1, (byte) -115, (byte) -9, (byte) 51, (byte) 61, (byte) 32, (byte) 35, (byte) 39, (byte) 83, (byte) -114, (byte) -102, (byte) -100, (byte) -1, (byte) 43, (byte) 8, (byte) 119, (byte) -51, (byte) -8, (byte) -102, (byte) 81, (byte) 25, (byte) 104, (byte) -72, (byte) 64, (byte) 68, (byte) 111, (byte) 75, (byte) -53, (byte) -107, (byte) -2, (byte) 46, (byte) 86, (byte) -25, (byte) -44, (byte) 118, (byte) 58, (byte) 65, (byte) 114, (byte) 3, (byte) 44, (byte) -38, (byte) -54, (byte) 42, (byte) -120, (byte) 125, (byte) -50, (byte) -28, (byte) -95, (byte) 103, (byte) -15};
+
+	private final static byte[] CERT_CO = new byte[]{(byte) 99, (byte) 111, (byte) 109, (byte) 109, (byte) 111, (byte) 110, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 16, (byte) 0, (byte) 0, (byte) 1, (byte) 92, (byte) -100, (byte) 78, (byte) 81, (byte) 40, (byte) 1, (byte) 0, (byte) 1, (byte) -107, (byte) 45, (byte) 81, (byte) -105, (byte) -78, (byte) -91, (byte) -15, (byte) -7, (byte) 89, (byte) 32, (byte) 60, (byte) 88, (byte) 30, (byte) 126, (byte) -11, (byte) 42, (byte) 30, (byte) -93, (byte) 98, (byte) 97, (byte) -35, (byte) -13, (byte) -86, (byte) -97, (byte) -103, (byte) 61, (byte) -44, (byte) -56, (byte) 107, (byte) -104, (byte) 33, (byte) 76, (byte) -28, (byte) -17, (byte) -15, (byte) 35, (byte) 82, (byte) -83, (byte) 111, (byte) -12, (byte) 61, (byte) 112, (byte) -33, (byte) -126, (byte) -89, (byte) 33, (byte) 11, (byte) 120, (byte) -58, (byte) 54, (byte) -7, (byte) -71, (byte) 28, (byte) -20, (byte) 77, (byte) -17, (byte) -49, (byte) -94, (byte) 16, (byte) -73, (byte) 88, (byte) -65, (byte) 54, (byte) -87, (byte) 76, (byte) -97, (byte) 120, (byte) -27, (byte) 16, (byte) 61, (byte) 47, (byte) -23, (byte) 72, (byte) 82, (byte) 61, (byte) -7, (byte) 56, (byte) -36, (byte) 108, (byte) -48, (byte) -34, (byte) -15, (byte) -94, (byte) -117, (byte) 122, (byte) 55, (byte) 37, (byte) 3, (byte) -65, (byte) 100, (byte) -9, (byte) 95, (byte) 1, (byte) 52, (byte) 51, (byte) -65, (byte) -55, (byte) -17, (byte) -72, (byte) -108, (byte) 37, (byte) -119, (byte) -83, (byte) 10, (byte) -111, (byte) -24, (byte) -113, (byte) -119, (byte) -71, (byte) -42, (byte) -18, (byte) 9, (byte) -78, (byte) -17, (byte) 71, (byte) 3, (byte) 43, (byte) 59, (byte) -58, (byte) -123, (byte) 105, (byte) -77, (byte) 52, (byte) 101, (byte) 42, (byte) 37, (byte) 22, (byte) -83};
+	
 	private static RSAPublicKey PUBLIC_KEY_CA = null;
-	private final static Key PRIVATE_KEY_CO = null;//TODO
-	private final static Key PUBLIC_KEY_CO = null;//TODO
+	private static RSAPrivateKey PRIVATE_KEY_CO = null;
+	private static RSAPublicKey PUBLIC_KEY_CO = null;
 	
 	private OwnerPIN pin;
 	private byte[] subject;
@@ -124,6 +131,15 @@ public class IdentityCard extends Applet {
 		PUBLIC_KEY_CA = (RSAPublicKey) KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PUBLIC, KeyBuilder.LENGTH_RSA_512, false);
 		PUBLIC_KEY_CA.setExponent(PUBLIC_KEY_CA_EXP, (short)0, (short)PUBLIC_KEY_G_EXP.length);
 		PUBLIC_KEY_CA.setModulus(PUBLIC_KEY_CA_MOD, (short)0, (short)PUBLIC_KEY_G_MOD.length);
+		
+		PRIVATE_KEY_CO = (RSAPrivateKey) KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PRIVATE, KeyBuilder.LENGTH_RSA_512, false);
+		PRIVATE_KEY_CO.setExponent(PRIVATE_KEY_CO_EXP, (short)0, (short)PRIVATE_KEY_CO_EXP.length);
+		PRIVATE_KEY_CO.setModulus(PRIVATE_KEY_CO_MOD, (short)0, (short)PRIVATE_KEY_CO_MOD.length);
+		
+		PUBLIC_KEY_CO = (RSAPublicKey) KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PUBLIC, KeyBuilder.LENGTH_RSA_512, false);
+		PUBLIC_KEY_CO.setExponent(CERT_CO, (short)29, (short)PUBLIC_KEY_G_EXP.length);
+		PUBLIC_KEY_CO.setModulus(CERT_CO, (short)32, (short)PUBLIC_KEY_G_MOD.length);
+		
 		/*
 		 * This method registers the applet with the JCRE on the card.
 		 */
@@ -255,30 +271,9 @@ public class IdentityCard extends Applet {
 	 */
 	private void validatePIN(APDU apdu){
 		byte[] buffer = apdu.getBuffer();
-		//The input data needs to be of length 'PIN_SIZE'.
-		//Note that the byte values in the Lc and Le fields represent values between
-		//0 and 255. Therefore, if a short representation is required, the following
-		//code needs to be used: short Lc = (short) (buffer[ISO7816.OFFSET_LC] & 0x00FF);
 		if(buffer[ISO7816.OFFSET_LC]==PIN_SIZE){
 			//This method is used to copy the incoming data in the APDU buffer.
 			apdu.setIncomingAndReceive();
-			//Note that the incoming APDU data size may be bigger than the APDU buffer 
-			//size and may, therefore, need to be read in portions by the applet. 
-			//Most recent smart cards, however, have buffers that can contain the maximum
-			//data size. This can be found in the smart card specifications.
-			//If the buffer is not large enough, the following method can be used:
-			//
-			//byte[] buffer = apdu.getBuffer();
-			//short bytesLeft = (short) (buffer[ISO7816.OFFSET_LC] & 0x00FF);
-			//Util.arrayCopy(buffer, START, storage, START, (short)5);
-			//short readCount = apdu.setIncomingAndReceive();
-			//short i = ISO7816.OFFSET_CDATA;
-			//while ( bytesLeft > 0){
-			//	Util.arrayCopy(buffer, ISO7816.OFFSET_CDATA, storage, i, readCount);
-			//	bytesLeft -= readCount;
-			//	i+=readCount;
-			//	readCount = apdu.receiveBytes(ISO7816.OFFSET_CDATA);
-			//}
 			if (pin.check(buffer, ISO7816.OFFSET_CDATA,PIN_SIZE)==false)
 				ISOException.throwIt(SW_VERIFICATION_FAILED);
 			else {
@@ -373,8 +368,8 @@ public class IdentityCard extends Applet {
 		Ks.setKey(KsBytes, (short) 0);
 		
 		// Create challenge
-		this.challenge = new byte[12]; // TODO value?
-		rng.generateData(challenge, (short)0, (short)10);
+		this.challenge = new byte[12]; // 12 such that 20+12 =32 which is dividable by 16 for AES
+		rng.generateData(challenge, (short)0, (short)12);
 		
 		// Create public key object
 		RSAPublicKey publicKeySP = (RSAPublicKey) KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PUBLIC, KeyBuilder.LENGTH_RSA_512, false);
@@ -413,9 +408,10 @@ public class IdentityCard extends Applet {
 		}
 		byte[] buffer = apdu.getBuffer();
 		byte[] challengeCompare = new byte[16];
-		Cipher cp = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);
-		cp.init(Ks, Cipher.MODE_DECRYPT);
-		cp.update(buffer, ISO7816.OFFSET_CDATA, (short) 16, challengeCompare, (short) 0);
+		// For some black magical reason, this does not work with AES eventhough this alg is set at the service provider level
+		Cipher cp = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false); 
+		cp.init(Ks, Cipher.MODE_DECRYPT, new byte[16], (short) 0, (short) 16);
+		cp.doFinal(buffer, ISO7816.OFFSET_CDATA, (short) 16, challengeCompare, (short) 0);
 		
 		challengeCompare[1] = (byte) ~challengeCompare[1];
 		if(Util.arrayCompare(challengeCompare, (short) 0, this.challenge, (short) 0, (short) 12) != 0) {
@@ -430,34 +426,39 @@ public class IdentityCard extends Applet {
 	
 	// Step 3
 	public void authenticateCard(APDU apdu) {
-		if(authenticated) {
+		if(!authenticated) {
 			ISOException.throwIt(SW_NOT_AUTHENTICATED);
 			return;
 		}
 		// Decode challenge from SP
 		byte[] buffer = apdu.getBuffer();
-		byte[] challenge = new byte[10];
+		byte[] challenge = new byte[16];
 		Cipher cp = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);
-		cp.init(Ks, Cipher.MODE_DECRYPT);
-		cp.update(buffer, ISO7816.OFFSET_CDATA, (short) 10, challenge, (short) 0);// TODO encrypted keylength
+		cp.init(Ks, Cipher.MODE_DECRYPT, new byte[16], (short)0, (short)16);
+		cp.doFinal(buffer, ISO7816.OFFSET_CDATA, (short) 16, challenge, (short) 0);
 		
-		byte[] challengePlusAuth = new byte[14];
+		byte[] challengePlusAuth = new byte[20];
 		Util.arrayCopy(challenge, (short)0, challengePlusAuth, (short) 0, (short) challenge.length);
-		Util.arrayCopy(new byte[] {0x61, 0x75, 0x74, 0x68}, (short)0, challengePlusAuth, (short) 10, (short) 4); // TODO hash this
+		Util.arrayCopy(new byte[] {0x61, 0x75, 0x74, 0x68}, (short)0, challengePlusAuth, (short) challenge.length, (short) 4);
+		MessageDigest md = MessageDigest.getInstance(MessageDigest.ALG_SHA_256, false);
+		byte[] hash = new byte[64];
+		md.doFinal(challengePlusAuth, (short) 0, (short) challengePlusAuth.length, hash, (short) 0);
+		byte[] hash32 = new byte[32];
+		Util.arrayCopy(hash, (short) 0, hash32, (short)0, (short)32);
 		
 		// Sign challenge plus "auth" with private key
-		byte[] chAuSigned = new byte[16]; // 
-		Signature sign = Signature.getInstance(Signature.ALG_AES_MAC_128_NOPAD, false);
+		byte[] chAuSigned = new byte[64]; // 
+		Signature sign = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1, false);
 		sign.init(PRIVATE_KEY_CO, Signature.MODE_SIGN);
-		sign.sign(challengePlusAuth, (short) 0, (short) 14, chAuSigned, (short) 0);
+		sign.sign(hash32, (short) 0, (short) hash32.length, chAuSigned, (short) 0);
 		
 		// Encrypt
-		byte[] signedPlusCert = new byte[16]; // TODO add size certificate
-		byte[] response = new byte[20]; // TODO response size
-		Util.arrayCopy(chAuSigned, (short)0, signedPlusCert, (short) 0, (short) chAuSigned.length);
-		Util.arrayCopy(new byte[] {} /* TODO cert here */, (short)0, signedPlusCert, (short) chAuSigned.length, (short) 0/*len*/); // TODO hash this
+		byte[] signedPlusCert = new byte[160+64]; 
+		byte[] response = new byte[160+64]; 
+		Util.arrayCopy(CERT_CO, (short)0, signedPlusCert, (short) 0, (short) CERT_CO.length); 
+		Util.arrayCopy(chAuSigned, (short)0, signedPlusCert, (short) CERT_CO.length, (short) chAuSigned.length);
 		cp.init(Ks,  Cipher.MODE_ENCRYPT);
-		cp.update(signedPlusCert, (short)0, (short) signedPlusCert.length, response, (short)0);
+		cp.doFinal(signedPlusCert, (short)0, (short) signedPlusCert.length, response, (short)0);
 		
 		sendData(response, apdu);
 	}
@@ -473,16 +474,18 @@ public class IdentityCard extends Applet {
 			return;
 		}
 		
-		byte[] buffer = apdu.getBuffer();
+		//byte[] buffer = apdu.getBuffer();
 		// Ignore query and return all he has rights to
 		
-		byte[] nym = new byte[MessageDigest.LENGTH_SHA_256];
+		byte[] nym64 = new byte[64];
+		byte[] nym = new byte[32];
 		byte[] kuPlusSubject = new byte[LEN_SYM_KEY + LEN_SUBJECT];
 		Util.arrayCopy(Ku, (short)0, kuPlusSubject, (short) 0, (short) Ku.length);
 		Util.arrayCopy(subject, (short)0, kuPlusSubject, (short) Ku.length, (short) subject.length); // TODO hash this
 		
 		MessageDigest md = MessageDigest.getInstance(MessageDigest.ALG_SHA_256, false);
-		md.doFinal(kuPlusSubject,(short)0, (short)nym.length, nym, (short)0);
+		md.doFinal(kuPlusSubject,(short)0, (short)nym64.length, nym64, (short)0);
+		Util.arrayCopy(nym64, (short) 0, nym, (short)0, (short)32);
 		 
 		// Build data
 		byte type = 0x00; // TODO
@@ -523,7 +526,7 @@ public class IdentityCard extends Applet {
 		
 		// Create data array, nym is included
 		short offset = 0;
-		byte[] data = new byte[totLen];
+		byte[] data = new byte[totLen + (totLen % 16)];
 		for(short i = 0; i < (short) rights.length; i++) {
 			boolean can = rights[i];
 			if(can) {
@@ -537,9 +540,10 @@ public class IdentityCard extends Applet {
 			}
 		}
 		
+		
 		// encrypt data
-		byte[] response = new byte[20]; // TODO response size
-		Cipher cp = Cipher.getInstance(Cipher.ALG_DES_CBC_PKCS5, false);
+		byte[] response = new byte[data.length]; 
+		Cipher cp = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);
 		cp.init(Ks,  Cipher.MODE_ENCRYPT);
 		cp.update(data, (short)0, (short) data.length, response, (short)0);
 		
