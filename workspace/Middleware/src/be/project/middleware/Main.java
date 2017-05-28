@@ -2,6 +2,7 @@ package be.project.middleware;
 
 import java.awt.Desktop;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Base64;
 
 
@@ -14,6 +15,11 @@ public class Main {
 
 	
 	private static final spark.Service serv = spark.Service.ignite();
+	private static final byte[] serviceType = new byte[21];
+	public final static byte WEBSHOP_BYTE = 0x00;
+	public final static byte DEFAULT_BYTE = 0x01;
+	public final static byte SOCNET_BYTE = 0x02;
+	public final static byte EGOV_BYTE = 0x03;
 
 	
 	/**
@@ -63,6 +69,7 @@ public class Main {
 		serv.post("queryattribute", (req, res) -> {
 			// Ask for pin asynchronously
 			final PinState pinState = new PinState();
+			System.arraycopy(Base64.getDecoder().decode(req.body().getBytes()), 0, serviceType, 0, 21);
 			askForPin((pin) -> {
 				return cm.sendPIN(pin);
 			}, () -> {
@@ -110,7 +117,8 @@ public class Main {
 		final String[] errMessages = new String[1];
 		pinServ.port(4568);
 		pinServ.get("/pin", (req, res) -> ("<form method=\"POST\">" +
-				(errMessages[0] == null ? "" : errMessages[0]) +
+				(errMessages[0] == null ? "" : errMessages[0]) + "<br>" +
+				"Service Provider "+ new String(Arrays.copyOf(serviceType, 20)) + " request following information of your card: " +getQueryString() + "<br>" +
 				"    Tries left: " + (3 - tries.val()) + "<br />" +
 				"    PIN:<input type=\"text\" name=\"pin\" pattern=\"[0-9]{4}\" maxlength=\"4\">" +
 				"    <input type=\"submit\" value=\"Validate\">" +
@@ -157,6 +165,20 @@ public class Main {
 			System.out.println("Opening browser failed");
 		}
 
+	}
+	
+	public static String getQueryString() {
+		if(serviceType[20] == WEBSHOP_BYTE) {
+			return "a unique identifier, full name, address and country";
+		} else if(serviceType[20] == DEFAULT_BYTE) {
+			return "a unique identifier and age";
+		} else if(serviceType[20] == EGOV_BYTE) {
+			return "a unique identifier, full name, address, country, birthdate, age and gender";
+		} else if (serviceType[20] == SOCNET_BYTE) {
+			return "a unique identifier, full name, country, age, gender and your picture";
+		} else {
+			return "";
+		}
 	}
 
 

@@ -20,6 +20,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import be.vub.security.CertificateAttributes;
 import be.vub.security.CustomKeyPair;
 
 public class ServiceProvider {
@@ -165,12 +166,16 @@ public class ServiceProvider {
 			byte[] certCO = Arrays.copyOfRange(decryptedMessage, 0, 160);
 			byte[] signature = Arrays.copyOfRange(decryptedMessage, 160, decryptedMessage.length);
 			
-			// Verify cert TODO: check validation date
 			Signature sig = Signature.getInstance("SHA1withRSA");
 			sig.initVerify(ca);
 			sig.update(Arrays.copyOfRange(certCO, 0, 96));
 			if(!sig.verify(Arrays.copyOfRange(certCO, 96, 160))) {
 				throw new Exception("Certificate co incorrect");
+			}
+			
+			long certValid = CertificateAttributes.bytesToLong(Arrays.copyOfRange(certCO, 21, 29));
+			if(System.currentTimeMillis() > certValid) {
+				throw new Exception("Certificate CO no longer valid");
 			}
 			
 			// Build the public key in cert co
@@ -212,7 +217,8 @@ public class ServiceProvider {
 		try {
 			// Call to middleware
 			Unirest.setTimeouts(10000, 180000); // Users have 3 minutes to answer
-			HttpResponse<String> res  = Unirest.post(Main.middelware + "queryattribute").body("").asString();
+			String typeBt = new String(Base64.getEncoder().encode(Arrays.copyOfRange(kp.getCertificate(), 0, 21)));
+			HttpResponse<String> res  = Unirest.post(Main.middelware + "queryattribute").body(typeBt).asString();
 			if(res.getBody().contains("Error")) {
 				String[] sps = res.getBody().split("Error");
 				return "Error retrieving attributes" + sps[sps.length-1];

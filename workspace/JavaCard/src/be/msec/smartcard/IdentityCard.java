@@ -46,6 +46,7 @@ public class IdentityCard extends Applet {
 	private final static short SW_UNAUTHORISED = 0x6306;
 	private final static short SW_MORE_DATA = 0x6309;
 	private final static short SW_BIG_DATA = 0x6308;
+	private final static short SW_CERTIFICATE_OUTDATED = 0x6310;
 	
 	private final static short CERT_NAME_OFFSET = 0;
 	private final static short CERT_TYPE_OFFSET = 20;
@@ -59,6 +60,7 @@ public class IdentityCard extends Applet {
 	private final static short LEN_SUBJECT = 20;
 	private final static short LEN_CERT_DATA = CERT_SIGN_OFFSET;
 	private final static short LEN_SIGN = 64;
+	private final static short LEN_VALID = 8;
 	
 	
 	private static final byte TYPE_WEBSH = 0x00;
@@ -359,7 +361,12 @@ public class IdentityCard extends Applet {
 			return;
 		}
 		
-		// TODO verify date
+		byte[] certValidDate = new byte[8];
+		Util.arrayCopy(data, CERT_VALID_OFFSET, certValidDate, (short) 0, LEN_VALID);
+		if(Util.arrayCompare(time, (short) 0, certValidDate, (short) 0, LEN_VALID) == -1) {
+			ISOException.throwIt(SW_CERTIFICATE_OUTDATED);
+			return;
+		}
 		
 		this.subject = new byte[LEN_SUBJECT];		
 		Util.arrayCopy(data, CERT_NAME_OFFSET, this.subject, (short)0, LEN_SUBJECT);

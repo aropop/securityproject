@@ -38,6 +38,7 @@ public class Commands {
 	private final static short SW_CHALLENGE_WRONG = 0x6305;
 	private final static short SW_UNAUTHORISED = 0X6306;
 	private final static short SW_MORE_DATA = 0X6309;
+	private final static short SW_CERTIFICATE_OUTDATED = 0x6310;
 	
 	private IConnection c;
 	
@@ -139,6 +140,8 @@ public class Commands {
 				r = c.transmit(a);
 				if(r.getSW() == SW_VERIFICATION_FAILED) {
 					throw new Exception("Verification failed");
+				} else if(r.getSW() == SW_CERTIFICATE_OUTDATED) {
+					throw new Exception("Certificate is outdated");
 				} else if(r.getSW() == SW_MORE_DATA || r.getSW() == 0x9000) {
 					return getAllData(a, r);
 				}
