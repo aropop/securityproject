@@ -2,11 +2,8 @@ package be.vub.security;
 
 import java.io.Serializable;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.math.BigInteger;
-import java.security.cert.CertificateException;
 import java.security.InvalidKeyException;
-import java.security.KeyStoreException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -68,7 +65,6 @@ public class CustomKeyPair implements Serializable {
 	        } else {
 	        	rsasign.initSign(this.ca.getPrivateKey()); // Sign by authority
 	        }
-	        System.out.println(data.length);
 	        rsasign.update(data); // Feed data to be signed
 	        byte[] signature = rsasign.sign();  // Get the signature: signature = rsa(sha1(data))
 	        byte[] full_cert = new byte[data.length + signature.length];
@@ -135,12 +131,13 @@ public class CustomKeyPair implements Serializable {
 		this.ca = ca;
 	}
 	
-	public void store() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException{
-		
-	}
 	
 	public String getName() {
 		return this.attributes.name;
+	}
+	
+	public String getType() {
+		return this.attributes.service;
 	}
 	
 	public static CustomKeyPair issue(String name, String type, CustomKeyPair ca) {
@@ -220,33 +217,33 @@ public class CustomKeyPair implements Serializable {
 	}
 	
 	public static void main(String[] args) { 
-//		CustomKeyPair cp = fromFile("common.ckeys");
-//		BigInteger modulus = cp.getPrivateKey().getModulus();
-//		BigInteger exponent = cp.getPrivateKey().getPrivateExponent();
-//		System.out.println(modulus.toByteArray().length);
-//		System.out.println(exponent);
-//		for(byte b : modulus.toByteArray()) {
-//			System.out.print("(byte) ");
-//			System.out.print(b);
-//			System.out.print(", ");
-//		}
-//		System.out.print("\n");
-//		for(byte b : exponent.toByteArray()) {
-//			System.out.print("(byte) ");
-//			System.out.print(b);
-//			System.out.print(", ");
-//		}
-//		System.out.print("\n");
-//		for(byte b : cp.getCertificate()) {
-//			System.out.print("(byte) ");
-//			System.out.print(b);
-//			System.out.print(", ");
-//		}
-//		System.out.print("\n");
-//		printBA(modulus.toByteArray());
-//		printBA(exponent.toByteArray());
-//		System.out.println(cp.getCertificate().length);
-//		System.out.println(verifyCert(cp.getCertificate(), fromFile("CA.ckeys").getPublicKey()));
+		CustomKeyPair cp = fromFile("common.ckeys");
+		BigInteger modulus = cp.getPrivateKey().getModulus();
+		BigInteger exponent = cp.getPrivateKey().getPrivateExponent();
+		System.out.println(modulus.toByteArray().length);
+		System.out.println(exponent);
+		for(byte b : modulus.toByteArray()) {
+			System.out.print("(byte) ");
+			System.out.print(b);
+			System.out.print(", ");
+		}
+		System.out.print("\n");
+		for(byte b : exponent.toByteArray()) {
+			System.out.print("(byte) ");
+			System.out.print(b);
+			System.out.print(", ");
+		}
+		System.out.print("\n");
+		for(byte b : cp.getCertificate()) {
+			System.out.print("(byte) ");
+			System.out.print(b);
+			System.out.print(", ");
+		}
+		System.out.print("\n");
+		printBA(modulus.toByteArray());
+		printBA(exponent.toByteArray());
+		System.out.println(cp.getCertificate().length);
+		System.out.println(verifyCert(cp.getCertificate(), fromFile("CA.ckeys").getPublicKey()));
 		
 	}
 	

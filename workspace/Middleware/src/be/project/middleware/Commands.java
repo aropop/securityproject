@@ -21,7 +21,6 @@ public class Commands {
 
 	private final static byte IDENTITY_CARD_CLA =(byte)0x80;
 	private static final byte VALIDATE_PIN_INS = 0x22;
-	private static final byte GET_SERIAL_INS = 0x24;
 	private static final byte GIVE_TIME = 0x25;
 	private static final byte TIME_UPDATE = 0x26;
 	private static final byte AUTHENTICATE_SP = 0x27;
@@ -74,18 +73,15 @@ public class Commands {
 				//0. create applet (only for simulator!!!)
 				a = new CommandAPDU(0x00, 0xa4, 0x04, 0x00,new byte[]{(byte) 0xa0, 0x00, 0x00, 0x00, 0x62, 0x03, 0x01, 0x08, 0x01}, 0x7f);
 				r = c.transmit(a);
-				System.out.println(r);
 				if (r.getSW()!=0x9000) throw new Exception("select installer applet failed");
 				
 				a = new CommandAPDU(0x80, 0xB8, 0x00, 0x00,new byte[]{0xb, 0x01,0x02,0x03,0x04, 0x05, 0x06, 0x07, 0x08, 0x09,0x00, 0x00, 0x00}, 0x7f);
 				r = c.transmit(a);
-				System.out.println(r);
 				if (r.getSW()!=0x9000) throw new Exception("Applet creation failed");
 				
 				//1. Select applet  (not required on a real card, applet is selected by default)
 				a = new CommandAPDU(0x00, 0xa4, 0x04, 0x00,new byte[]{0x01,0x02,0x03,0x04, 0x05, 0x06, 0x07, 0x08, 0x09,0x00, 0x00}, 0x7f);
 				r = c.transmit(a);
-				System.out.println(r);
 				if (r.getSW()!=0x9000) throw new Exception("Applet selection failed");
 			}
 		} catch (Exception e) {
@@ -97,7 +93,6 @@ public class Commands {
 	public boolean sendPIN(byte[] pin) {
 		CommandAPDU a = new CommandAPDU(IDENTITY_CARD_CLA, VALIDATE_PIN_INS, 0x00, 0x00, pin);
 		try {
-			System.out.println("trying pin");
 			printBA(pin);
 			ResponseAPDU r = c.transmit(a);
 			if(r.getSW() == 0x9000) {
@@ -138,7 +133,6 @@ public class Commands {
 	
 
 	public byte[] authenticateSP(byte[] cert) throws Exception{
-		System.out.println(cert.length);
 		CommandAPDU a = new CommandAPDU(IDENTITY_CARD_CLA, AUTHENTICATE_SP, 0x00, 0x00, cert);
 			ResponseAPDU r;
 			try {
@@ -246,10 +240,6 @@ public class Commands {
 		int offset = sum.length;
 		sum = Arrays.copyOf(sum, sum.length + (current.length - a.getBytes().length));
 		int j = 0;
-		System.out.println(sum.length);
-		System.out.println(current.length);
-		System.out.println(a.getBytes().length);
-		System.out.println("");
 		for(int i = (a.getBytes().length + 1); i < current.length; i++) {
 			sum[offset + j] = current[i];
 			j++;

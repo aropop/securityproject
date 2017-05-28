@@ -43,7 +43,6 @@ public class CertificateAttributes implements Serializable {
 	}
 	
 	private void decode(byte[] encoded){
-		// TODO change to match endocidng
 		String paddedStringName = new String(Arrays.copyOfRange(encoded, 0, NAME_LEN));
 		this.name = paddedStringName.substring(0, NAME_LEN).trim();
 		
@@ -71,10 +70,8 @@ public class CertificateAttributes implements Serializable {
 			fact = KeyFactory.getInstance("RSA");
 			this.public_key = (RSAPublicKey) fact.generatePublic(keySpec);
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvalidKeySpecException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

@@ -5,6 +5,7 @@ import java.net.URI;
 import java.util.Base64;
 
 
+
 public class Main {
 
 
@@ -21,8 +22,8 @@ public class Main {
 	public static void main(String[] args) {
 		serv.port(4570);
 		final Commands cm = new Commands();
-		cm.init();
-		cm.sendTime();
+		cm.init(); // Set up communication
+		cm.sendTime(); // Send the first time
 	
 		
 		serv.post("authenticatesp", (req, res) -> {
@@ -60,6 +61,7 @@ public class Main {
 		});
 		
 		serv.post("queryattribute", (req, res) -> {
+			// Ask for pin asynchronously
 			final PinState pinState = new PinState();
 			askForPin((pin) -> {
 				return cm.sendPIN(pin);
@@ -74,13 +76,19 @@ public class Main {
 					System.out.println(e.getMessage());
 					pinState.setStatus(PinState.ERROR);
 				}
+			}, () -> {
+				pinState.setStatus(PinState.DENIED);
 			});
 			
+			// Middleware waits until it is done and answers the request
 			int loadAn = 1;
 			while(pinState.status() != PinState.ATTRIBUTES_READY) {
 				Thread.sleep(1000);
 				if(PinState.ERROR == pinState.status()) {
 					return "Error";
+				}
+				if(PinState.DENIED == pinState.status()) {
+					return "Error: User denied request";
 				}
 				System.out.print("Waiting For pin");
 				for(int i = 0; i <= loadAn; i++) {
@@ -96,19 +104,23 @@ public class Main {
 		
 	}
 	
-	public static void askForPin(final PinOperation cont, final SuccessOperation success) {
+	public static void askForPin(final PinOperation cont, final SuccessOperation success, final SuccessOperation deny) {
 		spark.Service pinServ = spark.Service.ignite();
 		final Counter tries = new Counter();
+		final String[] errMessages = new String[1];
 		pinServ.port(4568);
 		pinServ.get("/pin", (req, res) -> ("<form method=\"POST\">" +
+				(errMessages[0] == null ? "" : errMessages[0]) +
 				"    Tries left: " + (3 - tries.val()) + "<br />" +
 				"    PIN:<input type=\"text\" name=\"pin\" pattern=\"[0-9]{4}\" maxlength=\"4\">" +
 				"    <input type=\"submit\" value=\"Validate\">" +
-				"</form>"));
+				"</form>"+
+				"<form method=\"POST\" action=\"pindeny\"><button>Deny</button></form>"));
 		
-		pinServ.post("/pin", (req, res) -> { // TODO pin wrong
+		pinServ.post("/pin", (req, res) -> { 
 			String pin = req.queryParams("pin");
 			String[] pp = pin.split("");
+			errMessages[0] = null;
 			int i = 0;
 			byte[] pinarr = new byte[4];
 			for(String num : pp) {
@@ -118,17 +130,24 @@ public class Main {
 			if(cont.operate(pinarr)) {
 				success.operate();
 				pinServ.stop();
-				return "OK";				
+				return "OK<script>setTimeout(function() { window.close(); }, 2000);</script>";				
 			} else {
 				if(tries.val() == 3) {
 					pinServ.stop();
 					return "Too many tries";
 				} else {
 					tries.plus();
+					errMessages[0] = "<div style='color:red'>Wrong Pin!</div>";
 					res.redirect("/pin");
 					return res;					
 				}
 			}
+		});
+		
+		pinServ.post("/pindeny", (req, res) -> {
+			deny.operate();
+			pinServ.stop();
+			return "Denied request!";
 		});
 		
 		// Open browser

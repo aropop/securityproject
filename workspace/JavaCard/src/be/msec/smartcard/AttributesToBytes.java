@@ -33,6 +33,7 @@ public class AttributesToBytes {
 				System.out.print(", ");
 			}
 			System.out.print("\n");	
+			fi.close();
 		} catch(Exception e) {
 			System.out.println("Something went wrong");
 		}

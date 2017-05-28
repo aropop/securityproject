@@ -24,12 +24,17 @@ import be.vub.security.CustomKeyPair;
 
 public class ServiceProvider {
 
-	CustomKeyPair kp;
-	SecretKeySpec Ks;
-	RSAPublicKey ca;
+	private CustomKeyPair kp;
+	private SecretKeySpec Ks;
+	private RSAPublicKey ca;
+	private String name;
+	private String type;
+	private byte[] attributes;
 	
 	public ServiceProvider(String serviceName){
 		this.kp = CustomKeyPair.fromFile(serviceName+".ckeys");
+		this.name = this.kp.getName();
+		this.type = this.kp.getType();
 		try{
 			
 			FileInputStream fi = new FileInputStream("CA.cert");
@@ -49,6 +54,18 @@ public class ServiceProvider {
 			System.out.println("Failed to read CA public key: " + e.getMessage());
 		}
 
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public String getType() {
+		return type;
+	}
+	
+	public byte[] getRawAttributes() {
+		return attributes;
 	}
 	
 	public boolean authenticateServiceProvider(){
@@ -197,20 +214,21 @@ public class ServiceProvider {
 			Unirest.setTimeouts(10000, 180000); // Users have 3 minutes to answer
 			HttpResponse<String> res  = Unirest.post(Main.middelware + "queryattribute").body("").asString();
 			if(res.getBody().contains("Error")) {
-				return "Error retrieving attributes";
+				String[] sps = res.getBody().split("Error");
+				return "Error retrieving attributes" + sps[sps.length-1];
 			}
 			byte[] message = Base64.getDecoder().decode(res.getBody());
-			System.out.println(message.length);
 			
 			Cipher cipher = Cipher.getInstance("AES/CBC/NOPADDING");
 			cipher.init(Cipher.DECRYPT_MODE, Ks ,  new IvParameterSpec(new byte[16])); // Card uses zero iv
 			byte[] decryptedMessage = cipher.doFinal(Arrays.copyOfRange(message, 0, message.length-1));
+			this.attributes = decryptedMessage;
 			return new String(decryptedMessage, StandardCharsets.US_ASCII);
 
 		} catch (UnirestException e) {
 			return "Error connecting to the client";
 		} catch (Exception e) {
-			return "Decoding error: " + e.getMessage();
+			return "Error decoding: " + e.getMessage();
 		}
 	}
 	

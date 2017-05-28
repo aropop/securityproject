@@ -61,9 +61,9 @@ public class IdentityCard extends Applet {
 	private final static short LEN_SIGN = 64;
 	
 	
-	private static final byte TYPE_WEBSH = 0x01;
-	private static final byte TYPE_EGOV = 0x02;
-	private static final byte TYPE_SOC = 0x03;
+	private static final byte TYPE_WEBSH = 0x00;
+	private static final byte TYPE_EGOV = 0x03;
+	private static final byte TYPE_SOC = 0x02;
 	
 	private byte[] serial = new byte[]{0x30, 0x35, 0x37, 0x36, 0x39, 0x30, 0x31, 0x05};
 	private byte[] time = new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -227,7 +227,8 @@ public class IdentityCard extends Applet {
 			break;
 			
 		case CLOSE_CONNECTION:
-			//TODO Implement further
+			//
+			this.challenge = null;
 			subject = null;
 			Ks = null;
 			authenticated = false;

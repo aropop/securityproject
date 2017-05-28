@@ -6,6 +6,7 @@ public class PinState {
 	public final static int PIN_DONE = 2;
 	public final static int ATTRIBUTES_READY = 3;
 	public final static int ERROR = 5;
+	public static final int DENIED = 6;
 	
 	private int status;
 	private byte[] attributes;
