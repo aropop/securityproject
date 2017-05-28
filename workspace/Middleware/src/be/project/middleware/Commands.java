@@ -169,8 +169,7 @@ public class Commands {
 					throw new Exception("Something else went wrong, SW:" + r.getSW());
 				}
 			} catch (CardConnectException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Card Connect Error");
 			}
 		return null;
 	}
@@ -207,7 +206,7 @@ public class Commands {
 			} else if(r.getSW() == SW_MORE_DATA || r.getSW() == 0x9000) {
 				return getAllData(a, r);
 			} else {
-				System.out.println(r.getSW());
+				System.out.println("SW:"+r.getSW());
 			}
 		} catch (CardConnectException e) {
 			System.out.println("Test");
@@ -216,52 +215,41 @@ public class Commands {
 	}
 
 	public void close() {
-		try {
+		try { 
+			// TODO send close
 			c.close();
 		} catch(Exception e) {
 			System.out.println("Could not close: " +  e.getMessage());
 		}
 	}
 	
-	public void debug() {
-		// TODO delete;
-		CommandAPDU a = new CommandAPDU(IDENTITY_CARD_CLA, 0x35, 0x00, 0x00, new byte[]{0x03, 0x03, 0x03});
-		ResponseAPDU r;
-		try {
-			r = c.transmit(a);
-			if(r.getSW() == SW_MORE_DATA || r.getSW() == 0x9000) {
-				printBA(getAllData(a, r));
-			}
-		} catch (CardConnectException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 	
 	private byte[] getAllData(CommandAPDU a, ResponseAPDU r) throws CardConnectException {
 		byte[] current;
 		byte[] sum = new byte[0];
 		while(r.getSW() == SW_MORE_DATA) {
-			// Get from current frame
+			// Get from current frame (frame is 255 bytes)
 			current = r.getData();
 			int offset = sum.length;
-			sum = Arrays.copyOf(sum, sum.length + (current.length - a.getBytes().length));
+			sum = Arrays.copyOf(sum, sum.length + 255);
 			int j = 0;
-			for(int i = (a.getBytes().length+1); i < current.length; i++) {
+			for(int i = current.length-255; i < current.length; i++) {
 				sum[offset + j] = current[i];
 				j++;
 			}			
 				
-			a = new CommandAPDU(IDENTITY_CARD_CLA, GET_REMAINING, 0x00, 0x00);
+			a = new CommandAPDU(IDENTITY_CARD_CLA, GET_REMAINING, 0x00, 0x00, new byte[]{0x00, 0x00});
 			r = c.transmit(a);
-			printBA(r.getData());
 		}
 		
-		current = r.getData();
 		current = r.getData();
 		int offset = sum.length;
 		sum = Arrays.copyOf(sum, sum.length + (current.length - a.getBytes().length));
 		int j = 0;
+		System.out.println(sum.length);
+		System.out.println(current.length);
+		System.out.println(a.getBytes().length);
+		System.out.println("");
 		for(int i = (a.getBytes().length + 1); i < current.length; i++) {
 			sum[offset + j] = current[i];
 			j++;

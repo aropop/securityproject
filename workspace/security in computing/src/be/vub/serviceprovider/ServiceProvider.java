@@ -3,12 +3,8 @@ package be.vub.serviceprovider;
 import java.io.FileInputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
@@ -17,7 +13,6 @@ import java.util.Arrays;
 import java.util.Base64;
 
 import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -43,7 +38,6 @@ public class ServiceProvider {
 			byte[] cert = new byte[160];
 			fi.read(cert);
 			BigInteger exp = new BigInteger(Arrays.copyOfRange(cert, 29, 32));
-			byte [] tst = Arrays.copyOfRange(cert, 32, 96);
 			BigInteger mod = new BigInteger(Arrays.copyOfRange(cert, 32, 96));
 			RSAPublicKeySpec spec = new RSAPublicKeySpec(mod, exp);
 			KeyFactory factory = KeyFactory.getInstance("RSA");
@@ -206,10 +200,11 @@ public class ServiceProvider {
 				return "Error retrieving attributes";
 			}
 			byte[] message = Base64.getDecoder().decode(res.getBody());
+			System.out.println(message.length);
 			
 			Cipher cipher = Cipher.getInstance("AES/CBC/NOPADDING");
 			cipher.init(Cipher.DECRYPT_MODE, Ks ,  new IvParameterSpec(new byte[16])); // Card uses zero iv
-			byte[] decryptedMessage = cipher.doFinal(message);
+			byte[] decryptedMessage = cipher.doFinal(Arrays.copyOfRange(message, 0, message.length-1));
 			return new String(decryptedMessage, StandardCharsets.US_ASCII);
 
 		} catch (UnirestException e) {

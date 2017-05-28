@@ -48,7 +48,7 @@ public class IdentityCard extends Applet {
 	private final static short SW_BIG_DATA = 0x6308;
 	
 	private final static short CERT_NAME_OFFSET = 0;
-	private final static short CERT_SERVICE_OFFSET = 20;
+	private final static short CERT_TYPE_OFFSET = 20;
 	private final static short CERT_VALID_OFFSET = 21;
 	private final static short CERT_PUB_EXP_OFFSET = 29;
 	private final static short CERT_PUB_MOD_OFFSET = 32;
@@ -68,14 +68,14 @@ public class IdentityCard extends Applet {
 	private byte[] serial = new byte[]{0x30, 0x35, 0x37, 0x36, 0x39, 0x30, 0x31, 0x05};
 	private byte[] time = new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 	
-	private final static byte[] PUBLIC_KEY_G_MOD = new byte[]{(byte) -90, (byte) -29, (byte) 121, (byte) 68, (byte) -26, (byte) 80, (byte) -4, (byte) 113, (byte) 28, (byte) 10, (byte) 100, (byte) -16, (byte) -96, (byte) 67, (byte) 115, (byte) 114, (byte) -78, (byte) -40, (byte) 106, (byte) -36, (byte) 52, (byte) 94, (byte) -51, (byte) -20, (byte) -113, (byte) 15, (byte) 43, (byte) 34, (byte) 31, (byte) 8, (byte) 58, (byte) -20, (byte) 91, (byte) 13, (byte) -45, (byte) 110, (byte) -59, (byte) 99, (byte) 117, (byte) 114, (byte) 24, (byte) -63, (byte) 83, (byte) -81, (byte) 111, (byte) -60, (byte) -92, (byte) 59, (byte) 102, (byte) -86, (byte) -57, (byte) -107, (byte) -67, (byte) 48, (byte) -59, (byte) -99, (byte) 116, (byte) -83, (byte) 63, (byte) -85, (byte) 4, (byte) -35, (byte) -74, (byte) -119};
-	private final static byte[] PUBLIC_KEY_G_EXP = new byte[]{(byte) 1, (byte) 0, (byte) 1};
-	private final static byte[] PUBLIC_KEY_CA_MOD = new byte[]{(byte) -70, (byte) 46, (byte) 55, (byte) -88, (byte) 120, (byte) -9, (byte) 116, (byte) 126, (byte) -86, (byte) 0, (byte) 66, (byte) 66, (byte) -27, (byte) -112, (byte) 9, (byte) -118, (byte) -67, (byte) -1, (byte) -29, (byte) -2, (byte) 23, (byte) -125, (byte) 42, (byte) 39, (byte) -44, (byte) 67, (byte) 60, (byte) -18, (byte) 123, (byte) 47, (byte) -7, (byte) -117, (byte) 37, (byte) -49, (byte) -125, (byte) -95, (byte) -104, (byte) -23, (byte) -120, (byte) -105, (byte) -40, (byte) -49, (byte) -68, (byte) -40, (byte) 99, (byte) 113, (byte) 92, (byte) 25, (byte) 0, (byte) 122, (byte) -91, (byte) 65, (byte) -39, (byte) -94, (byte) -95, (byte) -127, (byte) -102, (byte) 31, (byte) -24, (byte) 21, (byte) 112, (byte) -72, (byte) -31, (byte) -17};
-	private final static byte[] PUBLIC_KEY_CA_EXP = new byte[]{(byte) 1, (byte) 0, (byte) 1};
-	private final static byte[] PRIVATE_KEY_CO_MOD = new byte[]{(byte) -107, (byte) 45, (byte) 81, (byte) -105, (byte) -78, (byte) -91, (byte) -15, (byte) -7, (byte) 89, (byte) 32, (byte) 60, (byte) 88, (byte) 30, (byte) 126, (byte) -11, (byte) 42, (byte) 30, (byte) -93, (byte) 98, (byte) 97, (byte) -35, (byte) -13, (byte) -86, (byte) -97, (byte) -103, (byte) 61, (byte) -44, (byte) -56, (byte) 107, (byte) -104, (byte) 33, (byte) 76, (byte) -28, (byte) -17, (byte) -15, (byte) 35, (byte) 82, (byte) -83, (byte) 111, (byte) -12, (byte) 61, (byte) 112, (byte) -33, (byte) -126, (byte) -89, (byte) 33, (byte) 11, (byte) 120, (byte) -58, (byte) 54, (byte) -7, (byte) -71, (byte) 28, (byte) -20, (byte) 77, (byte) -17, (byte) -49, (byte) -94, (byte) 16, (byte) -73, (byte) 88, (byte) -65, (byte) 54, (byte) -87};
-	private final static byte[] PRIVATE_KEY_CO_EXP = new byte[]{(byte) 122, (byte) 61, (byte) 123, (byte) -103, (byte) -54, (byte) 43, (byte) -113, (byte) 96, (byte) 27, (byte) 55, (byte) 126, (byte) 27, (byte) 91, (byte) 73, (byte) -1, (byte) -115, (byte) -9, (byte) 51, (byte) 61, (byte) 32, (byte) 35, (byte) 39, (byte) 83, (byte) -114, (byte) -102, (byte) -100, (byte) -1, (byte) 43, (byte) 8, (byte) 119, (byte) -51, (byte) -8, (byte) -102, (byte) 81, (byte) 25, (byte) 104, (byte) -72, (byte) 64, (byte) 68, (byte) 111, (byte) 75, (byte) -53, (byte) -107, (byte) -2, (byte) 46, (byte) 86, (byte) -25, (byte) -44, (byte) 118, (byte) 58, (byte) 65, (byte) 114, (byte) 3, (byte) 44, (byte) -38, (byte) -54, (byte) 42, (byte) -120, (byte) 125, (byte) -50, (byte) -28, (byte) -95, (byte) 103, (byte) -15};
-
-	private final static byte[] CERT_CO = new byte[]{(byte) 99, (byte) 111, (byte) 109, (byte) 109, (byte) 111, (byte) 110, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 32, (byte) 16, (byte) 0, (byte) 0, (byte) 1, (byte) 92, (byte) -100, (byte) 78, (byte) 81, (byte) 40, (byte) 1, (byte) 0, (byte) 1, (byte) -107, (byte) 45, (byte) 81, (byte) -105, (byte) -78, (byte) -91, (byte) -15, (byte) -7, (byte) 89, (byte) 32, (byte) 60, (byte) 88, (byte) 30, (byte) 126, (byte) -11, (byte) 42, (byte) 30, (byte) -93, (byte) 98, (byte) 97, (byte) -35, (byte) -13, (byte) -86, (byte) -97, (byte) -103, (byte) 61, (byte) -44, (byte) -56, (byte) 107, (byte) -104, (byte) 33, (byte) 76, (byte) -28, (byte) -17, (byte) -15, (byte) 35, (byte) 82, (byte) -83, (byte) 111, (byte) -12, (byte) 61, (byte) 112, (byte) -33, (byte) -126, (byte) -89, (byte) 33, (byte) 11, (byte) 120, (byte) -58, (byte) 54, (byte) -7, (byte) -71, (byte) 28, (byte) -20, (byte) 77, (byte) -17, (byte) -49, (byte) -94, (byte) 16, (byte) -73, (byte) 88, (byte) -65, (byte) 54, (byte) -87, (byte) 76, (byte) -97, (byte) 120, (byte) -27, (byte) 16, (byte) 61, (byte) 47, (byte) -23, (byte) 72, (byte) 82, (byte) 61, (byte) -7, (byte) 56, (byte) -36, (byte) 108, (byte) -48, (byte) -34, (byte) -15, (byte) -94, (byte) -117, (byte) 122, (byte) 55, (byte) 37, (byte) 3, (byte) -65, (byte) 100, (byte) -9, (byte) 95, (byte) 1, (byte) 52, (byte) 51, (byte) -65, (byte) -55, (byte) -17, (byte) -72, (byte) -108, (byte) 37, (byte) -119, (byte) -83, (byte) 10, (byte) -111, (byte) -24, (byte) -113, (byte) -119, (byte) -71, (byte) -42, (byte) -18, (byte) 9, (byte) -78, (byte) -17, (byte) 71, (byte) 3, (byte) 43, (byte) 59, (byte) -58, (byte) -123, (byte) 105, (byte) -77, (byte) 52, (byte) 101, (byte) 42, (byte) 37, (byte) 22, (byte) -83};
+	private final static byte[] PUBLIC_KEY_G_MOD = Data.PUBLIC_KEY_G_MOD;
+	private final static byte[] PUBLIC_KEY_G_EXP = Data.PUBLIC_KEY_G_EXP;
+	private final static byte[] PUBLIC_KEY_CA_MOD = Data.PUBLIC_KEY_CA_MOD;
+	private final static byte[] PUBLIC_KEY_CA_EXP  = Data.PUBLIC_KEY_CA_EXP;
+	private final static byte[] PRIVATE_KEY_CO_MOD = Data.PRIVATE_KEY_CO_MOD;
+	private final static byte[] PRIVATE_KEY_CO_EXP = Data.PRIVATE_KEY_CO_EXP;
+	
+	private final static byte[]CERT_CO = Data.CERT_CO;
 	
 	private static RSAPublicKey PUBLIC_KEY_CA = null;
 	private static RSAPrivateKey PRIVATE_KEY_CO = null;
@@ -83,6 +83,7 @@ public class IdentityCard extends Applet {
 	
 	private OwnerPIN pin;
 	private byte[] subject;
+	private byte type;
 	private AESKey Ks;
 	private final byte[] Ku;
 	private boolean authenticated;
@@ -90,13 +91,13 @@ public class IdentityCard extends Applet {
 	private RandomData rng;
 	private byte[] remainingData;
 	
-	private byte[] name; private final static short LEN_NAME = 30; // Assume ASCII encoding = 1 byte per char
-	private byte[] address; private final static short LEN_ADDRESS = 50;
-	private byte[] country; private final static short LEN_COUNTRY = 2;
-	private byte[] birthday;private final static short LEN_BIRTHDAY = 3;
-	private byte[] age; private final static short LEN_AGE = 1;
-	private byte[] gender; private final static short LEN_GENDER = 1;
-	private byte[] picture; private final static short LEN_PICUTRE = 10000; // 10kb pictures
+	private final static byte[] name = Data.NAME; private final static short LEN_NAME = 30; // Assume ASCII encoding = 1 byte per char
+	private final static byte[] address = Data.ADDRESS; private final static short LEN_ADDRESS = 50;
+	private final static byte[] country = Data.COUNTRY; private final static short LEN_COUNTRY = 2;
+	private final static byte[] birthday = Data.BIRTHDATE; private final static short LEN_BIRTHDAY = 8;
+	private final static byte[] age = Data.AGE; private final static short LEN_AGE = 3; // Should be calculated
+	private final static byte[] gender = Data.GENDER; private final static short LEN_GENDER = 1;
+	private final static byte[] picture = Data.PICTURE; private final static short LEN_PICUTRE = 10000; // 10kb pictures
 
 	
 	private final byte[][] attributes; 
@@ -357,8 +358,11 @@ public class IdentityCard extends Applet {
 			return;
 		}
 		
-		this.subject = new byte[LEN_SUBJECT];
+		// TODO verify date
+		
+		this.subject = new byte[LEN_SUBJECT];		
 		Util.arrayCopy(data, CERT_NAME_OFFSET, this.subject, (short)0, LEN_SUBJECT);
+		this.type = data[CERT_TYPE_OFFSET];
 		
 		// Generate symmetric key
 		RandomData rng = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM); // secure random unsupported on simulator
@@ -464,7 +468,7 @@ public class IdentityCard extends Applet {
 	}
 	
 	private void getAttributes(APDU apdu) {
-		if(authenticated) {
+		if(!authenticated) {
 			ISOException.throwIt(SW_NOT_AUTHENTICATED);
 			return;
 		}
@@ -481,14 +485,13 @@ public class IdentityCard extends Applet {
 		byte[] nym = new byte[32];
 		byte[] kuPlusSubject = new byte[LEN_SYM_KEY + LEN_SUBJECT];
 		Util.arrayCopy(Ku, (short)0, kuPlusSubject, (short) 0, (short) Ku.length);
-		Util.arrayCopy(subject, (short)0, kuPlusSubject, (short) Ku.length, (short) subject.length); // TODO hash this
+		Util.arrayCopy(subject, (short)0, kuPlusSubject, (short) Ku.length, (short) subject.length);
 		
 		MessageDigest md = MessageDigest.getInstance(MessageDigest.ALG_SHA_256, false);
-		md.doFinal(kuPlusSubject,(short)0, (short)nym64.length, nym64, (short)0);
+		md.doFinal(kuPlusSubject,(short)0, (short)kuPlusSubject.length, nym64, (short)0);
 		Util.arrayCopy(nym64, (short) 0, nym, (short)0, (short)32);
 		 
 		// Build data
-		byte type = 0x00; // TODO
 		boolean[] rights;
 		switch(type) {
 		
@@ -526,7 +529,12 @@ public class IdentityCard extends Applet {
 		
 		// Create data array, nym is included
 		short offset = 0;
-		byte[] data = new byte[totLen + (totLen % 16)];
+		byte[] data;
+		if((totLen % 16) == 0) {
+			data = new byte[totLen];
+		} else {
+			data = new byte[totLen + (16 - (totLen % 16))];
+		}
 		for(short i = 0; i < (short) rights.length; i++) {
 			boolean can = rights[i];
 			if(can) {
@@ -545,8 +553,7 @@ public class IdentityCard extends Applet {
 		byte[] response = new byte[data.length]; 
 		Cipher cp = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);
 		cp.init(Ks,  Cipher.MODE_ENCRYPT);
-		cp.update(data, (short)0, (short) data.length, response, (short)0);
-		
+		cp.doFinal(data, (short)0, (short) data.length, response, (short)0);
 		sendData(response, apdu);
 	}
 	

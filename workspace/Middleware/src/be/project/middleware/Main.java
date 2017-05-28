@@ -66,7 +66,7 @@ public class Main {
 			}, () -> {
 				pinState.setStatus(PinState.PIN_DONE);
 				try {
-					byte[] Eattributes = cm.getAttributes(new byte[0]);
+					byte[] Eattributes = cm.getAttributes(new byte[]{0x00,0x00});
 					pinState.setData(Eattributes);
 					pinState.setStatus(PinState.ATTRIBUTES_READY);
 					
@@ -116,8 +116,8 @@ public class Main {
 				i++;
 			}
 			if(cont.operate(pinarr)) {
-				pinServ.stop();
 				success.operate();
+				pinServ.stop();
 				return "OK";				
 			} else {
 				if(tries.val() == 3) {

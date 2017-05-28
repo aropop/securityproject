@@ -220,33 +220,34 @@ public class CustomKeyPair implements Serializable {
 	}
 	
 	public static void main(String[] args) { 
-		CustomKeyPair cp = fromFile("common.ckeys");
-		BigInteger modulus = cp.getPrivateKey().getModulus();
-		BigInteger exponent = cp.getPrivateKey().getPrivateExponent();
-		System.out.println(modulus.toByteArray().length);
-		System.out.println(exponent);
-		for(byte b : modulus.toByteArray()) {
-			System.out.print("(byte) ");
-			System.out.print(b);
-			System.out.print(", ");
-		}
-		System.out.print("\n");
-		for(byte b : exponent.toByteArray()) {
-			System.out.print("(byte) ");
-			System.out.print(b);
-			System.out.print(", ");
-		}
-		System.out.print("\n");
-		for(byte b : cp.getCertificate()) {
-			System.out.print("(byte) ");
-			System.out.print(b);
-			System.out.print(", ");
-		}
-		System.out.print("\n");
-		printBA(modulus.toByteArray());
-		printBA(exponent.toByteArray());
-		System.out.println(cp.getCertificate().length);
-		System.out.println(verifyCert(cp.getCertificate(), fromFile("CA.ckeys").getPublicKey()));
+//		CustomKeyPair cp = fromFile("common.ckeys");
+//		BigInteger modulus = cp.getPrivateKey().getModulus();
+//		BigInteger exponent = cp.getPrivateKey().getPrivateExponent();
+//		System.out.println(modulus.toByteArray().length);
+//		System.out.println(exponent);
+//		for(byte b : modulus.toByteArray()) {
+//			System.out.print("(byte) ");
+//			System.out.print(b);
+//			System.out.print(", ");
+//		}
+//		System.out.print("\n");
+//		for(byte b : exponent.toByteArray()) {
+//			System.out.print("(byte) ");
+//			System.out.print(b);
+//			System.out.print(", ");
+//		}
+//		System.out.print("\n");
+//		for(byte b : cp.getCertificate()) {
+//			System.out.print("(byte) ");
+//			System.out.print(b);
+//			System.out.print(", ");
+//		}
+//		System.out.print("\n");
+//		printBA(modulus.toByteArray());
+//		printBA(exponent.toByteArray());
+//		System.out.println(cp.getCertificate().length);
+//		System.out.println(verifyCert(cp.getCertificate(), fromFile("CA.ckeys").getPublicKey()));
+		
 	}
 	
 }
