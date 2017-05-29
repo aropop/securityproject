@@ -1,6 +1,7 @@
 \documentclass[12pt]{report}
 
 \renewcommand\thesection{\arabic{section}}
+\setcounter{secnumdepth}{3}
 
 \usepackage{todonotes}
 \usepackage{vub}
@@ -82,14 +83,14 @@ We therefore conclude man-in-the-middle attacks to be impossible.
 \end{itemize}
 
 \section{Possible Attacks}
-\subsection{Stolen Private Key}
+\subsection{Private Key theft}
 \subsubsection{Central Authority}
 If the private key of the Central Authority were to be stolen, one would be able to create their own service and appoint them rights to all the information on the card. Since the certificate of this malicious service provider would be signed by the private key of the central authority, they would be trusted.
 This way, private information could be stolen by an attacker.
 \subsubsection{Common eID Private Key}
 If the common private key of the eIDs were to be stolen, one would be able to create eIDs at will. This would enable the attacker to steal identities without anyone being aware of the theft. They would also be able to create new identities at will.
-\subsection{Service Provider}
-If the private key of the service provider would be stolen, a man-in-the-middle attack would be possible due to the ability to intercept in the 
+\subsubsection{Service Provider}
+If the private key of the service provider would be stolen, a man-in-the-middle attack would be possible due to the ability to intercept the communication in phase 2 of the service provider authentication step.
 
 \section{Future Work}
 \subsection{Age Calculation}
