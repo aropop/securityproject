@@ -1,9 +1,4 @@
 \contentsline {todo}{Think about it, .. I have no clue at the moment}{2}
-\contentsline {todo}{just explain how certificates work?}{2}
-\contentsline {todo}{Find other vulnerabilities. Elaborate on this vulnerability.}{2}
-\contentsline {todo}{explain step 2 in words I guess?}{2}
-\contentsline {todo}{Find method that works on a single card or at least a smaller set}{2}
-\contentsline {todo}{Arno? What is the authentication time?}{3}
-\contentsline {todo}{isn't that done by issuing certificates allowing access to only a set of attributes? Check this}{3}
-\contentsline {todo}{examine architecture in detail}{3}
-\contentsline {todo}{lecture 5}{3}
+\contentsline {todo}{Find other vulnerabilities.}{2}
+\contentsline {todo}{Arno? What is the authentication time?}{4}
+\contentsline {todo}{lecture 5}{5}
