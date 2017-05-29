@@ -1,0 +1,8 @@
+- Open the workspace in eclipse
+- Configure the Javacard project as described in the lab_3_4 pdf handed out during the WPO's
+- Make sure that JDK1.8 is installed
+- Run the timeserver 
+- Run the javacard emulator with the IdentityCard applet
+- Run the middleware
+- Run the service provider
+- Open a webbrowser with the following address: http://localhost:4566
