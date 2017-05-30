@@ -2,6 +2,7 @@ package be.vub.serviceprovider;
 
 import java.io.FileInputStream;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
@@ -32,6 +33,7 @@ public class ServiceProvider {
 	private String type;
 	private byte[] attributes;
 	
+	
 	public ServiceProvider(String serviceName){
 		this.kp = CustomKeyPair.fromFile(serviceName+".ckeys");
 		this.name = this.kp.getName();
@@ -43,12 +45,13 @@ public class ServiceProvider {
 			// Read ca public key
 			byte[] cert = new byte[160];
 			fi.read(cert);
-			BigInteger exp = new BigInteger(Arrays.copyOfRange(cert, 29, 32));
-			BigInteger mod = new BigInteger(Arrays.copyOfRange(cert, 32, 96));
+			BigInteger exp = new BigInteger(1, Arrays.copyOfRange(cert, 29, 32));
+			BigInteger mod = new BigInteger(1, Arrays.copyOfRange(cert, 32, 96));
+			
 			RSAPublicKeySpec spec = new RSAPublicKeySpec(mod, exp);
 			KeyFactory factory = KeyFactory.getInstance("RSA");
-			//ca = (RSAPublicKey) factory.generatePublic(spec);
-			ca = CustomKeyPair.fromFile("CA.ckeys").getPublicKey(); // TODO fix certificate to prevent having the full key
+			ca = (RSAPublicKey) factory.generatePublic(spec);
+//			ca = CustomKeyPair.fromFile("CA.ckeys").getPublicKey(); // TODO fix certificate to prevent having the full key
 			fi.close();
 			
 		} catch(Exception e) {

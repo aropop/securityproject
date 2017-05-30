@@ -30,7 +30,11 @@ public class Main {
 		final Commands cm = new Commands();
 		cm.init(); // Set up communication
 		cm.sendTime(); // Send the first time
-	
+		
+		serv.get("close", (req, res) -> {
+			cm.close();
+			return "closed";
+			});
 		
 		serv.post("authenticatesp", (req, res) -> {
 			try {

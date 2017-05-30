@@ -20,6 +20,7 @@ public class CertificateAttributes implements Serializable {
 	public final static int VALID_LEN = 8;
 	public final static int EXP_LEN = 3;
 	public final static int MOD_LEN = 64;
+	
 	public final static int TOTAL_LEN = NAME_LEN + SERVICE_LEN + VALID_LEN + MOD_LEN + EXP_LEN;
 	public final static byte WEBSHOP_BYTE = 0x00;
 	public final static byte DEFAULT_BYTE = 0x01;

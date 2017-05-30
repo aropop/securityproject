@@ -212,8 +212,11 @@ public class Commands {
 	}
 
 	public void close() {
+		CommandAPDU a = new CommandAPDU(IDENTITY_CARD_CLA, CLOSE_CONNECTION, 0x00, 0x00, new byte[0]);
+		ResponseAPDU r;
 		try { 
 			// TODO send close
+			r = c.transmit(a);
 			c.close();
 		} catch(Exception e) {
 			System.out.println("Could not close: " +  e.getMessage());
