@@ -17,7 +17,7 @@ import be.msec.client.connection.SimulatedConnection;
 
 public class Commands {
 	
-	private final static boolean simulation = true;
+	private final static boolean simulation = false;
 
 	private final static byte IDENTITY_CARD_CLA =(byte)0x80;
 	private static final byte VALIDATE_PIN_INS = 0x22;
@@ -126,7 +126,9 @@ public class Commands {
 				if(r.getSW() != 0x9000) {
 					throw new Exception("Time Update failed: SW=" + r.getSW());
 				}
-			} 	
+			} 
+			byte[] test = getAllData(a, r);
+			System.out.println(r.getSW());
 		} catch (Exception e) {
 			System.out.println("Error sending time: " + e.getMessage());
 		}
@@ -144,6 +146,8 @@ public class Commands {
 					throw new Exception("Certificate is outdated");
 				} else if(r.getSW() == SW_MORE_DATA || r.getSW() == 0x9000) {
 					return getAllData(a, r);
+				} else {
+					System.out.println(r.getSW());
 				}
 			} catch (CardConnectException e) {
 				System.out.println("Authenticate SP middleware error:" + e.getMessage());
@@ -244,9 +248,9 @@ public class Commands {
 		
 		current = r.getData();
 		int offset = sum.length;
-		sum = Arrays.copyOf(sum, sum.length + (current.length - a.getBytes().length));
+		sum = Arrays.copyOf(sum, sum.length + (current.length - (simulation ? a.getBytes().length : -1)));
 		int j = 0;
-		for(int i = (a.getBytes().length + 1); i < current.length; i++) {
+		for(int i = (simulation? (a.getBytes().length + 1) : 0); i < current.length; i++) {
 			sum[offset + j] = current[i];
 			j++;
 		}	
