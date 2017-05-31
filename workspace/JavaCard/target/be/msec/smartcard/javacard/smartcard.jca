@@ -1,13 +1,15 @@
 // converted by version 1.3
-// on Sun Jan 08 14:47:33 CET 2017
+// on Tue May 30 23:13:28 CEST 2017
 
 .package be/msec/smartcard {
 	.aid 0x1:0x2:0x3:0x4:0x5:0x6:0x7:0x8:0x9:0x0;
 	.version 1.0;
 
 	.imports {
-		0xA0:0x0:0x0:0x0:0x62:0x1:0x1 1.3;		//javacard/framework
 		0xA0:0x0:0x0:0x0:0x62:0x0:0x1 1.0;		//java/lang
+		0xA0:0x0:0x0:0x0:0x62:0x1:0x1 1.3;		//javacard/framework
+		0xA0:0x0:0x0:0x0:0x62:0x1:0x2 1.3;		//javacard/security
+		0xA0:0x0:0x0:0x0:0x62:0x2:0x1 1.3;		//javacardx/crypto
 	}
 
 	.applet {
@@ -18,63 +20,352 @@
 		// 0
 		instanceFieldRef byte[] IdentityCard/serial;
 		// 1
-		instanceFieldRef 0.9 IdentityCard/pin;
+		instanceFieldRef byte[] IdentityCard/time;
 		// 2
-		classRef 0.9;		// javacard/framework/OwnerPIN
+		instanceFieldRef byte[] IdentityCard/PUBLIC_KEY_G_MOD;
 		// 3
-		staticMethodRef 0.9.0(BB)V;		// javacard/framework/OwnerPIN.<init>(BB)V
+		instanceFieldRef byte[] IdentityCard/PUBLIC_KEY_G_EXP;
 		// 4
-		staticMethodRef 0.3.0()V;		// javacard/framework/Applet.<init>()V
+		instanceFieldRef byte[] IdentityCard/PUBLIC_KEY_CA_MOD;
 		// 5
-		virtualMethodRef 0.9.8([BSB)V;		// update([BSB)V
+		instanceFieldRef byte[] IdentityCard/PUBLIC_KEY_CA_EXP;
 		// 6
-		virtualMethodRef 0.3.1()V;		// register()V
+		instanceFieldRef byte[] IdentityCard/PRIVATE_KEY_CO_MOD;
 		// 7
-		classRef IdentityCard;
+		instanceFieldRef byte[] IdentityCard/PRIVATE_KEY_CO_EXP;
 		// 8
-		staticMethodRef IdentityCard/<init>()V;
+		instanceFieldRef byte[] IdentityCard/CERT_CO;
 		// 9
-		virtualMethodRef 0.9.2()B;		// getTriesRemaining()B
+		instanceFieldRef 2.9 IdentityCard/PUBLIC_KEY_CA;
 		// 10
-		virtualMethodRef 0.10.1()[B;		// getBuffer()[B
+		instanceFieldRef 2.8 IdentityCard/PRIVATE_KEY_CO;
 		// 11
-		virtualMethodRef 0.3.3()Z;		// selectingApplet()Z
+		instanceFieldRef 2.9 IdentityCard/PUBLIC_KEY_CO;
 		// 12
-		staticMethodRef 0.7.1(S)V;		// javacard/framework/ISOException.throwIt(S)V
+		instanceFieldRef byte[] IdentityCard/name;
 		// 13
-		staticMethodRef IdentityCard/validatePIN(Ljavacard/framework/APDU;)V;
-			.descriptor	Ljavacard/framework/APDU;	0.10;
-
+		instanceFieldRef byte[] IdentityCard/address;
 		// 14
-		staticMethodRef IdentityCard/getSerial(Ljavacard/framework/APDU;)V;
-			.descriptor	Ljavacard/framework/APDU;	0.10;
-
+		instanceFieldRef byte[] IdentityCard/country;
 		// 15
-		virtualMethodRef 0.10.6()S;		// setIncomingAndReceive()S
+		instanceFieldRef byte[] IdentityCard/birthday;
 		// 16
-		virtualMethodRef 0.9.1([BSB)Z;		// check([BSB)Z
+		instanceFieldRef byte[] IdentityCard/age;
 		// 17
-		virtualMethodRef 0.9.4()Z;		// isValidated()Z
+		instanceFieldRef byte[] IdentityCard/gender;
 		// 18
-		virtualMethodRef 0.10.7()S;		// setOutgoing()S
+		instanceFieldRef byte[] IdentityCard/picture;
 		// 19
-		virtualMethodRef 0.10.9(S)V;		// setOutgoingLength(S)V
+		instanceFieldRef boolean[] IdentityCard/EGOV_RIGHTS;
 		// 20
-		virtualMethodRef 0.10.5([BSS)V;		// sendBytesLong([BSS)V
+		instanceFieldRef boolean[] IdentityCard/SOC_RIGHTS;
+		// 21
+		instanceFieldRef boolean[] IdentityCard/DEFAULT_RIGHTS;
+		// 22
+		instanceFieldRef boolean[] IdentityCard/WEBSH_RIGHTS;
+		// 23
+		instanceFieldRef 1.9 IdentityCard/pin;
+		// 24
+		instanceFieldRef byte[] IdentityCard/subject;
+		// 25
+		instanceFieldRef 2.20 IdentityCard/Ks;
+		// 26
+		instanceFieldRef byte[] IdentityCard/Ku;
+		// 27
+		instanceFieldRef 2.14 IdentityCard/rng;
+		// 28
+		instanceFieldRef boolean IdentityCard/authenticated;
+		// 29
+		instanceFieldRef byte[] IdentityCard/remainingData;
+		// 30
+		instanceFieldRef byte[] IdentityCard/challenge;
+		// 31
+		instanceFieldRef byte IdentityCard/type;
+		// 32
+		staticFieldRef byte[] Data/PUBLIC_KEY_CA_MOD;
+		// 33
+		staticFieldRef byte[] Data/PICTURE;
+		// 34
+		staticFieldRef byte[] Data/PUBLIC_KEY_G_MOD;
+		// 35
+		staticFieldRef byte[] Data/PUBLIC_KEY_CA_EXP;
+		// 36
+		staticMethodRef 0.0.0()V;		// java/lang/Object.<init>()V
+		// 37
+		staticFieldRef byte[] Data/NAME;
+		// 38
+		staticFieldRef byte[] Data/PRIVATE_KEY_CO_MOD;
+		// 39
+		classRef 1.9;		// javacard/framework/OwnerPIN
+		// 40
+		staticMethodRef 1.9.0(BB)V;		// javacard/framework/OwnerPIN.<init>(BB)V
+		// 41
+		staticFieldRef byte[] Data/ADDRESS;
+		// 42
+		virtualMethodRef 1.9.8([BSB)V;		// update([BSB)V
+		// 43
+		staticFieldRef byte[] Data/PUBLIC_KEY_G_EXP;
+		// 44
+		staticFieldRef byte[] Data/COUNTRY;
+		// 45
+		staticMethodRef 1.8.13(SB)[B;		// javacard/framework/JCSystem.makeTransientByteArray(SB)[B
+		// 46
+		staticFieldRef byte[] Data/PRIVATE_KEY_CO_EXP;
+		// 47
+		staticMethodRef 2.14.0(B)Ljavacard/security/RandomData;;		// javacard/security/RandomData.getInstance(B)Ljavacard/security/RandomData;
+			.descriptor	Ljavacard/security/RandomData;	2.14;
+
+		// 48
+		staticFieldRef byte[] Data/BIRTHDATE;
+		// 49
+		virtualMethodRef 2.14.1([BSS)V;		// generateData([BSS)V
+		// 50
+		staticMethodRef 1.3.0()V;		// javacard/framework/Applet.<init>()V
+		// 51
+		staticMethodRef 2.13.0(BSZ)Ljavacard/security/Key;;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+			.descriptor	Ljavacard/security/Key;	2.0;
+
+		// 52
+		classRef 2.9;		// javacard/security/RSAPublicKey
+		// 53
+		classRef 2.8;		// javacard/security/RSAPrivateKey
+		// 54
+		virtualMethodRef 1.3.1()V;		// register()V
+		// 55
+		classRef IdentityCard;
+		// 56
+		staticMethodRef IdentityCard/<init>()V;
+		// 57
+		virtualMethodRef 1.9.2()B;		// getTriesRemaining()B
+		// 58
+		virtualMethodRef 1.10.1()[B;		// getBuffer()[B
+		// 59
+		virtualMethodRef 1.3.3()Z;		// selectingApplet()Z
+		// 60
+		virtualMethodRef 1.10.6()S;		// setIncomingAndReceive()S
+		// 61
+		staticMethodRef 1.7.1(S)V;		// javacard/framework/ISOException.throwIt(S)V
+		// 62
+		staticMethodRef IdentityCard/validatePIN(Ljavacard/framework/APDU;)V;
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+		// 63
+		staticMethodRef IdentityCard/getSerial(Ljavacard/framework/APDU;)V;
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+		// 64
+		staticMethodRef IdentityCard/giveTime(Ljavacard/framework/APDU;)V;
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+		// 65
+		staticMethodRef IdentityCard/timeUpdate(Ljavacard/framework/APDU;)V;
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+		// 66
+		staticMethodRef IdentityCard/authenticateServiceProvider(Ljavacard/framework/APDU;)V;
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+		// 67
+		virtualMethodRef IdentityCard/authenticateServiceProviderResponse(Ljavacard/framework/APDU;)V;
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+		// 68
+		virtualMethodRef IdentityCard/authenticateCard(Ljavacard/framework/APDU;)V;
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+		// 69
+		staticMethodRef IdentityCard/getAttributes(Ljavacard/framework/APDU;)V;
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+		// 70
+		staticFieldRef byte[] Data/AGE;
+		// 71
+		staticMethodRef 1.16.1([BS[BSS)S;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+		// 72
+		staticMethodRef IdentityCard/sendData([BLjavacard/framework/APDU;)V;
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+		// 73
+		staticFieldRef byte[] Data/CERT_CO;
+		// 74
+		virtualMethodRef 1.9.5()V;		// reset()V
+		// 75
+		virtualMethodRef 1.10.7()S;		// setOutgoing()S
+		// 76
+		virtualMethodRef 1.10.9(S)V;		// setOutgoingLength(S)V
+		// 77
+		virtualMethodRef 1.10.4(SS)V;		// sendBytes(SS)V
+		// 78
+		virtualMethodRef 1.10.5([BSS)V;		// sendBytesLong([BSS)V
+		// 79
+		virtualMethodRef 1.9.1([BSB)Z;		// check([BSB)Z
+		// 80
+		virtualMethodRef 1.9.4()Z;		// isValidated()Z
+		// 81
+		staticMethodRef 1.16.0([BS[BSS)B;		// javacard/framework/Util.arrayCompare([BS[BSS)B
+		// 82
+		staticMethodRef 2.15.0(BZ)Ljavacard/security/Signature;;		// javacard/security/Signature.getInstance(BZ)Ljavacard/security/Signature;
+			.descriptor	Ljavacard/security/Signature;	2.15;
+
+		// 83
+		virtualMethodRef 2.15.3(Ljavacard/security/Key;B)V;		// init(Ljavacard/security/Key;B)V
+			.descriptor	Ljavacard/security/Key;	2.0;
+
+		// 84
+		virtualMethodRef 2.15.7([BSS[BSS)Z;		// verify([BSS[BSS)Z
+		// 85
+		staticMethodRef IdentityCard/add([BB[BB[BBB)Z;
+		// 86
+		staticFieldRef byte[] Data/GENDER;
+		// 87
+		classRef 2.20;		// javacard/security/AESKey
+		// 88
+		staticMethodRef 3.1.0(BZ)Ljavacardx/crypto/Cipher;;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
+			.descriptor	Ljavacardx/crypto/Cipher;	3.1;
+
+		// 89
+		virtualMethodRef 3.1.3(Ljavacard/security/Key;B)V;		// init(Ljavacard/security/Key;B)V
+			.descriptor	Ljavacard/security/Key;	2.0;
+
+		// 90
+		virtualMethodRef 3.1.1([BSS[BS)S;		// doFinal([BSS[BS)S
+		// 91
+		virtualMethodRef 1.10.3(S)S;		// receiveBytes(S)S
+		// 92
+		virtualMethodRef 3.1.4(Ljavacard/security/Key;B[BSS)V;		// init(Ljavacard/security/Key;B[BSS)V
+			.descriptor	Ljavacard/security/Key;	2.0;
+
+		// 93
+		staticMethodRef 2.11.0(BZ)Ljavacard/security/MessageDigest;;		// javacard/security/MessageDigest.getInstance(BZ)Ljavacard/security/MessageDigest;
+			.descriptor	Ljavacard/security/MessageDigest;	2.11;
+
+		// 94
+		virtualMethodRef 2.11.1([BSS[BS)S;		// doFinal([BSS[BS)S
+		// 95
+		virtualMethodRef 2.15.5([BSS[BS)S;		// sign([BSS[BS)S
+		// 96
+		staticMethodRef IdentityCard/getAttr(S)[B;
+		// 97
+		staticMethodRef IdentityCard/getUnsignedByte([BBB)S;
 	}
 
-	.class public IdentityCard 0 extends 0.3 {		// extends javacard/framework/Applet
+	.class public Data 0 extends 0.0 {		// extends java/lang/Object
+
+		.fields {
+			public static final byte[] PUBLIC_KEY_G_MOD 0 = {-90,-29,121,68,-26,80,-4,113,28,10,100,-16,-96,67,115,114,-78,-40,106,-36,52,94,-51,-20,-113,15,43,34,31,8,58,-20,91,13,-45,110,-59,99,117,114,24,-63,83,-81,111,-60,-92,59,102,-86,-57,-107,-67,48,-59,-99,116,-83,63,-85,4,-35,-74,-119};		// [B
+			public static final byte[] PUBLIC_KEY_G_EXP 1 = {1,0,1};		// [B
+			public static final byte[] PUBLIC_KEY_CA_MOD 2 = {-70,46,55,-88,120,-9,116,126,-86,0,66,66,-27,-112,9,-118,-67,-1,-29,-2,23,-125,42,39,-44,67,60,-18,123,47,-7,-117,37,-49,-125,-95,-104,-23,-120,-105,-40,-49,-68,-40,99,113,92,25,0,122,-91,65,-39,-94,-95,-127,-102,31,-24,21,112,-72,-31,-17};		// [B
+			public static final byte[] PUBLIC_KEY_CA_EXP 3 = {1,0,1};		// [B
+			public static final byte[] PRIVATE_KEY_CO_MOD 4 = {-107,45,81,-105,-78,-91,-15,-7,89,32,60,88,30,126,-11,42,30,-93,98,97,-35,-13,-86,-97,-103,61,-44,-56,107,-104,33,76,-28,-17,-15,35,82,-83,111,-12,61,112,-33,-126,-89,33,11,120,-58,54,-7,-71,28,-20,77,-17,-49,-94,16,-73,88,-65,54,-87};		// [B
+			public static final byte[] PRIVATE_KEY_CO_EXP 5 = {122,61,123,-103,-54,43,-113,96,27,55,126,27,91,73,-1,-115,-9,51,61,32,35,39,83,-114,-102,-100,-1,43,8,119,-51,-8,-102,81,25,104,-72,64,68,111,75,-53,-107,-2,46,86,-25,-44,118,58,65,114,3,44,-38,-54,42,-120,125,-50,-28,-95,103,-15};		// [B
+			public static final byte[] NAME 6 = {74,111,104,110,32,68,111,101,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32};		// [B
+			public static final byte[] ADDRESS 7 = {84,101,115,116,83,116,114,101,101,116,32,52,53,44,32,49,48,48,48,32,66,114,117,115,115,101,108,115,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32};		// [B
+			public static final byte[] CERT_CO 8 = {99,111,109,109,111,110,32,32,32,32,32,32,32,32,32,32,32,32,32,32,16,0,0,1,92,-100,78,81,40,1,0,1,-107,45,81,-105,-78,-91,-15,-7,89,32,60,88,30,126,-11,42,30,-93,98,97,-35,-13,-86,-97,-103,61,-44,-56,107,-104,33,76,-28,-17,-15,35,82,-83,111,-12,61,112,-33,-126,-89,33,11,120,-58,54,-7,-71,28,-20,77,-17,-49,-94,16,-73,88,-65,54,-87,76,-97,120,-27,16,61,47,-23,72,82,61,-7,56,-36,108,-48,-34,-15,-94,-117,122,55,37,3,-65,100,-9,95,1,52,51,-65,-55,-17,-72,-108,37,-119,-83,10,-111,-24,-113,-119,-71,-42,-18,9,-78,-17,71,3,43,59,-58,-123,105,-77,52,101,42,37,22,-83};		// [B
+			public static final byte[] COUNTRY 9 = {66,69};		// [B
+			public static final byte[] BIRTHDATE 10 = {48,49,48,49,49,57,57,48};		// [B
+			public static final byte[] AGE 11 = {50,55,32};		// [B
+			public static final byte[] GENDER 12 = {109};		// [B
+			public static final byte[] PICTURE 13 = {-1,-40,-1,-32,0,16,74,70,73,70,0,1,1,0,0,1,0,1,0,0,-1,-31,0,104,69,120,105,102,0,0,73,73,42,0,8,0,0,0,3,0,18,1,3,0,1,0,0,0,1,0,0,0,49,1,2,0,16,0,0,0,50,0,0,0,105,-121,4,0,1,0,0,0,66,0,0,0,0,0,0,0,83,104,111,116,119,101,108,108,32,48,46,50,52,46,54,0,2,0,2,-96,9,0,1,0,0,0,0,2,0,0,3,-96,9,0,1,0,0,0,0,2,0,0,0,0,0,0,-1,-31,9,-12,104,116,116,112,58,47,47,110,115,46,97,100,111,98,101,46,99,111,109,47,120,97,112,47,49,46,48,47,0,60,63,120,112,97,99,107,101,116,32,98,101,103,105,110,61,34,-17,-69,-65,34,32,105,100,61,34,87,53,77,48,77,112,67,101,104,105,72,122,114,101,83,122,78,84,99,122,107,99,57,100,34,63,62,32,60,120,58,120,109,112,109,101,116,97,32,120,109,108,110,115,58,120,61,34,97,100,111,98,101,58,110,115,58,109,101,116,97,47,34,32,120,58,120,109,112,116,107,61,34,88,77,80,32,67,111,114,101,32,52,46,52,46,48,45,69,120,105,118,50,34,62,32,60,114,100,102,58,82,68,70,32,120,109,108,110,115,58,114,100,102,61,34,104,116,116,112,58,47,47,119,119,119,46,119,51,46,111,114,103,47,49,57,57,57,47,48,50,47,50,50,45,114,100,102,45,115,121,110,116,97,120,45,110,115,35,34,62,32,60,114,100,102,58,68,101,115,99,114,105,112,116,105,111,110,32,114,100,102,58,97,98,111,117,116,61,34,34,32,120,109,108,110,115,58,101,120,105,102,61,34,104,116,116,112,58,47,47,110,115,46,97,100,111,98,101,46,99,111,109,47,101,120,105,102,47,49,46,48,47,34,32,120,109,108,110,115,58,116,105,102,102,61,34,104,116,116,112,58,47,47,110,115,46,97,100,111,98,101,46,99,111,109,47,116,105,102,102,47,49,46,48,47,34,32,101,120,105,102,58,80,105,120,101,108,88,68,105,109,101,110,115,105,111,110,61,34,53,49,50,34,32,101,120,105,102,58,80,105,120,101,108,89,68,105,109,101,110,115,105,111,110,61,34,53,49,50,34,32,116,105,102,102,58,73,109,97,103,101,87,105,100,116,104,61,34,53,49,50,34,32,116,105,102,102,58,73,109,97,103,101,72,101,105,103,104,116,61,34,53,49,50,34,32,116,105,102,102,58,79,114,105,101,110,116,97,116,105,111,110,61,34,49,34,47,62,32,60,47,114,100,102,58,82,68,70,62,32,60,47,120,58,120,109,112,109,101,116,97,62,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,60,63,120,112,97,99,107,101,116,32,101,110,100,61,34,119,34,63,62,-1,-37,0,67,0,3,2,2,3,2,2,3,3,3,3,4,3,3,4,5,8,5,5,4,4,5,10,7,7,6,8,12,10,12,12,11,10,11,11,13,14,18,16,13,14,17,14,11,11,16,22,16,17,19,20,21,21,21,12,15,23,24,22,20,24,18,20,21,20,-1,-37,0,67,1,3,4,4,5,4,5,9,5,5,9,20,13,11,13,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,-1,-64,0,17,8,0,102,0,102,3,1,34,0,2,17,1,3,17,1,-1,-60,0,29,0,1,0,2,2,3,1,1,0,0,0,0,0,0,0,0,0,0,6,8,7,9,3,4,5,2,1,-1,-60,0,62,16,0,1,3,3,2,3,5,5,4,8,6,3,0,0,0,0,1,2,3,4,0,5,17,6,33,7,18,49,8,19,65,81,113,20,34,50,97,-111,21,35,66,-127,9,36,51,98,114,-126,-95,-63,55,67,68,82,-110,-47,-79,-77,-31,-1,-60,0,27,1,0,2,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,4,3,5,6,2,7,1,-1,-60,0,46,17,0,1,3,4,1,2,3,6,7,0,0,0,0,0,0,0,1,0,2,3,4,17,33,49,18,5,65,19,97,113,20,51,81,-111,-95,-79,34,50,66,82,-63,-47,-31,-1,-38,0,12,3,1,0,2,17,3,17,0,63,0,-43,85,41,74,16,-108,-91,18,-110,-94,0,25,39,-96,20,33,43,-19,-90,92,125,92,-83,-95,78,43,-55,3,38,-90,58,123,68,-126,18,-3,-64,100,-97,-123,-100,-20,63,-117,-2,-86,94,-60,86,96,32,37,-106,-112,-46,71,80,-124,-127,75,58,112,-45,97,-108,-53,32,46,23,56,88,-119,-56,82,26,25,91,14,-96,126,-14,8,-82,26,-51,79,96,33,42,63,2,-70,-126,106,35,-86,-12,-101,78,-59,122,100,54,-71,31,107,-34,113,8,-24,-76,-8,-112,60,-59,13,-104,19,98,23,79,-89,45,23,5,64,-23,74,83,41,68,-91,41,66,18,-108,-91,8,74,82,-108,33,42,75,-94,45,98,84,-59,-54,90,114,-122,126,16,124,85,-1,0,-54,-115,84,-21,68,-72,5,-88,-127,-41,-68,86,126,-126,-94,-108,-39,-72,83,66,-34,79,82,53,60,-92,47,127,15,-23,89,15,-121,-4,13,-42,-4,85,105,-73,108,118,55,17,5,67,123,-116,-43,119,17,-108,62,74,87,-59,-4,-96,-41,-93,-39,-105,-121,-15,117,-1,0,21,-96,-75,62,50,101,-37,45,-19,-86,116,-122,-106,-98,100,47,-105,1,9,80,61,65,81,27,124,-85,99,-10,-104,-63,76,-95,-90,-62,91,109,0,37,40,64,1,41,30,0,1,-48,85,44,-13,-8,71,-117,70,86,-78,-122,-128,84,-114,111,56,-14,84,126,47,96,-19,100,-21,31,-83,-22,75,28,99,-41,-107,1,-25,113,-73,-16,-118,-14,-82,93,-116,-11,-35,-95,-48,98,-53,-76,-35,-46,65,73,75,47,-87,-91,125,22,0,-2,-75,-80,103,45,101,41,-56,21,-30,-50,-73,-87,11,10,3,24,52,-96,-86,-111,91,59,-90,83,-24,3,-13,90,-127,-29,55,6,110,-36,37,-65,-56,-73,-36,90,13,-68,-46,80,-29,-119,66,-7,-46,18,-79,-108,-87,42,-15,29,71,-56,-125,88,-38,-74,17,-6,67,116,-54,85,-89,-20,55,-76,-74,2,-53,82,32,-70,-80,55,60,-68,-82,-93,62,-98,-1,0,-42,-75,-17,87,-44,-78,-103,99,-28,118,-79,125,70,-104,82,-44,24,-37,-92,-91,41,78,42,-76,-91,41,66,18,-108,-91,8,74,-104,-24,38,-91,73,102,122,99,-58,121,-12,71,79,-76,60,-90,-101,43,13,55,-48,-83,68,15,116,13,-73,59,84,58,-83,-9,96,71,-39,-115,31,94,60,27,46,74,101,48,-44,16,17,-49,-34,54,75,-87,82,84,-98,-118,73,-50,8,59,111,75,-44,59,-124,101,-55,-6,24,-68,122,-122,-57,123,94,-1,0,101,-109,123,14,-37,-112,-35,-73,85,-35,74,65,117,111,-79,21,43,-15,-27,9,82,-56,-6,-88,125,43,56,106,30,-46,118,-19,15,117,126,-41,7,75,-34,-11,68,-72,-57,-110,66,-19,-19,4,50,-38,-79,-110,-98,-15,91,18,50,58,87,95,68,104,107,54,-123,-109,116,106,-63,28,65,-73,-35,95,76,-31,25,42,37,13,41,72,0,-91,0,-4,41,-37,97,-31,94,-98,-76,-32,-42,-93,-43,122,106,115,122,122,-14,-51,-82,-24,-14,-112,-90,36,-72,-38,86,-37,123,-98,112,-92,-112,74,-78,49,-116,17,-115,-6,-25,108,-37,-53,100,-106,-18,-18,-73,-111,-57,37,61,56,107,118,62,22,-6,94,-53,-101,68,-10,-90,-73,107,-101,-36,107,51,-6,67,80,-40,37,-56,-26,9,118,92,116,-71,28,96,19,-69,-88,56,29,60,71,90,-28,-30,-113,104,27,79,15,38,-75,111,54,27,-35,-10,107,-20,-121,-110,45,-79,-126,-101,72,36,-128,20,-30,-120,0,-19,-46,-66,-76,-17,10,-35,-48,-22,-114,-12,-55,40,-109,-9,-119,10,72,-58,79,-122,79,40,3,62,-126,-68,-34,34,112,-54,94,-80,106,-25,-10,116,-28,-64,-101,-56,-76,-61,91,-128,41,-74,-97,-56,-27,90,-46,65,-26,78,50,48,48,115,81,-125,25,-109,-113,101,43,-93,-108,68,93,123,-99,-10,-65,-12,-85,79,107,-18,57,-64,-30,63,8,35,-60,-5,14,-17,-89,-89,-77,112,11,-18,46,77,0,22,-126,-46,-45,-52,-107,-115,-114,-22,-58,58,-43,21,-85,-29,-37,51,69,-34,116,71,103,-85,66,46,50,-104,-72,-70,-3,-38,59,15,-56,45,-91,42,10,12,56,-91,114,96,0,18,-91,-89,62,96,0,9,53,67,-85,67,68,0,-116,-15,-8,-107,-118,-22,-18,113,-88,28,-9,96,-108,-91,41,-11,72,-108,-91,40,66,82,-108,-95,9,89,99,-77,55,23,-57,7,120,-99,18,-29,49,106,22,73,-87,-10,43,-112,9,-26,-27,101,68,30,-16,15,18,-123,0,-81,64,71,-115,98,122,87,15,104,123,75,93,-94,-91,-118,87,66,-15,35,54,22,-33,109,26,-86,-47,-85,-30,38,-25,-89,-18,113,-82,-16,18,-82,-24,73,-120,-32,90,57,-128,4,-116,-113,17,-111,-73,-50,-78,38,-97,-44,79,8,69,28,-58,-87,119,96,45,65,-19,92,57,-65,-38,86,-123,5,67,-71,7,-112,-68,108,-96,-29,99,111,80,91,63,81,86,-90,44,-9,35,-91,-60,54,66,20,126,21,17,-112,15,-91,101,106,34,-16,-34,90,59,47,77,-93,-97,-38,33,108,-89,-70,-27,-43,58,-59,-88,114,-39,77,-50,66,-95,48,-30,-127,66,-108,-123,16,-68,117,57,3,3,31,58,-20,-55,-43,22,-5,-108,-91,27,100,-76,74,63,18,-61,39,-104,0,48,51,-111,-74,-60,-44,118,-11,-83,-34,-126,-46,-93,78,-73,-79,45,-91,15,-38,119,-86,66,79,-86,121,77,121,-70,119,86,38,73,113,-85,125,-78,60,38,113,-15,37,100,-92,122,39,-108,82,-68,123,-39,56,31,-98,55,88,79,-12,-114,106,-26,91,-31,-114,-108,-45,-27,96,-55,-105,115,84,-64,-109,-44,33,-90,-108,-110,126,-82,-127,90,-8,-85,57,-37,-9,85,38,-13,-59,-85,101,-87,14,5,-117,77,-87,-76,56,-111,-8,29,117,74,112,-113,-8,-106,-22,-79,-42,-86,-115,-100,32,111,-98,87,-100,117,105,3,-21,31,109,12,124,-65,-44,-91,41,78,-86,-124,-91,41,66,18,-108,-91,8,74,-108,112,-13,-121,119,94,37,95,126,-51,-75,-95,35,-111,-78,-13,-14,28,-49,118,-53,99,-86,-107,-128,79,92,0,6,-28,-102,-7,-31,-25,15,111,28,76,-44,-52,89,44,-52,-91,114,22,10,-36,113,-61,-54,-37,45,-116,115,45,71,-56,100,116,-36,-12,21,-80,-66,14,112,110,-41,-63,-3,40,-104,49,0,-109,57,-52,63,42,106,-46,2,-33,112,116,-37,-16,-92,116,74,124,58,-18,73,-92,-22,42,4,34,-61,105,-6,90,87,78,-21,-97,-54,-90,28,34,-20,-66,-98,3,112,-6,20,52,-55,126,108,-101,-112,68,-71,-77,20,2,67,114,74,113,-56,-108,-113,-123,41,78,0,-55,57,60,-37,-8,87,-70,-20,-105,-19,-49,6,-26,39,24,-37,-66,64,-9,21,-21,-28,106,-63,104,23,-38,-65,105,-82,85,-111,33,-105,18,15,42,-9,5,36,84,47,94,-16,-15,-40,33,114,98,36,-67,8,-4,73,-58,84,-33,-81,-104,-7,-43,76,-20,36,-105,-19,107,104,42,88,-42,-120,78,8,-46,-121,91,-43,104,121,29,-20,-89,80,83,-116,-14,-100,111,93,120,-74,-37,116,-7,-1,0,-88,-88,20,45,-64,-100,1,-112,50,64,-16,-11,-88,-51,-53,73,-96,-54,4,-80,-94,-116,-18,18,72,79,-46,-78,-105,11,52,-120,14,42,80,97,44,-63,-117,-72,-27,24,-25,115,-64,15,78,-90,-110,107,57,56,0,-83,-27,-104,67,27,-98,-20,91,-18,-75,59,-38,115,-121,90,-33,69,113,74,-3,43,90,54,-36,-119,115,103,56,-81,-76,34,101,81,-98,61,66,80,78,-23,-62,74,112,-107,96,-127,-113,90,-60,85,-72,-66,-46,-36,40,-79,-21,24,32,93,-103,-17,-94,-35,-101,-18,100,36,108,-92,56,-40,-53,110,-96,-8,44,12,-116,-2,71,32,-30,-75,-127,-58,-66,5,94,120,57,119,9,127,51,-20,-110,20,125,-106,-28,-38,8,74,-65,113,99,-16,44,121,116,61,65,62,26,72,-90,4,-8,103,5,121,-27,68,14,3,-58,25,7,126,-85,25,-46,-108,-90,-43,122,82,-108,-95,11,-44,-45,-70,86,-17,-85,-82,40,-127,102,-73,73,-71,75,87,-7,81,-37,42,35,-26,124,0,-7,-99,-86,-54,-16,-49,-79,36,-55,-59,-87,-102,-54,-29,-20,109,-28,31,-77,-96,16,-89,15,-55,110,116,79,-14,-25,-42,-83,118,-107,-47,54,-83,29,17,16,109,54,-40,-42,-40,-61,-85,81,-48,17,-109,-26,113,-41,-44,-26,-91,94,-54,-100,-114,84,-32,-111,-102,-94,-106,-71,-18,-61,48,-76,-80,116,-42,55,50,27,-97,-94,-124,-24,-82,28,88,56,123,17,-72,-106,27,84,120,12,-123,14,98,-46,126,-15,-61,-26,-75,-100,-87,95,-103,-87,-104,-39,9,56,62,-9,80,-86,-28,118,47,-68,50,-83,-49,80,63,-95,-81,-120,111,41,103,-107,100,7,-112,121,86,21,-7,-18,5,86,-71,-59,-39,57,86,-31,-127,-104,26,83,62,19,-21,71,52,-36,-55,16,-28,-28,-64,74,-128,80,-15,105,39,-94,-67,55,-34,-84,2,-53,50,33,-123,-89,11,109,99,32,-11,4,26,-84,-6,61,8,26,-99,-108,58,114,-36,-96,91,57,61,72,59,127,122,-51,-10,-44,72,-46,78,55,17,-32,-75,89,-43,-5,55,20,115,-20,-22,-15,73,63,-19,63,-45,-46,-83,34,119,38,2,-87,-26,111,9,8,-20,114,-85,127,22,120,-41,-89,52,-98,-67,-70,88,-29,91,-27,-52,69,-67,-28,-77,49,-56,-119,79,43,107,41,10,82,83,-109,-41,124,121,103,34,-77,-121,12,53,-27,-105,-120,26,18,-35,115,-80,5,53,110,82,74,11,46,39,-107,-58,-106,62,36,-84,120,42,-87,-97,104,126,30,77,106,-8,53,24,120,-78,-51,-26,75,-50,-70,-46,-112,-82,80,-84,-97,124,99,-57,-108,-116,-113,48,15,-99,102,46,-55,81,-91,104,-3,32,-53,114,86,95,-121,114,109,82,-108,-10,21,-5,94,-93,57,27,18,-112,7,-88,21,-11,-84,-30,-30,-84,42,-99,27,-23,34,120,38,-6,-49,-43,76,120,-49,45,78,-36,45,-15,-109,-107,33,-123,-92,-100,103,-86,-113,-3,86,46,-69,64,-115,117,-128,-4,57,108,-73,41,-121,19,-56,-29,47,32,41,11,-7,20,-99,-115,102,-82,32,105,-14,-83,44,110,47,32,-103,93,-32,125,71,-53,39,-89,-28,48,43,18,-49,99,-106,66,-41,-27,-66,-61,-83,43,81,-121,4,-67,46,88,71,-102,-84,-4,68,-20,119,-89,-75,43,110,-53,-45,46,-99,61,60,-27,93,-58,-18,69,89,-14,-27,-8,-111,-7,18,62,85,89,117,-25,3,53,-97,14,-71,-36,-70,-39,-36,92,36,-1,0,-82,-119,-9,-52,122,-107,15,-121,-7,-128,-83,-109,48,-100,-92,96,114,-19,-126,43,-12,-62,75,-31,65,64,100,-116,40,127,99,82,-57,88,-8,-16,114,23,18,-48,71,46,91,-126,-75,55,74,-52,93,-85,-84,22,-3,61,-58,9,-84,-37,-29,-73,21,15,69,97,-9,91,100,4,-92,56,-92,-18,64,27,12,-32,28,121,-109,74,-68,99,-71,-76,56,119,89,-87,24,99,121,97,-20,-74,33,26,64,113,-112,86,9,82,112,-100,-113,44,-19,93,-10,-44,121,50,-83,-16,71,74,82,-78,75,108,23,59,-119,-5,-77,-65,-67,-100,109,92,17,66,84,-30,-44,83,-52,-94,113,-52,78,-8,-14,-1,0,-51,41,64,-46,-101,-11,5,-53,30,71,-78,-55,-117,37,57,42,105,-12,-111,-31,-8,-123,91,-106,26,106,125,-87,-96,-30,2,-112,-21,96,-108,-97,-104,-91,41,-8,52,85,117,88,-56,42,-69,118,-56,-45,108,-99,1,10,74,112,-122,35,75,64,113,-76,-20,84,-107,2,48,63,60,31,-83,126,-10,69,11,-70,112,-6,91,19,80,-46,-52,73,74,101,60,-125,98,48,8,-21,74,83,23,-4,75,-95,-102,44,-2,-17,-32,-84,-73,-60,40,40,-105,-92,110,-120,80,30,-21,10,80,62,68,111,-3,-86,-77,74,-113,-107,-107,18,121,-41,-66,124,-87,74,78,-93,97,113,73,-35,117,82,-41,33,-16,42,-21,-113,10,-22,60,-15,109,-9,-79,-43,41,56,-11,-91,41,81,-76,-31,-48,84,35,-74,31,-8,-39,56,121,66,-119,-1,0,-88,82,-108,-83,68,30,-23,-66,-117,29,83,-17,-97,-22,87,-1,-39};		// [B
+		}
+
+		.publicMethodTable 1 {
+			equals(Ljava/lang/Object;)Z;
+		}
+
+		.packageMethodTable 0 {
+		}
+
+		.method public <init>()V 0 {
+			.stack 1;
+			.locals 0;
+
+				L0:	aload_0;
+					invokespecial 36;		// java/lang/Object.<init>()V
+					return;
+		}
+
+	}
+
+	.class public IdentityCard 1 extends 1.3 {		// extends javacard/framework/Applet
 
 		.fields {
 			private byte[] serial 0;		// [B
-			private 0.9 pin 1;		// Ljavacard/framework/OwnerPIN;
+			private byte[] time 1;		// [B
+			private final byte[] PUBLIC_KEY_G_MOD 2;		// [B
+			private final byte[] PUBLIC_KEY_G_EXP 3;		// [B
+			private final byte[] PUBLIC_KEY_CA_MOD 4;		// [B
+			private final byte[] PUBLIC_KEY_CA_EXP 5;		// [B
+			private final byte[] PRIVATE_KEY_CO_MOD 6;		// [B
+			private final byte[] PRIVATE_KEY_CO_EXP 7;		// [B
+			private final byte[] CERT_CO 8;		// [B
+			private 2.9 PUBLIC_KEY_CA 9;		// Ljavacard/security/RSAPublicKey;
+			private 2.8 PRIVATE_KEY_CO 10;		// Ljavacard/security/RSAPrivateKey;
+			private 2.9 PUBLIC_KEY_CO 11;		// Ljavacard/security/RSAPublicKey;
+			private 1.9 pin 12;		// Ljavacard/framework/OwnerPIN;
+			private byte[] subject 13;		// [B
+			private 2.20 Ks 14;		// Ljavacard/security/AESKey;
+			private final byte[] Ku 15;		// [B
+			private byte[] challenge 16;		// [B
+			private 2.14 rng 17;		// Ljavacard/security/RandomData;
+			private byte[] remainingData 18;		// [B
+			private final byte[] name 19;		// [B
+			private final byte[] address 20;		// [B
+			private final byte[] country 21;		// [B
+			private final byte[] birthday 22;		// [B
+			private final byte[] age 23;		// [B
+			private final byte[] gender 24;		// [B
+			private final byte[] picture 25;		// [B
+			private boolean[] EGOV_RIGHTS 26;		// [Z
+			private boolean[] SOC_RIGHTS 27;		// [Z
+			private boolean[] DEFAULT_RIGHTS 28;		// [Z
+			private boolean[] WEBSH_RIGHTS 29;		// [Z
+			private byte type 30;		// B
+			private boolean authenticated 31;		// Z
 			private static final byte IDENTITY_CARD_CLA = -128;		// B
 			private static final byte VALIDATE_PIN_INS = 34;		// B
 			private static final byte GET_SERIAL_INS = 36;		// B
+			private static final byte GIVE_TIME = 37;		// B
+			private static final byte TIME_UPDATE = 38;		// B
+			private static final byte AUTHENTICATE_SP = 39;		// B
+			private static final byte CLOSE_CONNECTION = 40;		// B
+			private static final byte AUTHENTICATE_RESPONSE = 41;		// B
+			private static final byte AUTHENTICATE_CARD = 48;		// B
+			private static final byte GET_ATTRIBUTES = 49;		// B
+			private static final byte GET_REMAINING = 50;		// B
 			private static final byte PIN_TRY_LIMIT = 3;		// B
 			private static final byte PIN_SIZE = 4;		// B
 			private static final short SW_VERIFICATION_FAILED = 25344;		// S
 			private static final short SW_PIN_VERIFICATION_REQUIRED = 25345;		// S
+			private static final short SW_TIME_UPDATE_REQUIRED = 25346;		// S
+			private static final short SW_TIME_VERIFY_FAILED = 25347;		// S
+			private static final short SW_NOT_AUTHENTICATED = 25348;		// S
+			private static final short SW_CHALLENGE_WRONG = 25349;		// S
+			private static final short SW_UNAUTHORISED = 25350;		// S
+			private static final short SW_MORE_DATA = 25353;		// S
+			private static final short SW_BIG_DATA = 25352;		// S
+			private static final short SW_CERTIFICATE_OUTDATED = 25360;		// S
+			private static final short CERT_NAME_OFFSET = 0;		// S
+			private static final short CERT_TYPE_OFFSET = 20;		// S
+			private static final short CERT_VALID_OFFSET = 21;		// S
+			private static final short CERT_PUB_EXP_OFFSET = 29;		// S
+			private static final short CERT_PUB_MOD_OFFSET = 32;		// S
+			private static final short CERT_SIGN_OFFSET = 96;		// S
+			private static final short LEN_NYM = 10;		// S
+			private static final short LEN_SYM_KEY = 16;		// S
+			private static final short LEN_SUBJECT = 20;		// S
+			private static final short LEN_CERT_DATA = 96;		// S
+			private static final short LEN_SIGN = 64;		// S
+			private static final short LEN_VALID = 8;		// S
+			private static final byte TYPE_WEBSH = 0;		// B
+			private static final byte TYPE_EGOV = 3;		// B
+			private static final byte TYPE_SOC = 2;		// B
+			private static final short LEN_NAME = 30;		// S
+			private static final short LEN_ADDRESS = 50;		// S
+			private static final short LEN_COUNTRY = 2;		// S
+			private static final short LEN_BIRTHDAY = 8;		// S
+			private static final short LEN_AGE = 3;		// S
+			private static final short LEN_GENDER = 1;		// S
+			private static final short LEN_PICUTRE = 10000;		// S
 		}
 
 		.publicMethodTable 6 {
@@ -86,6 +377,8 @@
 			getShareableInterfaceObject(Ljavacard/framework/AID;B)Ljavacard/framework/Shareable;;
 			select()Z;
 			process(Ljavacard/framework/APDU;)V;
+			authenticateServiceProviderResponse(Ljavacard/framework/APDU;)V;
+			authenticateCard(Ljavacard/framework/APDU;)V;
 		}
 
 		.packageMethodTable 0 {
@@ -96,7 +389,7 @@
 			.locals 0;
 
 				L0:	aload_0;
-					invokespecial 4;		// javacard/framework/Applet.<init>()V
+					invokespecial 50;		// javacard/framework/Applet.<init>()V
 					aload_0;
 					bspush 8;
 					newarray 11;
@@ -134,13 +427,160 @@
 					bastore;
 					putfield_a 0;		// reference be/msec/smartcard/IdentityCard.serial
 					aload_0;
-					new 2;		// javacard/framework/OwnerPIN
+					bspush 8;
+					newarray 11;
+					putfield_a 1;		// reference be/msec/smartcard/IdentityCard.time
+					aload_0;
+					getstatic_a 34;		// reference be/msec/smartcard/Data.PUBLIC_KEY_G_MOD
+					putfield_a 2;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_G_MOD
+					aload_0;
+					getstatic_a 43;		// reference be/msec/smartcard/Data.PUBLIC_KEY_G_EXP
+					putfield_a 3;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_G_EXP
+					aload_0;
+					getstatic_a 32;		// reference be/msec/smartcard/Data.PUBLIC_KEY_CA_MOD
+					putfield_a 4;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_CA_MOD
+					aload_0;
+					getstatic_a 35;		// reference be/msec/smartcard/Data.PUBLIC_KEY_CA_EXP
+					putfield_a 5;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_CA_EXP
+					aload_0;
+					getstatic_a 38;		// reference be/msec/smartcard/Data.PRIVATE_KEY_CO_MOD
+					putfield_a 6;		// reference be/msec/smartcard/IdentityCard.PRIVATE_KEY_CO_MOD
+					aload_0;
+					getstatic_a 46;		// reference be/msec/smartcard/Data.PRIVATE_KEY_CO_EXP
+					putfield_a 7;		// reference be/msec/smartcard/IdentityCard.PRIVATE_KEY_CO_EXP
+					aload_0;
+					getstatic_a 73;		// reference be/msec/smartcard/Data.CERT_CO
+					putfield_a 8;		// reference be/msec/smartcard/IdentityCard.CERT_CO
+					aload_0;
+					aconst_null;
+					putfield_a 9;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_CA
+					aload_0;
+					aconst_null;
+					putfield_a 10;		// reference be/msec/smartcard/IdentityCard.PRIVATE_KEY_CO
+					aload_0;
+					aconst_null;
+					putfield_a 11;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_CO
+					aload_0;
+					getstatic_a 37;		// reference be/msec/smartcard/Data.NAME
+					putfield_a 12;		// reference be/msec/smartcard/IdentityCard.name
+					aload_0;
+					getstatic_a 41;		// reference be/msec/smartcard/Data.ADDRESS
+					putfield_a 13;		// reference be/msec/smartcard/IdentityCard.address
+					aload_0;
+					getstatic_a 44;		// reference be/msec/smartcard/Data.COUNTRY
+					putfield_a 14;		// reference be/msec/smartcard/IdentityCard.country
+					aload_0;
+					getstatic_a 48;		// reference be/msec/smartcard/Data.BIRTHDATE
+					putfield_a 15;		// reference be/msec/smartcard/IdentityCard.birthday
+					aload_0;
+					getstatic_a 70;		// reference be/msec/smartcard/Data.AGE
+					putfield_a 16;		// reference be/msec/smartcard/IdentityCard.age
+					aload_0;
+					getstatic_a 86;		// reference be/msec/smartcard/Data.GENDER
+					putfield_a 17;		// reference be/msec/smartcard/IdentityCard.gender
+					aload_0;
+					getstatic_a 33;		// reference be/msec/smartcard/Data.PICTURE
+					putfield_a 18;		// reference be/msec/smartcard/IdentityCard.picture
+					aload_0;
+					bspush 8;
+					newarray 10;
+					dup;
+					sconst_0;
+					sconst_1;
+					bastore;
+					dup;
+					sconst_1;
+					sconst_1;
+					bastore;
+					dup;
+					sconst_2;
+					sconst_1;
+					bastore;
+					dup;
+					sconst_3;
+					sconst_1;
+					bastore;
+					dup;
+					sconst_4;
+					sconst_1;
+					bastore;
+					dup;
+					sconst_5;
+					sconst_1;
+					bastore;
+					dup;
+					bspush 6;
+					sconst_1;
+					bastore;
+					putfield_a 19;		// reference be/msec/smartcard/IdentityCard.EGOV_RIGHTS
+					aload_0;
+					bspush 8;
+					newarray 10;
+					dup;
+					sconst_0;
+					sconst_1;
+					bastore;
+					dup;
+					sconst_1;
+					sconst_1;
+					bastore;
+					dup;
+					sconst_3;
+					sconst_1;
+					bastore;
+					dup;
+					sconst_5;
+					sconst_1;
+					bastore;
+					dup;
+					bspush 6;
+					sconst_1;
+					bastore;
+					dup;
+					bspush 7;
+					sconst_1;
+					bastore;
+					putfield_a 20;		// reference be/msec/smartcard/IdentityCard.SOC_RIGHTS
+					aload_0;
+					bspush 8;
+					newarray 10;
+					dup;
+					sconst_0;
+					sconst_1;
+					bastore;
+					dup;
+					sconst_5;
+					sconst_1;
+					bastore;
+					putfield_a 21;		// reference be/msec/smartcard/IdentityCard.DEFAULT_RIGHTS
+					aload_0;
+					bspush 8;
+					newarray 10;
+					dup;
+					sconst_0;
+					sconst_1;
+					bastore;
+					dup;
+					sconst_1;
+					sconst_1;
+					bastore;
+					dup;
+					sconst_2;
+					sconst_1;
+					bastore;
+					dup;
+					sconst_3;
+					sconst_1;
+					bastore;
+					putfield_a 22;		// reference be/msec/smartcard/IdentityCard.WEBSH_RIGHTS
+					aload_0;
+					new 39;		// javacard/framework/OwnerPIN
 					dup;
 					sconst_3;
 					sconst_4;
-					invokespecial 3;		// javacard/framework/OwnerPIN.<init>(BB)V
-					putfield_a 1;		// reference be/msec/smartcard/IdentityCard.pin
-					getfield_a_this 1;		// reference be/msec/smartcard/IdentityCard.pin
+					invokespecial 40;		// javacard/framework/OwnerPIN.<init>(BB)V
+					putfield_a 23;		// reference be/msec/smartcard/IdentityCard.pin
+					getfield_a_this 23;		// reference be/msec/smartcard/IdentityCard.pin
 					sconst_4;
 					newarray 11;
 					dup;
@@ -161,9 +601,89 @@
 					bastore;
 					sconst_0;
 					sconst_4;
-					invokevirtual 5;		// update([BSB)V
+					invokevirtual 42;		// update([BSB)V
 					aload_0;
-					invokevirtual 6;		// register()V
+					aconst_null;
+					putfield_a 24;		// reference be/msec/smartcard/IdentityCard.subject
+					aload_0;
+					aconst_null;
+					putfield_a 25;		// reference be/msec/smartcard/IdentityCard.Ks
+					aload_0;
+					bspush 16;
+					sconst_1;
+					invokestatic 45;		// javacard/framework/JCSystem.makeTransientByteArray(SB)[B
+					putfield_a 26;		// reference be/msec/smartcard/IdentityCard.Ku
+					aload_0;
+					sconst_1;
+					invokestatic 47;		// javacard/security/RandomData.getInstance(B)Ljavacard/security/RandomData;
+					putfield_a 27;		// reference be/msec/smartcard/IdentityCard.rng
+					getfield_a_this 27;		// reference be/msec/smartcard/IdentityCard.rng
+					getfield_a_this 26;		// reference be/msec/smartcard/IdentityCard.Ku
+					sconst_0;
+					bspush 16;
+					invokevirtual 49;		// generateData([BSS)V
+					aload_0;
+					sconst_0;
+					putfield_b 28;		// boolean be/msec/smartcard/IdentityCard.authenticated
+					aload_0;
+					sconst_4;
+					sspush 512;
+					sconst_0;
+					invokestatic 51;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+					checkcast 0 52;		// T_CLASSORINTERFACE javacard/security/RSAPublicKey
+					putfield_a 9;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_CA
+					getfield_a_this 9;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_CA
+					getfield_a_this 5;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_CA_EXP
+					sconst_0;
+					getfield_a_this 3;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_G_EXP
+					arraylength;
+					invokeinterface 4 52 6;		// javacard/security/RSAPublicKey
+					getfield_a_this 9;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_CA
+					getfield_a_this 4;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_CA_MOD
+					sconst_0;
+					getfield_a_this 2;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_G_MOD
+					arraylength;
+					invokeinterface 4 52 7;		// javacard/security/RSAPublicKey
+					aload_0;
+					sconst_5;
+					sspush 512;
+					sconst_0;
+					invokestatic 51;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+					checkcast 0 53;		// T_CLASSORINTERFACE javacard/security/RSAPrivateKey
+					putfield_a 10;		// reference be/msec/smartcard/IdentityCard.PRIVATE_KEY_CO
+					getfield_a_this 10;		// reference be/msec/smartcard/IdentityCard.PRIVATE_KEY_CO
+					getfield_a_this 7;		// reference be/msec/smartcard/IdentityCard.PRIVATE_KEY_CO_EXP
+					sconst_0;
+					getfield_a_this 7;		// reference be/msec/smartcard/IdentityCard.PRIVATE_KEY_CO_EXP
+					arraylength;
+					invokeinterface 4 53 6;		// javacard/security/RSAPrivateKey
+					getfield_a_this 10;		// reference be/msec/smartcard/IdentityCard.PRIVATE_KEY_CO
+					getfield_a_this 6;		// reference be/msec/smartcard/IdentityCard.PRIVATE_KEY_CO_MOD
+					sconst_0;
+					getfield_a_this 6;		// reference be/msec/smartcard/IdentityCard.PRIVATE_KEY_CO_MOD
+					arraylength;
+					invokeinterface 4 53 7;		// javacard/security/RSAPrivateKey
+					aload_0;
+					sconst_4;
+					sspush 512;
+					sconst_0;
+					invokestatic 51;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+					checkcast 0 52;		// T_CLASSORINTERFACE javacard/security/RSAPublicKey
+					putfield_a 11;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_CO
+					getfield_a_this 11;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_CO
+					getfield_a_this 8;		// reference be/msec/smartcard/IdentityCard.CERT_CO
+					bspush 29;
+					getfield_a_this 3;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_G_EXP
+					arraylength;
+					invokeinterface 4 52 6;		// javacard/security/RSAPublicKey
+					getfield_a_this 11;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_CO
+					getfield_a_this 8;		// reference be/msec/smartcard/IdentityCard.CERT_CO
+					bspush 32;
+					getfield_a_this 2;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_G_MOD
+					arraylength;
+					invokeinterface 4 52 7;		// javacard/security/RSAPublicKey
+					aload_0;
+					invokevirtual 54;		// register()V
 					return;
 		}
 
@@ -171,8 +691,8 @@
 			.stack 1;
 			.locals 0;
 
-				L0:	new 7;		// be/msec/smartcard/IdentityCard
-					invokespecial 8;		// be/msec/smartcard/IdentityCard.<init>()V
+				L0:	new 55;		// be/msec/smartcard/IdentityCard
+					invokespecial 56;		// be/msec/smartcard/IdentityCard.<init>()V
 					return;
 		}
 
@@ -180,8 +700,8 @@
 			.stack 1;
 			.locals 0;
 
-				L0:	getfield_a_this 1;		// reference be/msec/smartcard/IdentityCard.pin
-					invokevirtual 9;		// getTriesRemaining()B
+				L0:	getfield_a_this 23;		// reference be/msec/smartcard/IdentityCard.pin
+					invokevirtual 57;		// getTriesRemaining()B
 					ifne L2;
 				L1:	sconst_0;
 					sreturn;
@@ -190,99 +710,1193 @@
 		}
 
 		.method public process(Ljavacard/framework/APDU;)V 7 {
-			.stack 2;
-			.locals 1;
+			.stack 5;
+			.locals 4;
 
-			.descriptor	Ljavacard/framework/APDU;	0.10;
+			.descriptor	Ljavacard/framework/APDU;	1.10;
 
 				L0:	aload_1;
-					invokevirtual 10;		// getBuffer()[B
+					invokevirtual 58;		// getBuffer()[B
 					astore_2;
 					aload_0;
-					invokevirtual 11;		// selectingApplet()Z
+					invokevirtual 59;		// selectingApplet()Z
 					ifeq L2;
 				L1:	return;
 				L2:	aload_2;
+					sconst_1;
+					baload;
+					bspush 39;
+					if_scmpeq L4;
+				L3:	aload_1;
+					invokevirtual 60;		// setIncomingAndReceive()S
+					pop;
+				L4:	aload_2;
 					sconst_0;
 					baload;
 					bspush -128;
-					if_scmpeq L4;
-				L3:	sspush 28160;
-					invokestatic 12;		// javacard/framework/ISOException.throwIt(S)V
-				L4:	aload_2;
+					if_scmpeq L6;
+				L5:	sspush 28160;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+				L6:	aload_2;
 					sconst_1;
 					baload;
-					stableswitch L7 34 36 L5 L7 L6;
-				L5:	aload_0;
+					stableswitch L21 34 53 L7 L21 L8 L9 L10 L11 L20 L12 L21 L21 L21 L21 L21 L21 L13 L14 L15 L21 L21 L16;
+				L7:	aload_0;
 					aload_1;
-					invokespecial 13;		// be/msec/smartcard/IdentityCard.validatePIN(Ljavacard/framework/APDU;)V
-					goto L8;
-				L6:	aload_0;
+					invokespecial 62;		// be/msec/smartcard/IdentityCard.validatePIN(Ljavacard/framework/APDU;)V
+					goto_w L22;
+				L8:	aload_0;
 					aload_1;
-					invokespecial 14;		// be/msec/smartcard/IdentityCard.getSerial(Ljavacard/framework/APDU;)V
-					goto L8;
-				L7:	sspush 27904;
-					invokestatic 12;		// javacard/framework/ISOException.throwIt(S)V
-				L8:	return;
+					invokespecial 63;		// be/msec/smartcard/IdentityCard.getSerial(Ljavacard/framework/APDU;)V
+					goto_w L22;
+				L9:	aload_0;
+					aload_1;
+					invokespecial 64;		// be/msec/smartcard/IdentityCard.giveTime(Ljavacard/framework/APDU;)V
+					goto_w L22;
+				L10:	aload_0;
+					aload_1;
+					invokespecial 65;		// be/msec/smartcard/IdentityCard.timeUpdate(Ljavacard/framework/APDU;)V
+					goto_w L22;
+				L11:	aload_0;
+					aload_1;
+					invokespecial 66;		// be/msec/smartcard/IdentityCard.authenticateServiceProvider(Ljavacard/framework/APDU;)V
+					goto L22;
+				L12:	aload_0;
+					aload_1;
+					invokevirtual 67;		// authenticateServiceProviderResponse(Ljavacard/framework/APDU;)V
+					goto L22;
+				L13:	aload_0;
+					aload_1;
+					invokevirtual 68;		// authenticateCard(Ljavacard/framework/APDU;)V
+					goto L22;
+				L14:	aload_0;
+					aload_1;
+					invokespecial 69;		// be/msec/smartcard/IdentityCard.getAttributes(Ljavacard/framework/APDU;)V
+					goto L22;
+				L15:	getfield_a_this 29;		// reference be/msec/smartcard/IdentityCard.remainingData
+					arraylength;
+					newarray 11;
+					astore_3;
+					getfield_a_this 29;		// reference be/msec/smartcard/IdentityCard.remainingData
+					sconst_0;
+					aload_3;
+					sconst_0;
+					getfield_a_this 29;		// reference be/msec/smartcard/IdentityCard.remainingData
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					aload_0;
+					aload_3;
+					aload_1;
+					invokespecial 72;		// be/msec/smartcard/IdentityCard.sendData([BLjavacard/framework/APDU;)V
+					goto L22;
+				L16:	sspush 200;
+					newarray 11;
+					astore 4;
+					sconst_0;
+					sstore 5;
+					goto L18;
+				L17:	aload 4;
+					sload 5;
+					sload 5;
+					s2b;
+					bastore;
+					sinc 5 1;
+				L18:	sload 5;
+					sspush 200;
+					if_scmplt L17;
+				L19:	aload_0;
+					aload 4;
+					aload_1;
+					invokespecial 72;		// be/msec/smartcard/IdentityCard.sendData([BLjavacard/framework/APDU;)V
+					goto L22;
+				L20:	aload_0;
+					aconst_null;
+					putfield_a 30;		// reference be/msec/smartcard/IdentityCard.challenge
+					aload_0;
+					aconst_null;
+					putfield_a 24;		// reference be/msec/smartcard/IdentityCard.subject
+					aload_0;
+					aconst_null;
+					putfield_a 25;		// reference be/msec/smartcard/IdentityCard.Ks
+					aload_0;
+					sconst_0;
+					putfield_b 28;		// boolean be/msec/smartcard/IdentityCard.authenticated
+					getfield_a_this 23;		// reference be/msec/smartcard/IdentityCard.pin
+					invokevirtual 74;		// reset()V
+					goto L22;
+				L21:	sspush 27904;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+				L22:	return;
+		}
+
+		.method private sendData([BLjavacard/framework/APDU;)V {
+			.stack 5;
+			.locals 1;
+
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+				L0:	aload_2;
+					invokevirtual 58;		// getBuffer()[B
+					astore_3;
+					aload_2;
+					invokevirtual 75;		// setOutgoing()S
+					pop;
+					aload_1;
+					arraylength;
+					sspush 255;
+					if_scmple L2;
+				L1:	aload_2;
+					sspush 255;
+					invokevirtual 76;		// setOutgoingLength(S)V
+					aload_1;
+					sconst_0;
+					aload_3;
+					sconst_0;
+					aload_3;
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					aload_2;
+					sconst_0;
+					aload_3;
+					arraylength;
+					invokevirtual 77;		// sendBytes(SS)V
+					aload_2;
+					aload_1;
+					aload_3;
+					arraylength;
+					sspush 255;
+					aload_3;
+					arraylength;
+					ssub;
+					invokevirtual 78;		// sendBytesLong([BSS)V
+					aload_0;
+					aload_1;
+					arraylength;
+					sspush 255;
+					ssub;
+					newarray 11;
+					putfield_a 29;		// reference be/msec/smartcard/IdentityCard.remainingData
+					aload_1;
+					sspush 255;
+					getfield_a_this 29;		// reference be/msec/smartcard/IdentityCard.remainingData
+					sconst_0;
+					getfield_a_this 29;		// reference be/msec/smartcard/IdentityCard.remainingData
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					sspush 25353;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+					goto L5;
+				L2:	aload_3;
+					arraylength;
+					aload_1;
+					arraylength;
+					if_scmple L4;
+				L3:	aload_1;
+					sconst_0;
+					aload_3;
+					sconst_0;
+					aload_1;
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					aload_2;
+					aload_1;
+					arraylength;
+					invokevirtual 76;		// setOutgoingLength(S)V
+					aload_2;
+					sconst_0;
+					aload_1;
+					arraylength;
+					invokevirtual 77;		// sendBytes(SS)V
+					goto L5;
+				L4:	aload_2;
+					aload_1;
+					arraylength;
+					invokevirtual 76;		// setOutgoingLength(S)V
+					aload_1;
+					sconst_0;
+					aload_3;
+					sconst_0;
+					aload_3;
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					aload_2;
+					sconst_0;
+					aload_3;
+					arraylength;
+					invokevirtual 77;		// sendBytes(SS)V
+					aload_2;
+					aload_1;
+					aload_3;
+					arraylength;
+					aload_1;
+					arraylength;
+					aload_3;
+					arraylength;
+					ssub;
+					invokevirtual 78;		// sendBytesLong([BSS)V
+				L5:	return;
 		}
 
 		.method private validatePIN(Ljavacard/framework/APDU;)V {
 			.stack 4;
 			.locals 1;
 
-			.descriptor	Ljavacard/framework/APDU;	0.10;
+			.descriptor	Ljavacard/framework/APDU;	1.10;
 
 				L0:	aload_1;
-					invokevirtual 10;		// getBuffer()[B
+					invokevirtual 58;		// getBuffer()[B
 					astore_2;
 					aload_2;
 					sconst_4;
 					baload;
 					sconst_4;
-					if_scmpne L3;
-				L1:	aload_1;
-					invokevirtual 15;		// setIncomingAndReceive()S
-					pop;
-					getfield_a_this 1;		// reference be/msec/smartcard/IdentityCard.pin
+					if_scmpne L4;
+				L1:	getfield_a_this 23;		// reference be/msec/smartcard/IdentityCard.pin
 					aload_2;
 					sconst_5;
 					sconst_4;
-					invokevirtual 16;		// check([BSB)Z
-					ifne L4;
+					invokevirtual 79;		// check([BSB)Z
+					ifne L3;
 				L2:	sspush 25344;
-					invokestatic 12;		// javacard/framework/ISOException.throwIt(S)V
-					goto L4;
-				L3:	sspush 26368;
-					invokestatic 12;		// javacard/framework/ISOException.throwIt(S)V
-				L4:	return;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+					goto L5;
+				L3:	aload_1;
+					invokevirtual 75;		// setOutgoing()S
+					pop;
+					aload_1;
+					sconst_1;
+					invokevirtual 76;		// setOutgoingLength(S)V
+					aload_1;
+					sconst_1;
+					newarray 11;
+					sconst_0;
+					sconst_1;
+					invokevirtual 78;		// sendBytesLong([BSS)V
+					goto L5;
+				L4:	sspush 26368;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+				L5:	return;
 		}
 
 		.method private getSerial(Ljavacard/framework/APDU;)V {
 			.stack 4;
 			.locals 0;
 
-			.descriptor	Ljavacard/framework/APDU;	0.10;
+			.descriptor	Ljavacard/framework/APDU;	1.10;
 
-				L0:	getfield_a_this 1;		// reference be/msec/smartcard/IdentityCard.pin
-					invokevirtual 17;		// isValidated()Z
+				L0:	getfield_a_this 23;		// reference be/msec/smartcard/IdentityCard.pin
+					invokevirtual 80;		// isValidated()Z
 					ifne L2;
 				L1:	sspush 25345;
-					invokestatic 12;		// javacard/framework/ISOException.throwIt(S)V
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
 					goto L3;
 				L2:	aload_1;
-					invokevirtual 18;		// setOutgoing()S
+					invokevirtual 75;		// setOutgoing()S
 					pop;
 					aload_1;
 					getfield_a_this 0;		// reference be/msec/smartcard/IdentityCard.serial
 					arraylength;
-					invokevirtual 19;		// setOutgoingLength(S)V
+					invokevirtual 76;		// setOutgoingLength(S)V
 					aload_1;
 					getfield_a_this 0;		// reference be/msec/smartcard/IdentityCard.serial
 					sconst_0;
 					getfield_a_this 0;		// reference be/msec/smartcard/IdentityCard.serial
 					arraylength;
-					invokevirtual 20;		// sendBytesLong([BSS)V
+					invokevirtual 78;		// sendBytesLong([BSS)V
 				L3:	return;
+		}
+
+		.method private giveTime(Ljavacard/framework/APDU;)V {
+			.stack 5;
+			.locals 1;
+
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+				L0:	aload_1;
+					invokevirtual 58;		// getBuffer()[B
+					astore_2;
+					aload_2;
+					sconst_5;
+					getfield_a_this 1;		// reference be/msec/smartcard/IdentityCard.time
+					sconst_0;
+					bspush 8;
+					invokestatic 81;		// javacard/framework/Util.arrayCompare([BS[BSS)B
+					sconst_1;
+					if_scmpne L2;
+				L1:	sspush 25346;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+				L2:	aload_0;
+					sconst_1;
+					newarray 11;
+					aload_1;
+					invokespecial 72;		// be/msec/smartcard/IdentityCard.sendData([BLjavacard/framework/APDU;)V
+					return;
+		}
+
+		.method private timeUpdate(Ljavacard/framework/APDU;)V {
+			.stack 7;
+			.locals 4;
+
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+				L0:	aload_1;
+					invokevirtual 58;		// getBuffer()[B
+					astore_2;
+					sconst_4;
+					sspush 512;
+					sconst_0;
+					invokestatic 51;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+					checkcast 0 52;		// T_CLASSORINTERFACE javacard/security/RSAPublicKey
+					astore_3;
+					aload_3;
+					getfield_a_this 3;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_G_EXP
+					sconst_0;
+					getfield_a_this 3;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_G_EXP
+					arraylength;
+					invokeinterface 4 52 6;		// javacard/security/RSAPublicKey
+					aload_3;
+					getfield_a_this 2;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_G_MOD
+					sconst_0;
+					getfield_a_this 2;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_G_MOD
+					arraylength;
+					invokeinterface 4 52 7;		// javacard/security/RSAPublicKey
+					bspush 10;
+					sconst_0;
+					invokestatic 82;		// javacard/security/Signature.getInstance(BZ)Ljavacard/security/Signature;
+					astore 4;
+					aload 4;
+					aload_3;
+					sconst_2;
+					invokevirtual 83;		// init(Ljavacard/security/Key;B)V
+					aload 4;
+					aload_2;
+					sconst_5;
+					bspush 8;
+					aload_2;
+					bspush 13;
+					bspush 64;
+					invokevirtual 84;		// verify([BSS[BSS)Z
+					sstore 5;
+					sload 5;
+					ifeq L2;
+				L1:	aload_2;
+					sconst_5;
+					bspush 8;
+					newarray 11;
+					dup;
+					sconst_4;
+					sconst_5;
+					bastore;
+					dup;
+					sconst_5;
+					bspush 38;
+					bastore;
+					dup;
+					bspush 6;
+					bspush 92;
+					bastore;
+					sconst_0;
+					getfield_a_this 1;		// reference be/msec/smartcard/IdentityCard.time
+					sconst_0;
+					bspush 8;
+					invokestatic 85;		// be/msec/smartcard/IdentityCard.add([BB[BB[BBB)Z
+					pop;
+					aload_0;
+					sconst_1;
+					newarray 11;
+					aload_1;
+					invokespecial 72;		// be/msec/smartcard/IdentityCard.sendData([BLjavacard/framework/APDU;)V
+					goto L3;
+				L2:	sspush 25347;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+				L3:	return;
+		}
+
+		.method private authenticateServiceProvider(Ljavacard/framework/APDU;)V {
+			.stack 7;
+			.locals 15;
+
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+				L0:	aload_1;
+					invokevirtual 58;		// getBuffer()[B
+					astore_2;
+					sspush 160;
+					newarray 11;
+					astore_3;
+					sconst_0;
+					sstore 4;
+					aload_2;
+					sconst_4;
+					baload;
+					sspush 255;
+					sand;
+					sstore 5;
+					sload 5;
+					bspush 55;
+					if_scmpge L2;
+				L1:	sspush 26368;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+				L2:	aload_1;
+					invokevirtual 60;		// setIncomingAndReceive()S
+					sstore 6;
+					goto L4;
+				L3:	aload_2;
+					sconst_5;
+					aload_3;
+					sload 4;
+					sload 6;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					sload 6;
+					sstore 4;
+					sload 5;
+					sload 6;
+					ssub;
+					sstore 5;
+					aload_1;
+					sconst_5;
+					invokevirtual 91;		// receiveBytes(S)S
+					sstore 6;
+				L4:	sload 5;
+					ifgt L3;
+				L5:	bspush 10;
+					sconst_0;
+					invokestatic 82;		// javacard/security/Signature.getInstance(BZ)Ljavacard/security/Signature;
+					astore 7;
+					aload 7;
+					getfield_a_this 9;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_CA
+					sconst_2;
+					invokevirtual 83;		// init(Ljavacard/security/Key;B)V
+					aload 7;
+					aload_3;
+					sconst_0;
+					bspush 96;
+					aload_3;
+					bspush 96;
+					bspush 64;
+					invokevirtual 84;		// verify([BSS[BSS)Z
+					ifne L7;
+				L6:	sspush 25344;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+					return;
+				L7:	bspush 8;
+					newarray 11;
+					astore 8;
+					aload_3;
+					bspush 21;
+					aload 8;
+					sconst_0;
+					bspush 8;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					getfield_a_this 1;		// reference be/msec/smartcard/IdentityCard.time
+					sconst_0;
+					aload 8;
+					sconst_0;
+					bspush 8;
+					invokestatic 81;		// javacard/framework/Util.arrayCompare([BS[BSS)B
+					sconst_m1;
+					if_scmpne L9;
+				L8:	sspush 25360;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+					return;
+				L9:	aload_0;
+					bspush 20;
+					newarray 11;
+					putfield_a 24;		// reference be/msec/smartcard/IdentityCard.subject
+					aload_3;
+					sconst_0;
+					getfield_a_this 24;		// reference be/msec/smartcard/IdentityCard.subject
+					sconst_0;
+					bspush 20;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					aload_0;
+					aload_3;
+					bspush 20;
+					baload;
+					putfield_b 31;		// byte be/msec/smartcard/IdentityCard.type
+					sconst_1;
+					invokestatic 47;		// javacard/security/RandomData.getInstance(B)Ljavacard/security/RandomData;
+					astore 9;
+					bspush 16;
+					newarray 11;
+					astore 10;
+					aload 9;
+					aload 10;
+					sconst_0;
+					bspush 16;
+					invokevirtual 49;		// generateData([BSS)V
+					aload_0;
+					bspush 15;
+					sspush 128;
+					sconst_0;
+					invokestatic 51;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+					checkcast 0 87;		// T_CLASSORINTERFACE javacard/security/AESKey
+					putfield_a 25;		// reference be/msec/smartcard/IdentityCard.Ks
+					getfield_a_this 25;		// reference be/msec/smartcard/IdentityCard.Ks
+					aload 10;
+					sconst_0;
+					invokeinterface 3 87 4;		// javacard/security/AESKey
+					aload_0;
+					bspush 12;
+					newarray 11;
+					putfield_a 30;		// reference be/msec/smartcard/IdentityCard.challenge
+					aload 9;
+					getfield_a_this 30;		// reference be/msec/smartcard/IdentityCard.challenge
+					sconst_0;
+					bspush 12;
+					invokevirtual 49;		// generateData([BSS)V
+					sconst_4;
+					sspush 512;
+					sconst_0;
+					invokestatic 51;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+					checkcast 0 52;		// T_CLASSORINTERFACE javacard/security/RSAPublicKey
+					astore 11;
+					aload 11;
+					aload_3;
+					bspush 29;
+					getfield_a_this 3;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_G_EXP
+					arraylength;
+					invokeinterface 4 52 6;		// javacard/security/RSAPublicKey
+					aload 11;
+					aload_3;
+					bspush 32;
+					getfield_a_this 2;		// reference be/msec/smartcard/IdentityCard.PUBLIC_KEY_G_MOD
+					arraylength;
+					invokeinterface 4 52 7;		// javacard/security/RSAPublicKey
+					bspush 64;
+					newarray 11;
+					astore 12;
+					bspush 10;
+					sconst_0;
+					invokestatic 88;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
+					astore 13;
+					aload 13;
+					aload 11;
+					sconst_2;
+					invokevirtual 89;		// init(Ljavacard/security/Key;B)V
+					aload 13;
+					aload 10;
+					sconst_0;
+					bspush 16;
+					aload 12;
+					sconst_0;
+					invokevirtual 90;		// doFinal([BSS[BS)S
+					pop;
+					getfield_a_this 30;		// reference be/msec/smartcard/IdentityCard.challenge
+					arraylength;
+					getfield_a_this 24;		// reference be/msec/smartcard/IdentityCard.subject
+					arraylength;
+					sadd;
+					newarray 11;
+					astore 14;
+					getfield_a_this 30;		// reference be/msec/smartcard/IdentityCard.challenge
+					sconst_0;
+					aload 14;
+					sconst_0;
+					bspush 12;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					getfield_a_this 24;		// reference be/msec/smartcard/IdentityCard.subject
+					sconst_0;
+					aload 14;
+					bspush 12;
+					bspush 10;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					getfield_a_this 30;		// reference be/msec/smartcard/IdentityCard.challenge
+					arraylength;
+					getfield_a_this 24;		// reference be/msec/smartcard/IdentityCard.subject
+					arraylength;
+					sadd;
+					newarray 11;
+					astore 15;
+					bspush 13;
+					sconst_0;
+					invokestatic 88;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
+					astore 13;
+					aload 13;
+					getfield_a_this 25;		// reference be/msec/smartcard/IdentityCard.Ks
+					sconst_2;
+					invokevirtual 89;		// init(Ljavacard/security/Key;B)V
+					aload 13;
+					aload 14;
+					sconst_0;
+					aload 14;
+					arraylength;
+					aload 15;
+					sconst_0;
+					invokevirtual 90;		// doFinal([BSS[BS)S
+					pop;
+					aload 12;
+					arraylength;
+					aload 15;
+					arraylength;
+					sadd;
+					newarray 11;
+					astore 16;
+					aload 12;
+					sconst_0;
+					aload 16;
+					sconst_0;
+					aload 12;
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					aload 15;
+					sconst_0;
+					aload 16;
+					aload 12;
+					arraylength;
+					aload 15;
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					aload_0;
+					aload 16;
+					aload_1;
+					invokespecial 72;		// be/msec/smartcard/IdentityCard.sendData([BLjavacard/framework/APDU;)V
+					return;
+		}
+
+		.method public authenticateServiceProviderResponse(Ljavacard/framework/APDU;)V 8 {
+			.stack 6;
+			.locals 3;
+
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+				L0:	getfield_a_this 25;		// reference be/msec/smartcard/IdentityCard.Ks
+					ifnull L2;
+				L1:	getfield_a_this 24;		// reference be/msec/smartcard/IdentityCard.subject
+					ifnonnull L3;
+				L2:	sspush 25348;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+					return;
+				L3:	aload_1;
+					invokevirtual 58;		// getBuffer()[B
+					astore_2;
+					bspush 16;
+					newarray 11;
+					astore_3;
+					bspush 13;
+					sconst_0;
+					invokestatic 88;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
+					astore 4;
+					aload 4;
+					getfield_a_this 25;		// reference be/msec/smartcard/IdentityCard.Ks
+					sconst_1;
+					bspush 16;
+					newarray 11;
+					sconst_0;
+					bspush 16;
+					invokevirtual 92;		// init(Ljavacard/security/Key;B[BSS)V
+					aload 4;
+					aload_2;
+					sconst_5;
+					bspush 16;
+					aload_3;
+					sconst_0;
+					invokevirtual 90;		// doFinal([BSS[BS)S
+					pop;
+					aload_3;
+					sconst_1;
+					aload_3;
+					sconst_1;
+					baload;
+					sconst_m1;
+					sxor;
+					bastore;
+					aload_3;
+					sconst_0;
+					getfield_a_this 30;		// reference be/msec/smartcard/IdentityCard.challenge
+					sconst_0;
+					bspush 12;
+					invokestatic 81;		// javacard/framework/Util.arrayCompare([BS[BSS)B
+					ifeq L5;
+				L4:	sspush 25349;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+					return;
+				L5:	aload_0;
+					sconst_1;
+					putfield_b 28;		// boolean be/msec/smartcard/IdentityCard.authenticated
+					aload_0;
+					sconst_0;
+					newarray 11;
+					aload_1;
+					invokespecial 72;		// be/msec/smartcard/IdentityCard.sendData([BLjavacard/framework/APDU;)V
+					return;
+		}
+
+		.method public authenticateCard(Ljavacard/framework/APDU;)V 9 {
+			.stack 6;
+			.locals 11;
+
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+				L0:	getfield_b_this 28;		// boolean be/msec/smartcard/IdentityCard.authenticated
+					ifne L2;
+				L1:	sspush 25348;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+					return;
+				L2:	aload_1;
+					invokevirtual 58;		// getBuffer()[B
+					astore_2;
+					bspush 16;
+					newarray 11;
+					astore_3;
+					bspush 13;
+					sconst_0;
+					invokestatic 88;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
+					astore 4;
+					aload 4;
+					getfield_a_this 25;		// reference be/msec/smartcard/IdentityCard.Ks
+					sconst_1;
+					bspush 16;
+					newarray 11;
+					sconst_0;
+					bspush 16;
+					invokevirtual 92;		// init(Ljavacard/security/Key;B[BSS)V
+					aload 4;
+					aload_2;
+					sconst_5;
+					bspush 16;
+					aload_3;
+					sconst_0;
+					invokevirtual 90;		// doFinal([BSS[BS)S
+					pop;
+					bspush 20;
+					newarray 11;
+					astore 5;
+					aload_3;
+					sconst_0;
+					aload 5;
+					sconst_0;
+					aload_3;
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					sconst_4;
+					newarray 11;
+					dup;
+					sconst_0;
+					bspush 97;
+					bastore;
+					dup;
+					sconst_1;
+					bspush 117;
+					bastore;
+					dup;
+					sconst_2;
+					bspush 116;
+					bastore;
+					dup;
+					sconst_3;
+					bspush 104;
+					bastore;
+					sconst_0;
+					aload 5;
+					aload_3;
+					arraylength;
+					sconst_4;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					sconst_4;
+					sconst_0;
+					invokestatic 93;		// javacard/security/MessageDigest.getInstance(BZ)Ljavacard/security/MessageDigest;
+					astore 6;
+					bspush 64;
+					newarray 11;
+					astore 7;
+					aload 6;
+					aload 5;
+					sconst_0;
+					aload 5;
+					arraylength;
+					aload 7;
+					sconst_0;
+					invokevirtual 94;		// doFinal([BSS[BS)S
+					pop;
+					bspush 32;
+					newarray 11;
+					astore 8;
+					aload 7;
+					sconst_0;
+					aload 8;
+					sconst_0;
+					bspush 32;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					bspush 64;
+					newarray 11;
+					astore 9;
+					bspush 10;
+					sconst_0;
+					invokestatic 82;		// javacard/security/Signature.getInstance(BZ)Ljavacard/security/Signature;
+					astore 10;
+					aload 10;
+					getfield_a_this 10;		// reference be/msec/smartcard/IdentityCard.PRIVATE_KEY_CO
+					sconst_1;
+					invokevirtual 83;		// init(Ljavacard/security/Key;B)V
+					aload 10;
+					aload 8;
+					sconst_0;
+					aload 8;
+					arraylength;
+					aload 9;
+					sconst_0;
+					invokevirtual 95;		// sign([BSS[BS)S
+					pop;
+					sspush 224;
+					newarray 11;
+					astore 11;
+					sspush 224;
+					newarray 11;
+					astore 12;
+					getfield_a_this 8;		// reference be/msec/smartcard/IdentityCard.CERT_CO
+					sconst_0;
+					aload 11;
+					sconst_0;
+					getfield_a_this 8;		// reference be/msec/smartcard/IdentityCard.CERT_CO
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					aload 9;
+					sconst_0;
+					aload 11;
+					getfield_a_this 8;		// reference be/msec/smartcard/IdentityCard.CERT_CO
+					arraylength;
+					aload 9;
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					aload 4;
+					getfield_a_this 25;		// reference be/msec/smartcard/IdentityCard.Ks
+					sconst_2;
+					invokevirtual 89;		// init(Ljavacard/security/Key;B)V
+					aload 4;
+					aload 11;
+					sconst_0;
+					aload 11;
+					arraylength;
+					aload 12;
+					sconst_0;
+					invokevirtual 90;		// doFinal([BSS[BS)S
+					pop;
+					aload_0;
+					aload 12;
+					aload_1;
+					invokespecial 72;		// be/msec/smartcard/IdentityCard.sendData([BLjavacard/framework/APDU;)V
+					return;
+		}
+
+		.method private getAttributes(Ljavacard/framework/APDU;)V {
+			.stack 6;
+			.locals 10;
+
+			.descriptor	Ljavacard/framework/APDU;	1.10;
+
+				L0:	getfield_b_this 28;		// boolean be/msec/smartcard/IdentityCard.authenticated
+					ifne L2;
+				L1:	sspush 25348;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+					return;
+				L2:	getfield_a_this 23;		// reference be/msec/smartcard/IdentityCard.pin
+					invokevirtual 80;		// isValidated()Z
+					ifne L4;
+				L3:	sspush 25345;
+					invokestatic 61;		// javacard/framework/ISOException.throwIt(S)V
+					return;
+				L4:	bspush 64;
+					newarray 11;
+					astore_2;
+					bspush 32;
+					newarray 11;
+					astore_3;
+					bspush 36;
+					newarray 11;
+					astore 4;
+					getfield_a_this 26;		// reference be/msec/smartcard/IdentityCard.Ku
+					sconst_0;
+					aload 4;
+					sconst_0;
+					getfield_a_this 26;		// reference be/msec/smartcard/IdentityCard.Ku
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					getfield_a_this 24;		// reference be/msec/smartcard/IdentityCard.subject
+					sconst_0;
+					aload 4;
+					getfield_a_this 26;		// reference be/msec/smartcard/IdentityCard.Ku
+					arraylength;
+					getfield_a_this 24;		// reference be/msec/smartcard/IdentityCard.subject
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					sconst_4;
+					sconst_0;
+					invokestatic 93;		// javacard/security/MessageDigest.getInstance(BZ)Ljavacard/security/MessageDigest;
+					astore 5;
+					aload 5;
+					aload 4;
+					sconst_0;
+					aload 4;
+					arraylength;
+					aload_2;
+					sconst_0;
+					invokevirtual 94;		// doFinal([BSS[BS)S
+					pop;
+					aload_2;
+					sconst_0;
+					aload_3;
+					sconst_0;
+					bspush 32;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					getfield_b_this 31;		// byte be/msec/smartcard/IdentityCard.type
+					stableswitch L8 0 3 L5 L8 L6 L7;
+				L5:	getfield_a_this 22;		// reference be/msec/smartcard/IdentityCard.WEBSH_RIGHTS
+					astore 6;
+					goto L9;
+				L6:	getfield_a_this 20;		// reference be/msec/smartcard/IdentityCard.SOC_RIGHTS
+					astore 6;
+					goto L9;
+				L7:	getfield_a_this 19;		// reference be/msec/smartcard/IdentityCard.EGOV_RIGHTS
+					astore 6;
+					goto L9;
+				L8:	getfield_a_this 21;		// reference be/msec/smartcard/IdentityCard.DEFAULT_RIGHTS
+					astore 6;
+				L9:	sconst_0;
+					sstore 7;
+					sconst_0;
+					sstore 8;
+					goto L15;
+				L10:	aload 6;
+					sload 8;
+					baload;
+					sstore 9;
+					sload 9;
+					ifeq L14;
+				L11:	sload 8;
+					ifne L13;
+				L12:	sload 7;
+					aload_3;
+					arraylength;
+					sadd;
+					sstore 7;
+					goto L14;
+				L13:	sload 7;
+					aload_0;
+					sload 8;
+					invokespecial 96;		// be/msec/smartcard/IdentityCard.getAttr(S)[B
+					arraylength;
+					sadd;
+					sstore 7;
+				L14:	sinc 8 1;
+				L15:	sload 8;
+					aload 6;
+					arraylength;
+					if_scmplt L10;
+				L16:	sconst_0;
+					sstore 8;
+					sload 7;
+					bspush 16;
+					srem;
+					ifne L18;
+				L17:	sload 7;
+					newarray 11;
+					astore 9;
+					goto L19;
+				L18:	sload 7;
+					bspush 16;
+					sload 7;
+					bspush 16;
+					srem;
+					ssub;
+					sadd;
+					newarray 11;
+					astore 9;
+				L19:	sconst_0;
+					sstore 10;
+					goto L25;
+				L20:	aload 6;
+					sload 10;
+					baload;
+					sstore 11;
+					sload 11;
+					ifeq L24;
+				L21:	sload 10;
+					ifne L23;
+				L22:	aload_3;
+					sconst_0;
+					aload 9;
+					sload 8;
+					aload_3;
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					sload 8;
+					aload_3;
+					arraylength;
+					sadd;
+					sstore 8;
+					goto L24;
+				L23:	aload_0;
+					sload 10;
+					invokespecial 96;		// be/msec/smartcard/IdentityCard.getAttr(S)[B
+					sconst_0;
+					aload 9;
+					sload 8;
+					aload_0;
+					sload 10;
+					invokespecial 96;		// be/msec/smartcard/IdentityCard.getAttr(S)[B
+					arraylength;
+					invokestatic 71;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					sload 8;
+					aload_0;
+					sload 10;
+					invokespecial 96;		// be/msec/smartcard/IdentityCard.getAttr(S)[B
+					arraylength;
+					sadd;
+					sstore 8;
+				L24:	sinc 10 1;
+				L25:	sload 10;
+					aload 6;
+					arraylength;
+					if_scmplt L20;
+				L26:	aload 9;
+					arraylength;
+					newarray 11;
+					astore 10;
+					bspush 13;
+					sconst_0;
+					invokestatic 88;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
+					astore 11;
+					aload 11;
+					getfield_a_this 25;		// reference be/msec/smartcard/IdentityCard.Ks
+					sconst_2;
+					invokevirtual 89;		// init(Ljavacard/security/Key;B)V
+					aload 11;
+					aload 9;
+					sconst_0;
+					aload 9;
+					arraylength;
+					aload 10;
+					sconst_0;
+					invokevirtual 90;		// doFinal([BSS[BS)S
+					pop;
+					aload_0;
+					aload 10;
+					aload_1;
+					invokespecial 72;		// be/msec/smartcard/IdentityCard.sendData([BLjavacard/framework/APDU;)V
+					return;
+		}
+
+		.method private getAttr(S)[B {
+			.stack 1;
+			.locals 0;
+
+				L0:	sload_1;
+					stableswitch L9 0 7 L1 L2 L3 L4 L5 L6 L7 L8;
+				L1:	getfield_a_this 26;		// reference be/msec/smartcard/IdentityCard.Ku
+					areturn;
+				L2:	getfield_a_this 12;		// reference be/msec/smartcard/IdentityCard.name
+					areturn;
+				L3:	getfield_a_this 13;		// reference be/msec/smartcard/IdentityCard.address
+					areturn;
+				L4:	getfield_a_this 14;		// reference be/msec/smartcard/IdentityCard.country
+					areturn;
+				L5:	getfield_a_this 15;		// reference be/msec/smartcard/IdentityCard.birthday
+					areturn;
+				L6:	getfield_a_this 16;		// reference be/msec/smartcard/IdentityCard.age
+					areturn;
+				L7:	getfield_a_this 17;		// reference be/msec/smartcard/IdentityCard.gender
+					areturn;
+				L8:	getfield_a_this 18;		// reference be/msec/smartcard/IdentityCard.picture
+					areturn;
+				L9:	aconst_null;
+					areturn;
+		}
+
+		.method public static add([BB[BB[BBB)Z 1 {
+			.stack 4;
+			.locals 1;
+
+				L0:	sconst_0;
+					sstore 7;
+					sload 6;
+					sconst_1;
+					ssub;
+					s2b;
+					sstore 6;
+					goto L5;
+				L1:	aload_0;
+					sload_1;
+					sload 6;
+					invokestatic 97;		// be/msec/smartcard/IdentityCard.getUnsignedByte([BBB)S
+					aload_2;
+					sload_3;
+					sload 6;
+					invokestatic 97;		// be/msec/smartcard/IdentityCard.getUnsignedByte([BBB)S
+					sadd;
+					sload 7;
+					sadd;
+					sstore 7;
+					aload 4;
+					sload 6;
+					sload 5;
+					sadd;
+					s2b;
+					sload 7;
+					s2b;
+					bastore;
+					sload 7;
+					sspush 255;
+					if_scmple L3;
+				L2:	sconst_1;
+					sstore 7;
+					sload 7;
+					sspush 256;
+					sadd;
+					sstore 7;
+					goto L4;
+				L3:	sconst_0;
+					sstore 7;
+				L4:	sload 6;
+					sconst_1;
+					ssub;
+					s2b;
+					sstore 6;
+				L5:	sload 6;
+					ifge L1;
+				L6:	sload 7;
+					sconst_1;
+					if_scmpne L8;
+				L7:	sconst_0;
+					sreturn;
+				L8:	sconst_1;
+					sreturn;
+		}
+
+		.method private static getUnsignedByte([BBB)S {
+			.stack 3;
+			.locals 0;
+
+				L0:	aload_0;
+					sload_2;
+					sload_1;
+					sadd;
+					baload;
+					sspush 255;
+					sand;
+					sreturn;
 		}
 
 	}

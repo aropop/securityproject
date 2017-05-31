@@ -70,18 +70,18 @@ public class IdentityCard extends Applet {
 	private byte[] serial = new byte[]{0x30, 0x35, 0x37, 0x36, 0x39, 0x30, 0x31, 0x05};
 	private byte[] time = new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 	
-	private final static byte[] PUBLIC_KEY_G_MOD = Data.PUBLIC_KEY_G_MOD;
-	private final static byte[] PUBLIC_KEY_G_EXP = Data.PUBLIC_KEY_G_EXP;
-	private final static byte[] PUBLIC_KEY_CA_MOD = Data.PUBLIC_KEY_CA_MOD;
-	private final static byte[] PUBLIC_KEY_CA_EXP  = Data.PUBLIC_KEY_CA_EXP;
-	private final static byte[] PRIVATE_KEY_CO_MOD = Data.PRIVATE_KEY_CO_MOD;
-	private final static byte[] PRIVATE_KEY_CO_EXP = Data.PRIVATE_KEY_CO_EXP;
+	private final  byte[] PUBLIC_KEY_G_MOD = Data.PUBLIC_KEY_G_MOD;
+	private final  byte[] PUBLIC_KEY_G_EXP = Data.PUBLIC_KEY_G_EXP;
+	private final  byte[] PUBLIC_KEY_CA_MOD = Data.PUBLIC_KEY_CA_MOD;
+	private final  byte[] PUBLIC_KEY_CA_EXP  = Data.PUBLIC_KEY_CA_EXP;
+	private final  byte[] PRIVATE_KEY_CO_MOD = Data.PRIVATE_KEY_CO_MOD;
+	private final  byte[] PRIVATE_KEY_CO_EXP = Data.PRIVATE_KEY_CO_EXP;
 	
-	private final static byte[]CERT_CO = Data.CERT_CO;
+	private final byte[]CERT_CO = Data.CERT_CO;
 	
-	private static RSAPublicKey PUBLIC_KEY_CA = null;
-	private static RSAPrivateKey PRIVATE_KEY_CO = null;
-	private static RSAPublicKey PUBLIC_KEY_CO = null;
+	private RSAPublicKey PUBLIC_KEY_CA = null;
+	private RSAPrivateKey PRIVATE_KEY_CO = null;
+	private RSAPublicKey PUBLIC_KEY_CO = null;
 	
 	private OwnerPIN pin;
 	private byte[] subject;
@@ -93,16 +93,16 @@ public class IdentityCard extends Applet {
 	private RandomData rng;
 	private byte[] remainingData;
 	
-	private final static byte[] name = Data.NAME; private final static short LEN_NAME = 30; // Assume ASCII encoding = 1 byte per char
-	private final static byte[] address = Data.ADDRESS; private final static short LEN_ADDRESS = 50;
-	private final static byte[] country = Data.COUNTRY; private final static short LEN_COUNTRY = 2;
-	private final static byte[] birthday = Data.BIRTHDATE; private final static short LEN_BIRTHDAY = 8;
-	private final static byte[] age = Data.AGE; private final static short LEN_AGE = 3; // Should be calculated
-	private final static byte[] gender = Data.GENDER; private final static short LEN_GENDER = 1;
-	private final static byte[] picture = Data.PICTURE; private final static short LEN_PICUTRE = 10000; // 10kb pictures
+	private final  byte[] name = Data.NAME; private final static short LEN_NAME = 30; // Assume ASCII encoding = 1 byte per char
+	private final  byte[] address = Data.ADDRESS; private final static short LEN_ADDRESS = 50;
+	private final  byte[] country = Data.COUNTRY; private final static short LEN_COUNTRY = 2;
+	private final  byte[] birthday = Data.BIRTHDATE; private final static short LEN_BIRTHDAY = 8;
+	private final  byte[] age = Data.AGE; private final static short LEN_AGE = 3; // Should be calculated
+	private final  byte[] gender = Data.GENDER; private final static short LEN_GENDER = 1;
+	private final  byte[] picture = Data.PICTURE; private final static short LEN_PICUTRE = 10000; // 10kb pictures
 
 	
-	private final byte[][] attributes; 
+	//private final byte[][] attributes; 
 	
 	// Each byte represents a right nym, name, address, country, birthdate, age, gender, picture
 	private boolean[] EGOV_RIGHTS = new boolean[] {true, true, true, true, true, true, true, false};
@@ -128,7 +128,7 @@ public class IdentityCard extends Applet {
 
 		rng = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM); // Secure is unsupoorted in the simulator?
 		rng.generateData(Ku, (short)0,(short)16);
-		attributes = new byte[][] {Ku, name, address, country, birthday, age, gender, picture};
+		//attributes = new byte[][] {Ku, name, address, country, birthday, age, gender, picture};
 		authenticated = false;
 		
 		PUBLIC_KEY_CA = (RSAPublicKey) KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PUBLIC, KeyBuilder.LENGTH_RSA_512, false);
@@ -178,6 +178,10 @@ public class IdentityCard extends Applet {
 		if(this.selectingApplet())
 			return;
 		
+		if(buffer[ISO7816.OFFSET_INS] != AUTHENTICATE_SP) {
+			apdu.setIncomingAndReceive();
+		}
+		
 		//Check whether the indicated class of instructions is compatible with this applet.
 		if (buffer[ISO7816.OFFSET_CLA] != IDENTITY_CARD_CLA)ISOException.throwIt(ISO7816.SW_CLA_NOT_SUPPORTED);
 		//A switch statement is used to select a method depending on the instruction
@@ -221,7 +225,7 @@ public class IdentityCard extends Applet {
 			break;
 			
 		case 0x35:
-			byte[] a = new byte[200];
+			byte[] a = new byte[(short)200];
 			for(short i =0; i < (short) 200; i++) {
 				a[i] = (byte) i;
 			}
@@ -251,7 +255,7 @@ public class IdentityCard extends Applet {
 			Util.arrayCopy(data, (short)0, buffer, (short)0, (short)buffer.length);
 			apdu.sendBytes((short)0, (short) buffer.length);
 			apdu.sendBytesLong(data, (short) buffer.length, (short) (255 - buffer.length));
-			remainingData = new byte[(short) data.length - (short)255];
+			remainingData = new byte[(short) ((short)data.length - (short)255)];
 			Util.arrayCopy(data, (short) 255, remainingData, (short) 0, (short) remainingData.length);
 			ISOException.throwIt(SW_MORE_DATA);
 		} else {
@@ -277,7 +281,6 @@ public class IdentityCard extends Applet {
 		byte[] buffer = apdu.getBuffer();
 		if(buffer[ISO7816.OFFSET_LC]==PIN_SIZE){
 			//This method is used to copy the incoming data in the APDU buffer.
-			apdu.setIncomingAndReceive();
 			if (pin.check(buffer, ISO7816.OFFSET_CDATA,PIN_SIZE)==false)
 				ISOException.throwIt(SW_VERIFICATION_FAILED);
 			else {
@@ -314,7 +317,7 @@ public class IdentityCard extends Applet {
 			// Request time update
 			 ISOException.throwIt(SW_TIME_UPDATE_REQUIRED);
 		}
-		sendData(new byte[]{}, apdu);
+		sendData(new byte[]{0x00}, apdu);
 	}
 	
 	// If time is outdated
@@ -342,7 +345,7 @@ public class IdentityCard extends Applet {
 	// If time is outdated
 	private void authenticateServiceProvider(APDU apdu) {
 		byte[] buffer = apdu.getBuffer();
-		byte[] data = new byte[160];
+		byte[] data = new byte[(short)160];
 		short currentOffset = (short)0;
 		short bytesLeft = (short) (buffer[ISO7816.OFFSET_LC] & 0x00FF);
 		if (bytesLeft < (short)55) ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
@@ -361,7 +364,7 @@ public class IdentityCard extends Applet {
 			return;
 		}
 		
-		byte[] certValidDate = new byte[8];
+		byte[] certValidDate = new byte[(short)8];
 		Util.arrayCopy(data, CERT_VALID_OFFSET, certValidDate, (short) 0, LEN_VALID);
 		if(Util.arrayCompare(time, (short) 0, certValidDate, (short) 0, LEN_VALID) == -1) {
 			ISOException.throwIt(SW_CERTIFICATE_OUTDATED);
@@ -374,13 +377,13 @@ public class IdentityCard extends Applet {
 		
 		// Generate symmetric key
 		RandomData rng = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM); // secure random unsupported on simulator
-		byte[] KsBytes = new byte[16];
+		byte[] KsBytes = new byte[(short)16];
 		rng.generateData(KsBytes, (short)0,(short)16);
 		this.Ks = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_128, false);
 		Ks.setKey(KsBytes, (short) 0);
 		
 		// Create challenge
-		this.challenge = new byte[12]; // 12 such that 20+12 =32 which is dividable by 16 for AES
+		this.challenge = new byte[(short)12]; // 12 such that 20+12 =32 which is dividable by 16 for AES
 		rng.generateData(challenge, (short)0, (short)12);
 		
 		// Create public key object
@@ -389,23 +392,23 @@ public class IdentityCard extends Applet {
 		publicKeySP.setModulus(data, (short)CERT_PUB_MOD_OFFSET, (short)PUBLIC_KEY_G_MOD.length);
 		
 		// Sign symmetric key
-		byte[] KsSigned = new byte[64];
+		byte[] KsSigned = new byte[(short)64];
 		Cipher c = Cipher.getInstance(Cipher.ALG_RSA_PKCS1, false);
 		c.init(publicKeySP, Cipher.MODE_ENCRYPT);
 		c.doFinal(KsBytes, (short)0, (short)16, KsSigned, (short)0);
 		
 		// Sign challenge and subject
-		byte[] combined = new byte[challenge.length + subject.length];
+		byte[] combined = new byte[(short)(challenge.length + subject.length)];
 		Util.arrayCopy(challenge, (short)0, combined, (short)0, (short)12);
 		Util.arrayCopy(subject, (short)0, combined, (short)12, (short)10);
-		byte[] combinedSigned = new byte[challenge.length+subject.length]; 
+		byte[] combinedSigned = new byte[(short)(challenge.length+subject.length)]; 
 		c = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);
 		c.init(this.Ks, Cipher.MODE_ENCRYPT);
 		
 		c.doFinal(combined, (short)0, (short)combined.length, combinedSigned, (short)0);		
 		
 		// Send responses
-		byte[] response = new byte[KsSigned.length+combinedSigned.length];
+		byte[] response = new byte[(short)(KsSigned.length+combinedSigned.length)];
 		Util.arrayCopy(KsSigned, (short)0, response, (short)0, (short)KsSigned.length);
 		Util.arrayCopy(combinedSigned, (short)0, response, (short)KsSigned.length, (short)combinedSigned.length);
 		
@@ -419,13 +422,13 @@ public class IdentityCard extends Applet {
 			return;
 		}
 		byte[] buffer = apdu.getBuffer();
-		byte[] challengeCompare = new byte[16];
+		byte[] challengeCompare = new byte[(short)16];
 		// For some black magical reason, this does not work with AES eventhough this alg is set at the service provider level
 		Cipher cp = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false); 
-		cp.init(Ks, Cipher.MODE_DECRYPT, new byte[16], (short) 0, (short) 16);
+		cp.init(Ks, Cipher.MODE_DECRYPT, new byte[(short)16], (short) 0, (short) 16);
 		cp.doFinal(buffer, ISO7816.OFFSET_CDATA, (short) 16, challengeCompare, (short) 0);
 		
-		challengeCompare[1] = (byte) ~challengeCompare[1];
+		challengeCompare[(short)1] = (byte) ~challengeCompare[(short)1];
 		if(Util.arrayCompare(challengeCompare, (short) 0, this.challenge, (short) 0, (short) 12) != 0) {
 			ISOException.throwIt(SW_CHALLENGE_WRONG);
 			return;
@@ -444,29 +447,29 @@ public class IdentityCard extends Applet {
 		}
 		// Decode challenge from SP
 		byte[] buffer = apdu.getBuffer();
-		byte[] challenge = new byte[16];
+		byte[] challenge = new byte[(short)16];
 		Cipher cp = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);
-		cp.init(Ks, Cipher.MODE_DECRYPT, new byte[16], (short)0, (short)16);
+		cp.init(Ks, Cipher.MODE_DECRYPT, new byte[(short)16], (short)0, (short)16);
 		cp.doFinal(buffer, ISO7816.OFFSET_CDATA, (short) 16, challenge, (short) 0);
 		
-		byte[] challengePlusAuth = new byte[20];
+		byte[] challengePlusAuth = new byte[(short)20];
 		Util.arrayCopy(challenge, (short)0, challengePlusAuth, (short) 0, (short) challenge.length);
 		Util.arrayCopy(new byte[] {0x61, 0x75, 0x74, 0x68}, (short)0, challengePlusAuth, (short) challenge.length, (short) 4);
 		MessageDigest md = MessageDigest.getInstance(MessageDigest.ALG_SHA_256, false);
-		byte[] hash = new byte[64];
+		byte[] hash = new byte[(short)64];
 		md.doFinal(challengePlusAuth, (short) 0, (short) challengePlusAuth.length, hash, (short) 0);
-		byte[] hash32 = new byte[32];
+		byte[] hash32 = new byte[(short)32];
 		Util.arrayCopy(hash, (short) 0, hash32, (short)0, (short)32);
 		
 		// Sign challenge plus "auth" with private key
-		byte[] chAuSigned = new byte[64]; // 
+		byte[] chAuSigned = new byte[(short)64]; // 
 		Signature sign = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1, false);
 		sign.init(PRIVATE_KEY_CO, Signature.MODE_SIGN);
 		sign.sign(hash32, (short) 0, (short) hash32.length, chAuSigned, (short) 0);
 		
 		// Encrypt
-		byte[] signedPlusCert = new byte[160+64]; 
-		byte[] response = new byte[160+64]; 
+		byte[] signedPlusCert = new byte[(short)(160+64)]; 
+		byte[] response = new byte[(short)(160+64)]; 
 		Util.arrayCopy(CERT_CO, (short)0, signedPlusCert, (short) 0, (short) CERT_CO.length); 
 		Util.arrayCopy(chAuSigned, (short)0, signedPlusCert, (short) CERT_CO.length, (short) chAuSigned.length);
 		cp.init(Ks,  Cipher.MODE_ENCRYPT);
@@ -489,9 +492,9 @@ public class IdentityCard extends Applet {
 		//byte[] buffer = apdu.getBuffer();
 		// Ignore query and return all he has rights to
 		
-		byte[] nym64 = new byte[64];
-		byte[] nym = new byte[32];
-		byte[] kuPlusSubject = new byte[LEN_SYM_KEY + LEN_SUBJECT];
+		byte[] nym64 = new byte[(short)64];
+		byte[] nym = new byte[(short)32];
+		byte[] kuPlusSubject = new byte[(short)(LEN_SYM_KEY + LEN_SUBJECT)];
 		Util.arrayCopy(Ku, (short)0, kuPlusSubject, (short) 0, (short) Ku.length);
 		Util.arrayCopy(subject, (short)0, kuPlusSubject, (short) Ku.length, (short) subject.length);
 		
@@ -530,7 +533,7 @@ public class IdentityCard extends Applet {
 					// Nym has special treatment
 					totLen += (short) nym.length;
 				} else {
-					totLen += (short) attributes[i].length;					
+					totLen += (short) getAttr(i).length;					
 				}
 			}
 		}
@@ -541,7 +544,7 @@ public class IdentityCard extends Applet {
 		if((totLen % 16) == 0) {
 			data = new byte[totLen];
 		} else {
-			data = new byte[totLen + (16 - (totLen % 16))];
+			data = new byte[(short)(totLen + (short)(16 - (totLen % 16)))];
 		}
 		for(short i = 0; i < (short) rights.length; i++) {
 			boolean can = rights[i];
@@ -550,19 +553,41 @@ public class IdentityCard extends Applet {
 					Util.arrayCopy(nym, (short)0, data, (short) offset, (short) nym.length);
 					offset += (short) nym.length;
 				} else {
-					Util.arrayCopy(attributes[i], (short)0, data, (short) offset, (short) attributes[i].length);
-					offset += (short) attributes[i].length;
+					Util.arrayCopy(getAttr(i), (short)0, data, (short) offset, (short) getAttr(i).length);
+					offset += (short) getAttr(i).length;
 				}
 			}
 		}
 		
 		
 		// encrypt data
-		byte[] response = new byte[data.length]; 
+		byte[] response = new byte[(short)data.length]; 
 		Cipher cp = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);
 		cp.init(Ks,  Cipher.MODE_ENCRYPT);
 		cp.doFinal(data, (short)0, (short) data.length, response, (short)0);
 		sendData(response, apdu);
+	}
+	
+	private byte[] getAttr(short i) {
+		switch(i) {
+		case 0:
+			return Ku;
+		case 1:
+			return name;
+		case 2:
+			return address;
+		case 3:
+			return country;
+		case 4:
+			return birthday;
+		case 5:
+			return age;
+		case 6: 
+			return gender;
+		case 7:
+			return picture;
+		}
+		return null;
 	}
 	
 	

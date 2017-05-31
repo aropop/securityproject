@@ -7,6 +7,6 @@ select -AID A000000018434D00
 open_sc -security 3 -keyind 0 -keyver 0 -key 47454d5850524553534f53414d504c45 // Open secure channel
 delete -AID 0102030405060708090000
 delete -AID 01020304050607080900
-install -file smartcard.cap -priv 04 -sdAID A000000018434D00 -nvCodeLimit 4000 
+install -file /home/arno/workspace/security/project/git/workspace/JavaCard/GPShell-1.4.4/smartcard.cap -priv 04 -sdAID A000000018434D00 -nvCodeLimit 4000 
 card_disconnect
 release_context

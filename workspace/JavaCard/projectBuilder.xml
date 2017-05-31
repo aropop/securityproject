@@ -2,9 +2,10 @@
 <project>
     <!-- Global properties -->
     <property name="srcDir" value="${basedir}/src"/>
-    <property name="cardDir" value="C:/Users/spartam/Documents/dev/java_card_kit-2_2_2"/>
+    <property name="cardDir" value="/home/arno/workspace/security/wpo/cardsdk/java_card_kit-2_2_2-rr-bin-linux-do/lib"/>
     <property name="targetDir" value="${basedir}/target"/>
 	<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+	<property environment="env"/>
 	
 	<presetdef name="javac">
     	<javac includeantruntime="false" />
@@ -23,6 +24,7 @@
 		<echo>Compiling java files...</echo>
 		<javac source="0.4" target="0.4" destdir="${targetDir}"
                 srcdir="${srcDir}">
+			<exclude name="**/AttributesToBytes.java"/>
 			<classpath>
                 <fileset dir="${cardDir}">
                     <include name="api.jar"/>
@@ -48,8 +50,9 @@
 	
 	<target name="instantiate" depends="copy">
 		<echo>Instantiating applet...</echo>
-		<exec dir="${basedir}/GPShell-1.4.4" executable="gpshell">
-			<arg value="identityCard.txt" />
+		<exec dir="/home/arno/gpshell/bin" resolveexecutable="true" executable="gpshell">
+			<env key="LD_LIBRARY_PATH" value="${user.dir}/gpshell/lib/"/>
+			<arg value="/home/arno/workspace/security/project/git/workspace/JavaCard/GPShell-1.4.4/identityCard.txt" />
 		</exec>
 	</target>
 
