@@ -1,11 +1,13 @@
 \documentclass[12pt]{report}
 
-\renewcommand\thesection{\arabic{section}}
-\setcounter{secnumdepth}{3}
-
 \usepackage{todonotes}
 \usepackage{vub}
 \usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+
+\renewcommand\thesection{\arabic{section}}
+\renewcommand{\tabularxcolumn}[1]{m{#1}}%
 
 \begin{document}
 
@@ -18,50 +20,49 @@
 
 \maketitle
 
-%\listoftodos
-
 \section{Analysis of the Problem Statement and Protocols}
-The current way the Belgian Electronic identity card (eID) nowadays works makes it hard to implement the use of the Belgian eID in commercial activity due to some privacy concerns. The Belgian eID releases the the user's name and national registry number at each authentication which makes you uniquely identifiable. This makes sense when we look at the eID from a government instances where you need them to be identifiable. Think about healthcare and the need to store your medical history as well as law enforcement when receiving a ticket for speeding.
+The current way the Belgian Electronic identity card (eID) nowadays works makes it hard to implement the use of the Belgian eID in commercial activity due to some privacy concerns. The Belgian eID releases the the user's name and national registry number at each authentication which makes him uniquely identifiable. This makes sense when we look at the eID from a government instance point of view where you need your users to be identifiable. Think about healthcare and the need to store your medical history as well as law enforcement when receiving a ticket for speeding.
 
-However, when we take 3rd party applications into account, the release of these attributes becomes a clear issue. When releasing sensitive, uniquely identifiable, information about one self leaves them viable for identity theft. This also allows companies to create data stores where the record the purchase history of each of their customers. This might be useful to the companies to create personal advertisements based on their history. This information has become valuable as personalised advertisement has gained in popularity. However, this information is released at every authentication which causes the customers to be unable to opt-out. If the use of the Belgian eID by 3rd party applications were to become widespread, they would be able to create detailed profiles of their customers. This information could cause harm when fallen in the wrong hands.
+However, when we take 3rd party applications into account, the release of these attributes becomes a clear issue. When releasing sensitive, uniquely identifiable, information about your users, you make them viable for identity theft. This also allows companies to create data stores where they record the purchase history of each of their customers. This might be useful to the companies to create personal advertisements based on their history. This information has become valuable as personalised advertisement has gained in popularity. However, this information is released at every authentication which causes the customers to be unable to opt-out. If the use of the Belgian eID by 3rd party applications were to become widespread, they would be able to create detailed profiles of their customers. This information could cause harm when fallen into the wrong hands.
 
 For this reason, an alternative system has been implemented as part of the project for the course Security in computing. This alternative system focuses on safeguarding the user's privacy. At the same time it tries to answer the questions given to us and analyse our solution. By analysing the project, we hope to explore vulnerabilities and possible attacks our system may fall victim too. In this document, we also discuss solutions for the found vulnerabilities.
 
 \section{Implementation Details}
 The project consists of four major parts: the identity card applet, middleware, service provider and timeserver. Communication between the card and the middleware is done through APDU's. These are 255 byte packets that contain all data send\footnote{\url{https://www.win.tue.nl/pinpasjc/docs/apis/jc222/javacard/framework/APDU.html}}. Communication between other components is done through HTTP. This protocol is chosen because it is an application level protocol, which allows for easy, high-level communication. As webserver we chose for Spark\footnote{\url{http://sparkjava.com/}} and we used Unirest\footnote{\url{http://unirest.io/java.html}} to make simple HTTP calls. These libraries require that the project is run using Java 8. The middleware hosts two webservers: one for requests from the service provider and one for the PIN GUI to the user, the latter should not be accessible from other computers, however this requires system configuration. Because each component has to host its own webserver, different ports are used. A quick overview: timeserver at 4569, service provider overview at 4566, middleware PIN service at 4568 and middleware request handler at 4570.
 
-The implementation is divided in three eclipse projects: Middleware, Javacard and RemoteServices. Remote Services contains the timeserver, service providers and the code that is used to create all certificates. Each of these is in their own package. In the middleware we have a \emph{Main} class and a \emph{Commands}. The first handles all requests and prompts the user with a PIN. The latter handles all communication between to the javacard. A similar structure is used for the service provider. To request data as a service provider, a single interface is created as a website which is hosted localhost at port 4566.\\
+The implementation is divided in three eclipse projects: Middleware, Javacard and RemoteServices. Remote Services contains the timeserver, service providers and the code that is used to create all certificates. Each of these are implemented as their own package. In the middleware we have a \emph{Main} class and a \emph{Commands} class. The first handles all requests and prompts the user with a PIN. The latter handles all communication between, as well as, to the javacard. A similar structure is used for the service provider. To request data as a service provider, a single interface is created as a website which is hosted locally at port 4566.\\
 We defined our own certificate format. Each certificate contains a name, type, valid period and a public key. This is signed by the CA secret key. All asymmetric keys are RSA 512 bit.
 
-The implementation follows the pseudocode which is presented in the project assignment. However, the identity card does not allow for a query, it will release all the attributes that a service provider has the rights to. A service provider can filter certain attributes. This does not introduce any privacy or security concerns as service providers can access these attributes anyway without any extra user interaction.
+The implementation follows the pseudocode which is presented in the project assignment. However, the identity card does not allow for a query, it will release all the attributes that a service provider has the rights to. A service provider can filter certain attributes. This does not introduce any privacy or security concerns since service providers can access these attributes anyway without any extra user interaction.
+
+In the end, when all interaction has been completed, we can safely close the connection to the card by means of a get request to the middelware. This will gracefully terminate the connection.
 
 \section{Evaluation}
 \begin{itemize}
 \item \textbf{What elements are lacking in order to commercialize the system as an alternative for the current eID cards?}\\ 
-CA shzle, code op kaart service
-\todo{Think about it, .. I have no clue at the moment}
+We would require an interface to where service providers can register and retrieve their certificates from. This of course, would have to be a secure platform to prevent certificates from being stolen. Service provides would also need to be approved prior to been given their certificate.
+
+We currently work with self signed certificates meaning that the central authority used in the project is a self signed certificate as well. If the system were to be commercialized, agreements would have to be made to get the central authority to be trusted by modern day browsers or to use an already existing CA.
+
+At the moment, their is no way for the user to change their pin code. This is a feature that must be added before the system could be commercialized. Another feature that is missing is to grant some instances access to certain data in the card without authentication of the eIDs owner. For instant by law enforcement to retrieve information from a eID found at a crime scene or to be able to fine an offender for speeding. This feature would also be useful in health care to be enable healthcare staff to retrieve medical information of an unconscious or disordered patient.
+
+The current Belgian eID has some build in security that disable anyone but the government to perform certain actions. Only the government is able to update the values on the eID card of one of its citizens meaning only the government can change the address of a citizen when he were to move to a new address. At this moment, data can not be updated. We would need to implement a secure update functionality to make sure that no malicious service provider would be able to change data on the card.
 
 \item \textbf{How can you build a certificate chain? What is verified during authentication?}\\
-Every certificate is created by means of a key pair. One public key and a corresponding private key. The root of the chain is the central authority (CA). The CA signs other certificate using his private key. Since the public key is, as the name suggest, is public, everyone is able to check the integrity of the sign. The CA is trusted, therefore all certificates signed with his private key will be trusted as well.
+Every certificate is created by means of a key pair. One public key and a corresponding private key. The root of the chain is the central authority (CA). The CA signs other certificate using his private key. Since the public key is, as the name suggest, public, everyone is able to check the integrity of the sign. The CA is trusted, therefore all certificates signed with his private key will be trusted as well.
 
 Each certificate has again his own public key, secret key pair with which they are able to sign certificates of their own. This way a certificate chain is created which eventually leads back to the CA. On authentication, the whole chain is processed until we reach a certificate signed by the CA
 
 \item \textbf{Storing a common private key on each eID card implies a substantial risk. What risk? How can you mitigate the risk?}\\
 When the private key is stolen in an attack, one may create an eID card for any identity he likes. This is because only the private key is required to determine the validity of the card and the private key is shared among all citizens. this poses a threat to identity theft or the creation of fake identities.
 
-Als er een virus op de pc van de client bolt, kan die zelf een sk opzetten tussen de kaart en hemzelf en tussen de sp en hemzelf. al heeft hij daar wel een certificaat voor nodig 
-virus op de pc kan wel de pin code hacken en gebruiken samen met een gestolen sk om data te stelen
-
-conslusie altijd een gestolen cert nodig
-\todo{Find other vulnerabilities.}
-
 \item \textbf{How is the authentication of the SP to the card realized in the protocol?}\\
 Each service provider (SP) has its own certificate signed by the central authority. The public key of the central authority is know and has been hard coded on the tamper resistant part of the card. The card is therefore able to verify certificates whether or not it has been signed by the central authority. 
 
-The Service provider sends his certificate to the card for authentication. If the card is able to verify that the certificate has been signed by the central authority, we start the second phase of the authentication by means of a challenge. The cards creates a symmetric key $K_S$ and a challenge. the symmetric key is encrypted with the public key of the service provider $PK_{SP}$ while the challenge and the name of the service provider are encrypted with $K_S$  and send back to the service provider. The service provider first decrypts $K_S$ with his private key $PK_{SP}$. After having retrieved $K_S$ he decrypts the challenge and generates a response. This response is encrypted with $K_S$ and send back to the card who will validate the response. The service provider is authenticated if the final response is validated.
+The Service provider sends his certificate to the card for authentication. If the card is able to verify that the certificate has been signed by the central authority, we start the second phase of the authentication by means of a challenge. The cards creates a symmetric key $K_S$ and a challenge. The symmetric key is encrypted with the public key of the service provider $PK_{SP}$ while the challenge and the name of the service provider are encrypted with $K_S$  and send back to the service provider. The service provider first decrypts $K_S$ with his private key $PK_{SP}$. After having retrieved $K_S$ he decrypts the challenge and generates a response. This response is encrypted with $K_S$ and send back to the card who will validate the response. The service provider is authenticated if the final response is validated.
 
 \item \textbf{How can stolen eID cards be revoked? How can the server check the revocation status of eID cards?}\\
-By changing the key pair ($SK_{CO}$ - $PK_{CO}$) and issuing the new public key $PK_{CO}$ to the \textit{Service Providers}, All eID cards would be revoked. This is because all eIDs share the same ($SK_{CO}$ - $PK_{CO}$) key pair. The authentication of the card is accomplished by the \textit{Service Provider} sending a challenge using the previously established symmetric key. The card decrypts the challenge and signs it with $SK_{CO}$ The sign and $Cert_{CO}$ are then encrypted using the same symmetric key and send back to the server. The server will decrypt the message again and check the sign using $PK_{CO}$. If the key pair has changed, the validation will fail because the card used the old $SK_{CO}$ to sign the challenge. This method is however only a defensible solution when $SK_{CO}$ has been stolen. revoking all cards over the theft of one seems to be overkill.
+By changing the key pair ($SK_{CO}$ - $PK_{CO}$) and issuing the new public key $PK_{CO}$ to the \textit{Service Providers}, all eID cards would be revoked. This is because all eIDs share the same ($SK_{CO}$ - $PK_{CO}$) key pair. The authentication of the card is accomplished by the \textit{Service Provider} sending a challenge using the previously established symmetric key. The card decrypts the challenge and signs it with $SK_{CO}$. The sign and $Cert_{CO}$ are then encrypted using the same symmetric key and send back to the server. The server will decrypt the message again and check the sign using $PK_{CO}$. If the key pair has changed, the validation will fail because the card used the old $SK_{CO}$ to sign the challenge. This method is however only a defensible solution when $SK_{CO}$ has been stolen. revoking all cards over the theft of one seems to be overkill.
 
 The government could hold a revocation list with the uniquely identifiable information of the revoked identity cards and the date of revocation. If we change the way the time stamp is requested by demanding the uniquely identifiable information when a new time stamp is requested, the government server would be able to check whether or not he's present in the revocation list. If we add the date when the card has been issued on the card, we are able to check if the card is the old or stolen revoked card, or the new card issued after the previous card has been revoked.
 
@@ -69,14 +70,17 @@ The government could hold a revocation list with the uniquely identifiable infor
 We could expand the Government Server to include a certificate revocation list storing the certificates that have been revoked. When the card is in the process of authenticating the certificate, he first send the certificate to the Government Server who will look up the certificate in the certificate revocation list. If present, the authentication of the \textit{Service Provider} will fail.
 
 \item \textbf{How can you transfer the data of the current Belgian eID card securely to the new eID card? Can the government mediate in this process?}\\
-The Belgian eID expires every five year, forcing the owner to renew his identity card. The way the renewal if your eID works is that your local city hall informs you when your new eID is available at to be retrieved. This means that the government already transfers the data to a new card at five year intervals. When a new eID systems would be taken into use, the government could mediate this process by simply handing over the new type eID upon renewal. This process could be sped up by forcing the population to renew their eID more quickly.
+The Belgian eID expires every five year, forcing the owner to renew his electronic identity card. The way the renewal of your eID works is that your local city hall informs you when your new eID is available at to be retrieved. This means that the government already transfers the data to a new card at five year intervals. When a new eID system would be taken into use, the government could mediate this process by simply handing over the new type eID upon renewal. This process could be sped up by forcing the population to renew their eID more quickly.
 
 \item \textbf{Give a short performance analysis. What is the authentication time of the new eID? Is this acceptable? What are possible bottlenecks?}\\
 When data is requested from the service provider, it takes about two seconds before the user receives a request to enter their PIN where they can see which data is requested. In this time the service provider has authenticated itself and the card and has send a request for the attributes. Once the PIN is entered it takes one second before the attributes are shown. However, this is because everything is ran on a localhost. In real-time environment, one should consider the delay of HTTP calls. However when using an adequate fast server and connection this should not be a usability issue. The bottleneck is thus the delay caused by HTTP calls.\\
-The performance of the card is currently only tested using the emulator, which provides instant execution of the applet and the requests send. \todo{Kaart issues misschien?}
+
+Their is a substantial difference in authentication time between the emulator and the actual card, with the card being slower. The emulator provided instant execution of the applet and causing no delay in sending the HTTP requests. However, when using the actual card more data transfers have to be performed causing a delay when running the code before sending the HTTP requests. The amount of data is a big factor in the time required to perform a certain action. EIDs contain a passport photo of the eID's owner. This is big enough to cause delays in in the communication process. A way around this is to use the authentication with the card to create a secure connection between the service provider and a government server containing the data. Data would then be send over HTTP from a government database instead of being read from the card.
+
+The authentication time with the card in its current architecture were deemed unacceptable for ever day use with regards to current existing solutions and standards.
 
 \item \textbf{Assume that no secure random generator is available on the smart card. How to set up a secure communication channel?}\\
-The \textit{Service Provider} authenticates to the card by sending its certificate. The card will initiate the handshake in order to create a secure communication channel when the certificate is valid. If the card would not have a any way of creating a random number, the card could reply with a message to the Service provider to inform him that he is allowed to initiate the handshake. Alternatively, the \textit{Service Provider} could initiate the handshake and send this information along with the certificate upon authenticating. When the card successfully authenticates the \textit{Service Provider} he solves the challenge and replies with the new challenge to complete the handshake.
+The \textit{Service Provider} authenticates to the card by sending its certificate. The card will initiate the handshake in order to create a secure communication channel when the certificate is valid. If the card would not have a  way of creating a random number, the card could reply with a message to the Service Provider to inform him that he is allowed to initiate the handshake. Alternatively, the \textit{Service Provider} could initiate the handshake and send this information along with the certificate upon authenticating. When the card successfully authenticates the \textit{Service Provider} he solves the challenge and replies with the new challenge to complete the handshake.
 
 \item \textbf{How to prevent that malicious service providers can steal data on the card?}\\
 We can encrypt the data using the common public key of the eIDs $PK_{CO}$. Only the eIDs, containing the corresponding private key $SK_{CO}$ are able to decrypt the data. The card only decrypts the data to which the service provider has access. This is a theoretical solution which has not been implemented in the current project.
@@ -86,15 +90,31 @@ We start off by analysing all communications between the card and other servers 
 
 The first step is to contact the government server to get a time stamp. The time stamp is encrypted with the private key of the government server. Everyone is therefore able to decrypt the message using the know public key but it is impossible to fake the response as the private key remains unknown to all but the government server.
 
-The second step is to authenticate the service provider. This also consists of multiple phases. First of all, the service provider send his certificate which has been signed by the Central authority. This certificate is send without encryption. Since the certificate is publicly available, this is not an issue.
-In the second phase, a challenge and symmetric key are created and send back to the service provider. The challenge is encrypted by the symmetric key while the symmetric key is encrypted with the public key of the service provider. Only the service provider is able to decrypt the symmetric key with his private key. Therefore only the service provider is able to decrypt the challenge. All further communication is encrypted with the symmetric key. Since the service provider was the only one able to send decrypt the symmetric key, all communication is safe.
+The second step is to authenticate the service provider. This also consists of multiple phases. First of all, the service provider send his certificate which has been signed by the Central Authority. This certificate is send without encryption. Since the certificate is publicly available, this is not an issue.
+In the second phase, a challenge and symmetric key are created and send back to the service provider. The challenge is encrypted by the symmetric key while the symmetric key is encrypted with the public key of the service provider. Only the service provider is able to decrypt the symmetric key with his private key. Therefore only the service provider is able to decrypt the challenge. All further communication is encrypted with the symmetric key. Since the service provider was the only one able to decrypt the symmetric key, all communication is safe.
 
-All communication in steps three and four are encrypted with the symmetric transferred in step 2. Since we already concluded that the symmetric key could not be intercepted by anyone else but the service provider, we deem the communication channel to be safe.
+All communication in steps three and four are encrypted with the symmetric transferred in step two. Since we already concluded that the symmetric key could not be intercepted by anyone else but the Service Provider, we deem the communication channel to be safe.
 
 We therefore conclude man-in-the-middle attacks to be impossible.
 
 \item \textbf{Compare the Belgian eID card to the alternative eID card. Give a table with differences related to security and privacy.}\\
-\todo{lecture 5}
+
+\begin{tabularx}{\textwidth}{|X|X|X|}
+\hline
+& \textbf{Current eID Card} & \textbf{Project eID Card}\\
+\hline
+\textbf{Certificates} & Certificate per person & Common certificate for whole population \\
+\hline
+\textbf{Certificates usage} & Different certificate for each functionality: Sign, Authorize, Identity file. & One shared certificate for all functionalities.\\
+\hline
+\textbf{Certificate attributes} & Sensitive, private information about the card's owner. & No personal information.\\
+\hline
+\textbf{Data access} & Everyone full access. & Service provider specific access.
+\\
+\hline
+\textbf{Data Update} & Can only be done by the government. & Can not be done at all.\\
+\hline
+\end{tabularx}
 
 \end{itemize}
 
@@ -106,11 +126,11 @@ This way, private information could be stolen by an attacker.\\
 \textbf{Common eID Private Key}\\
 If the common private key of the eIDs were to be stolen, one would be able to create eIDs at will. This would enable the attacker to steal identities without anyone being aware of the theft. They would also be able to create new identities at will.\\
 \textbf{Service Provider}\\
-If the private key of the service provider would be stolen, a man-in-the-middle attack would be possible due to the ability to intercept the communication in phase 2 of the service provider authentication step.
+If the private key of the service provider would be stolen, a man-in-the-middle attack would be possible due to the ability to intercept the communication in phase two of the service provider authentication step.
 
 \section{Future Work}
-At the moment the age is a static filed on the card. Since the card also knows the date of birth of the user, age can be calculated using the current date. In order to this, the threshold of the last validation time may not exceed 24 hours. An other work around is to make the card contact the government server regardless the last validation time if the last validation time was less then threshold time away from the users birthday.
+At the moment the age is a static filed on the card. Since the card also knows the date of birth of the user, age can be calculated using the current date. In order to this, the threshold of the last validation time may not exceed 24 hours. An other work around is to make the card contact the government server regardless the last validation time if the last validation time was less than the threshold time away from the users birthday.
 
-All calls are done through HTTP, however to be secure and avoid man in the middle attacks, HTTPS should be implemented. However, to make this usable, a certificate signed by a certificate authority is needed. It is possible to make self signed certificates and add them manually in a browser, however this requires that each users adds this to the browser. We decided that this was out the scope of this project. It is however very simple to implement as it only requires that the certificate and key are passed to the Spark webserver.
+All calls are done through HTTP, however to be secure and avoid man-in-the-middle attacks, HTTPS should be implemented. However, to make this usable, a certificate signed by a certificate authority is needed. It is possible to make self signed certificates and add them manually in a browser, however this requires that each users adds this to his browser. We decided that this was out the scope of this project. It is however very simple to implement as it only requires that the certificate and key are passed to the Spark webserver.
 
 \end{document}
